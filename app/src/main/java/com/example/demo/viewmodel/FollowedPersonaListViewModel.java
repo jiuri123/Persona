@@ -5,29 +5,38 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
+import com.example.demo.repository.FollowedPersonaRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 关注角色ViewModel类
  * 负责管理关注列表
  * 使用LiveData观察数据变化，通知UI更新
+ * 通过Repository模式管理数据，确保数据一致性
  */
 public class FollowedPersonaListViewModel extends ViewModel {
 
-    // LiveData对象，用于观察关注列表变化
-    private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
+    // 关注角色数据仓库
+    private final FollowedPersonaRepository repository;
     
     // LiveData对象，用于观察错误消息
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
+
+    /**
+     * 构造函数
+     * 初始化Repository实例
+     */
+    public FollowedPersonaListViewModel() {
+        repository = FollowedPersonaRepository.getInstance();
+    }
 
     /**
      * 获取关注角色列表LiveData
      * @return 关注角色列表的LiveData对象
      */
     public LiveData<List<Persona>> getFollowedPersonas() {
-        return followedPersonasLiveData;
+        return repository.getFollowedPersonas();
     }
     
     /**
@@ -48,47 +57,19 @@ public class FollowedPersonaListViewModel extends ViewModel {
     /**
      * 添加关注角色
      * @param persona 要关注的角色
+     * @return 如果成功添加返回true，如果已关注则返回false
      */
-    public void addFollowedPersona(Persona persona) {
-        // 获取当前关注列表
-        List<Persona> currentList = followedPersonasLiveData.getValue();
-        if (currentList == null) {
-            currentList = new ArrayList<>();
-        }
-        
-        // 检查是否已经关注
-        boolean alreadyFollowed = false;
-        for (Persona p : currentList) {
-            if (p.getName().equals(persona.getName())) {
-                alreadyFollowed = true;
-                break;
-            }
-        }
-        
-        // 如果未关注，则添加到列表
-        if (!alreadyFollowed) {
-            currentList.add(persona);
-            followedPersonasLiveData.setValue(currentList);
-        }
+    public boolean addFollowedPersona(Persona persona) {
+        return repository.addFollowedPersona(persona);
     }
 
     /**
      * 移除关注角色
      * @param persona 要移除的角色
+     * @return 如果成功移除返回true，如果未关注则返回false
      */
-    public void removeFollowedPersona(Persona persona) {
-        // 获取当前关注列表
-        List<Persona> currentList = followedPersonasLiveData.getValue();
-        if (currentList != null) {
-            // 查找并移除指定角色
-            for (int i = 0; i < currentList.size(); i++) {
-                if (currentList.get(i).getName().equals(persona.getName())) {
-                    currentList.remove(i);
-                    followedPersonasLiveData.setValue(currentList);
-                    break;
-                }
-            }
-        }
+    public boolean removeFollowedPersona(Persona persona) {
+        return repository.removeFollowedPersona(persona);
     }
 
     /**
@@ -97,16 +78,15 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 如果已关注返回true，否则返回false
      */
     public boolean isFollowingPersona(Persona persona) {
-        List<Persona> currentList = followedPersonasLiveData.getValue();
-        if (currentList == null) {
-            return false;
-        }
-        
-        for (Persona p : currentList) {
-            if (p.getName().equals(persona.getName())) {
-                return true;
-            }
-        }
-        return false;
+        return repository.isFollowingPersona(persona);
+    }
+    
+    /**
+     * 根据名称检查是否已关注
+     * @param personaName 要检查的角色名称
+     * @return 如果已关注返回true，否则返回false
+     */
+    public boolean isFollowingPersonaByName(String personaName) {
+        return repository.isFollowingPersonaByName(personaName);
     }
 }

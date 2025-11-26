@@ -156,6 +156,17 @@ public class SocialSquareFragment extends Fragment {
                 binding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮
             }
         });
+        
+        // 观察关注列表的变化，当关注列表更新时刷新适配器
+        followedPersonaListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<com.example.demo.model.Persona>>() {
+            @Override
+            public void onChanged(List<com.example.demo.model.Persona> followedPersonas) {
+                // 当关注列表发生变化时，通知适配器更新所有项目的关注状态
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     /**

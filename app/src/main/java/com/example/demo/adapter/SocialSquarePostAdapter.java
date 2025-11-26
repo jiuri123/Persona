@@ -20,8 +20,6 @@ import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
 
 // Markwon库用于在Android中渲染Markdown文本
 import io.noties.markwon.Markwon;
@@ -46,9 +44,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private SharedViewModel sharedViewModel;
     // ViewModel，用于处理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
-
-    // 已关注的作者集合，用于快速判断是否已关注
-    private Set<String> followedAuthors = new HashSet<>();
 
     /**
      * 构造函数
@@ -206,30 +201,24 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
 
             String authorName = author.getName();
 
-            // 检查是否已关注该作者
-            boolean isFollowed = followedAuthors.contains(authorName);
+            // 通过ViewModel检查是否已关注该作者
+            boolean isFollowed = followedPersonaListViewModel != null && 
+                               followedPersonaListViewModel.isFollowingPersonaByName(authorName);
             updateButtonState(isFollowed);
 
             // 设置关注按钮的点击事件
             binding.btnFollow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (followedAuthors.contains(authorName)) {
-                        // 如果已关注，则取消关注
-                        followedAuthors.remove(authorName);
-                        updateButtonState(false);
+                    if (followedPersonaListViewModel != null) {
+                        // 通过ViewModel检查当前关注状态
+                        boolean currentlyFollowed = followedPersonaListViewModel.isFollowingPersonaByName(authorName);
                         
-                        // 通过ViewModel更新数据
-                        if (followedPersonaListViewModel != null) {
+                        if (currentlyFollowed) {
+                            // 如果已关注，则取消关注
                             followedPersonaListViewModel.removeFollowedPersona(author);
-                        }
-                    } else {
-                        // 如果未关注，则添加关注
-                        followedAuthors.add(authorName);
-                        updateButtonState(true);
-                        
-                        // 通过ViewModel更新数据
-                        if (followedPersonaListViewModel != null) {
+                        } else {
+                            // 如果未关注，则添加关注
                             followedPersonaListViewModel.addFollowedPersona(author);
                         }
                     }
