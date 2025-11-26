@@ -26,7 +26,7 @@ import java.util.List;
  * 显示用户已关注的Persona列表
  * 使用ViewModel管理数据，通过LiveData观察数据变化
  */
-public class FollowedPersonaListFragment extends Fragment {
+public class FollowedListFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentFollowedListBinding binding;
@@ -38,7 +38,7 @@ public class FollowedPersonaListFragment extends Fragment {
     private List<Persona> followedPersonaList;
 
     // 默认构造函数
-    public FollowedPersonaListFragment() {
+    public FollowedListFragment() {
     }
 
     /**

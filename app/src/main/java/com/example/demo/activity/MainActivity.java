@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.demo.fragment.FollowedPersonaListFragment;
+import com.example.demo.fragment.FollowedListFragment;
 import com.example.demo.fragment.MyPersonaFragment;
 import com.example.demo.model.Persona;
 import com.example.demo.fragment.MyProfileFragment;
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private SocialSquareFragment socialSquareFragment;
     private MyPersonaFragment myPersonaFragment;
     private MyProfileFragment myProfileFragment;
-    private FollowedPersonaListFragment followedPersonaListFragment;
+    private FollowedListFragment followedListFragment;
     
     // 视图绑定，用于替代findViewById，提高性能和类型安全
     private ActivityMainBinding binding;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         socialSquareFragment = new SocialSquareFragment();
         myPersonaFragment = new MyPersonaFragment();
         myProfileFragment = new MyProfileFragment();
-        followedPersonaListFragment = new FollowedPersonaListFragment();
+        followedListFragment = new FollowedListFragment();
         
         // 默认加载社交广场Fragment
         loadFragment(socialSquareFragment, TAG_SOCIAL);
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(socialSquareFragment, TAG_SOCIAL);
                     return true;
                 } else if (itemId == R.id.nav_followed_list) {
-                    loadFragment(followedPersonaListFragment, TAG_FOLLOWED);
+                    loadFragment(followedListFragment, TAG_FOLLOWED);
                     return true;
                 } else if (itemId == R.id.nav_my_persona) {
                     loadFragment(myPersonaFragment, TAG_PERSONA);

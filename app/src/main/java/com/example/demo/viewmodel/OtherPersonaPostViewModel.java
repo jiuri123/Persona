@@ -14,7 +14,7 @@ import java.util.List;
  * 负责获取和展示社交动态列表
  * 遵循MVVM架构模式，负责UI与数据之间的交互
  */
-public class SocialSquarePostViewModel extends ViewModel {
+public class OtherPersonaPostViewModel extends ViewModel {
 
     // 社交数据仓库和社交动态LiveData
     private final OtherPersonaPostRepository otherPersonaPostRepository;
@@ -24,7 +24,7 @@ public class SocialSquarePostViewModel extends ViewModel {
      * 构造函数
      * 初始化社交数据仓库和LiveData
      */
-    public SocialSquarePostViewModel() {
+    public OtherPersonaPostViewModel() {
         otherPersonaPostRepository = new OtherPersonaPostRepository();
         socialPostsLiveData = otherPersonaPostRepository.getSocialPosts();
     }

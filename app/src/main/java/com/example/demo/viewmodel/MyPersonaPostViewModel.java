@@ -13,7 +13,7 @@ import com.example.demo.repository.MyPersonaPostRepository;
  * 使用PostRepository处理API调用
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class PostGenerationViewModel extends ViewModel {
+public class MyPersonaPostViewModel extends ViewModel {
 
     // Post数据仓库
     private final MyPersonaPostRepository myPersonaPostRepository;
@@ -22,7 +22,7 @@ public class PostGenerationViewModel extends ViewModel {
      * 构造函数
      * 初始化PostRepository实例
      */
-    public PostGenerationViewModel() {
+    public MyPersonaPostViewModel() {
         this.myPersonaPostRepository = new MyPersonaPostRepository();
     }
 

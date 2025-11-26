@@ -16,10 +16,9 @@ import androidx.lifecycle.Observer;
 
 import com.example.demo.repository.OtherPersonaPostRepository;
 import com.example.demo.model.Post;
-import com.example.demo.model.Persona;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
-import com.example.demo.viewmodel.PostGenerationViewModel;
+import com.example.demo.viewmodel.MyPersonaPostViewModel;
 import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
@@ -40,7 +39,7 @@ public class SocialSquareFragment extends Fragment {
     // 帖子数据列表
     private List<Post> postList;
     // ViewModel，用于管理动态生成
-    private PostGenerationViewModel postGenerationViewModel;
+    private MyPersonaPostViewModel myPersonaPostViewModel;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
     // Repository，用于管理帖子数据
@@ -62,19 +61,19 @@ public class SocialSquareFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // 获取与Activity关联的ViewModel实例
-        postGenerationViewModel = new ViewModelProvider(requireActivity()).get(PostGenerationViewModel.class);
+        myPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(MyPersonaPostViewModel.class);
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
         
         // 初始化Repository
         postRepository = new OtherPersonaPostRepository();
 
         // 观察错误信息，当有错误时显示Toast
-        postGenerationViewModel.getError().observe(this, new Observer<String>() {
+        myPersonaPostViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    postGenerationViewModel.clearError(); // 清除错误信息
+                    myPersonaPostViewModel.clearError(); // 清除错误信息
                 }
             }
         });
@@ -115,7 +114,7 @@ public class SocialSquareFragment extends Fragment {
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
-        adapter.setPostGenerationViewModel(postGenerationViewModel);
+        adapter.setPostGenerationViewModel(myPersonaPostViewModel);
         adapter.setSharedViewModel(SharedViewModel.getInstance());
         adapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
         binding.rvSocialSquare.setAdapter(adapter);
@@ -128,7 +127,7 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 通过ViewModel生成新帖子，不再需要传递当前用户Persona
-                postGenerationViewModel.generateNewPost();
+                myPersonaPostViewModel.generateNewPost();
             }
         });
     }
@@ -140,7 +139,7 @@ public class SocialSquareFragment extends Fragment {
     private void setupViewObservers() {
 
         // 观察新帖子的LiveData，当有新帖子时添加到列表顶部
-        postGenerationViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {
+        myPersonaPostViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {
             @Override
             public void onChanged(Post newPost) {
                 if (newPost != null && adapter != null) {
@@ -151,7 +150,7 @@ public class SocialSquareFragment extends Fragment {
         });
 
         // 观察加载状态，根据加载状态启用或禁用添加按钮
-        postGenerationViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        myPersonaPostViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 binding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮
