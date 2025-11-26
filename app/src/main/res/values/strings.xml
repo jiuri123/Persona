@@ -1,5 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 应用程序名称，显示在启动器和应用标题栏 -->
     <string name="app_name">Persona</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    
+    <!-- 默认的Fragment占位文本，用于开发测试阶段 -->
+    <!-- 在实际应用中应替换为有意义的文本或删除此字符串 -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

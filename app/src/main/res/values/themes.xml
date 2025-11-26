@@ -1,9 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- 
+    应用程序的基础主题，用于日间模式
+    继承自Material Design 3的DayNight.NoActionBar主题，支持自动切换日间/夜间模式
+    NoActionBar表示不使用默认的ActionBar，适合使用Toolbar的自定义布局
+    -->
     <style name="Base.Theme.Demo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
+        <!-- 在此自定义日间主题的颜色属性 -->
+        <!-- 取消注释并设置自定义的主色调 -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
+    <!-- 
+    应用程序的实际主题，继承自Base.Theme.Demo
+    这个主题会被应用到应用程序的Activity中
+    -->
     <style name="Theme.Demo" parent="Base.Theme.Demo" />
 </resources>

@@ -1,7 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- 
+    应用程序的基础主题，用于夜间模式
+    当系统切换到夜间模式时，Android会自动使用values-night目录下的主题资源
+    这使得应用可以自动适应系统的日间/夜间模式设置
+    -->
     <style name="Base.Theme.Demo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
+        <!-- 在此自定义夜间主题的颜色属性 -->
+        <!-- 取消注释并设置适合夜间模式的主色调 -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
 </resources>

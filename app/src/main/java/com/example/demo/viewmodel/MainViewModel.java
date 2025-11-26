@@ -8,7 +8,7 @@ import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.network.ApiClient;
 import com.example.demo.network.ApiService;
-import com.example.demo.network.ChatApiMessage;
+import com.example.demo.network.ChatRequestMessage;
 import com.example.demo.network.ChatRequest;
 import com.example.demo.network.ChatResponse;
 
@@ -23,70 +23,115 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * 主ViewModel类
+ * 管理应用的主要数据和操作
+ * 负责用户角色管理、动态生成和关注列表管理
+ * 使用LiveData观察数据变化，通知UI更新
+ */
 public class MainViewModel extends ViewModel {
 
+    // API密钥和模型名称常量
     private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
     private static final String MODEL_NAME = "moonshot-v1-8k";
+    
+    // 网络服务和随机数生成器
     private final ApiService apiService;
     private final Random random = new Random();
 
+    // LiveData对象，用于观察数据变化
     private final MutableLiveData<Persona> userPersonaLiveData = new MutableLiveData<>(null);
     private final MutableLiveData<Post> newPostLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
+    /**
+     * 构造函数
+     * 初始化API服务实例
+     */
     public MainViewModel() {
         this.apiService = ApiClient.getApiService();
     }
 
+    /**
+     * 获取新动态LiveData
+     * @return 新动态的LiveData对象
+     */
     public LiveData<Post> getNewPostLiveData() {
         return newPostLiveData;
     }
 
+    /**
+     * 获取关注角色列表LiveData
+     * @return 关注角色列表的LiveData对象
+     */
     public LiveData<List<Persona>> getFollowedPersonas() {
         return followedPersonasLiveData;
     }
 
+    /**
+     * 获取加载状态LiveData
+     * @return 加载状态的LiveData对象
+     */
     public LiveData<Boolean> getIsLoading() {
         return isLoadingLiveData;
     }
 
+    /**
+     * 获取错误信息LiveData
+     * @return 错误信息的LiveData对象
+     */
     public LiveData<String> getError() {
         return errorLiveData;
     }
 
+    /**
+     * 设置用户角色
+     * @param persona 用户角色对象
+     */
     public void setUserPersona(Persona persona) {
         userPersonaLiveData.setValue(persona);
     }
 
+    /**
+     * 生成新动态
+     * 调用AI API生成基于用户角色的社交媒体动态
+     */
     public void generateNewPost() {
+        // 获取当前用户角色
         Persona currentUser = userPersonaLiveData.getValue();
         if (currentUser == null) {
             errorLiveData.setValue("请先在 '我的 Persona' 标签页中创建一个人设");
             return;
         }
 
+        // 如果正在加载，则不执行新的请求
         if (Boolean.TRUE.equals(isLoadingLiveData.getValue())) {
             return;
         }
+        
+        // 设置加载状态为true
         isLoadingLiveData.setValue(true);
 
+        // 系统提示，要求AI返回特定格式的JSON
         String systemPrompt = "你是一个社交媒体动态生成器。" +
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"content\": \"[生成的动态正文，必须包含Markdown格式，如**粗体**、*斜体*、~~删除线~~、列表等]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
 
+        // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
         boolean useEnglish = random.nextBoolean();
         String languageInstruction = useEnglish ? 
                 "请用英文写这条动态。" : 
                 "请用中文写这条动态。";
         
+        // 用户提示，包含角色信息和动态要求
         String userPrompt = "请你扮演以下角色：" +
-                "名称: " + currentUser.getName() + "" +
-                "简介: " + currentUser.getBio() + "" +
-                "背景故事: " + currentUser.getBackgroundStory() + "" +
+                "名称: " + currentUser.getName() + "\n" +
+                "简介: " + currentUser.getBio() + "\n" +
+                "背景故事: " + currentUser.getBackgroundStory() + "\n" +
                 "请用这个角色的口吻，写一条全新的、有趣的社交媒体动态。" +
                 languageInstruction +
                 "这条动态必须包含以下Markdown格式中的至少3种：" +
@@ -98,22 +143,31 @@ public class MainViewModel extends ViewModel {
                 "6. `代码` (用`代码`表示)" +
                 "(请求编号: " + randomNumber + ")";
 
-        List<ChatApiMessage> apiHistory = new ArrayList<>();
-        apiHistory.add(new ChatApiMessage("system", systemPrompt));
-        apiHistory.add(new ChatApiMessage("user", userPrompt));
+        // 构建API请求历史
+        List<ChatRequestMessage> apiHistory = new ArrayList<>();
+        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+        apiHistory.add(new ChatRequestMessage("user", userPrompt));
+        
+        // 创建聊天请求
         ChatRequest request = new ChatRequest(MODEL_NAME, apiHistory);
 
+        // 异步调用API
         apiService.getChatCompletion(API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+                // 请求完成，设置加载状态为false
                 isLoadingLiveData.postValue(false);
+                
                 if (response.isSuccessful() && response.body() != null) {
+                    // 获取AI返回的内容
                     String aiContent = response.body().getFirstMessageContent();
                     if (aiContent != null) {
                         try {
+                            // 解析JSON响应
                             JSONObject jsonResponse = new JSONObject(aiContent);
                             String postContent = jsonResponse.getString("content");
 
+                            // 创建新的Post对象
                             Post newPost = new Post(
                                     currentUser,
                                     postContent,
@@ -121,37 +175,52 @@ public class MainViewModel extends ViewModel {
                                     "刚刚"
                             );
 
+                            // 更新LiveData，通知UI更新
                             newPostLiveData.postValue(newPost);
 
                         } catch (JSONException e) {
+                            // JSON解析错误
                             errorLiveData.postValue("AI 返回的数据格式错误");
                         }
                     } else {
+                        // API返回空内容
                         errorLiveData.postValue("API 返回了空内容");
                     }
                 } else {
+                    // API错误
                     errorLiveData.postValue("API 错误: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ChatResponse> call, Throwable t) {
+                // 请求失败，设置加载状态为false
                 isLoadingLiveData.postValue(false);
+                // 网络错误
                 errorLiveData.postValue("网络请求失败: " + t.getMessage());
             }
         });
     }
 
+    /**
+     * 清除错误信息
+     */
     public void clearError() {
         errorLiveData.setValue(null);
     }
 
+    /**
+     * 添加关注角色
+     * @param persona 要关注的角色
+     */
     public void addFollowedPersona(Persona persona) {
+        // 获取当前关注列表
         List<Persona> currentList = followedPersonasLiveData.getValue();
         if (currentList == null) {
             currentList = new ArrayList<>();
         }
         
+        // 检查是否已经关注
         boolean alreadyFollowed = false;
         for (Persona p : currentList) {
             if (p.getName().equals(persona.getName())) {
@@ -160,15 +229,22 @@ public class MainViewModel extends ViewModel {
             }
         }
         
+        // 如果未关注，则添加到列表
         if (!alreadyFollowed) {
             currentList.add(persona);
             followedPersonasLiveData.setValue(currentList);
         }
     }
 
+    /**
+     * 移除关注角色
+     * @param persona 要移除的角色
+     */
     public void removeFollowedPersona(Persona persona) {
+        // 获取当前关注列表
         List<Persona> currentList = followedPersonasLiveData.getValue();
         if (currentList != null) {
+            // 查找并移除指定角色
             for (int i = 0; i < currentList.size(); i++) {
                 if (currentList.get(i).getName().equals(persona.getName())) {
                     currentList.remove(i);
@@ -179,6 +255,10 @@ public class MainViewModel extends ViewModel {
         }
     }
 
+    /**
+     * 已废弃方法
+     * 从SocialAdapter更新关注角色列表
+     */
     @Deprecated
     public void updateFollowedPersonasFromSocialAdapter() {
     }
