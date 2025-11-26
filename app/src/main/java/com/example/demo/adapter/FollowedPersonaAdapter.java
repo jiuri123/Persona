@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,14 +10,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.demo.model.Persona;
+import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
-import com.example.demo.ui.activity.ChatActivity;
+import com.example.demo.activity.OtherPersonaChatActivity;
 
 import java.util.List;
 
-/**
- * 已关注Persona列表的适配器
- */
 public class FollowedPersonaAdapter extends RecyclerView.Adapter<FollowedPersonaAdapter.FollowedPersonaViewHolder> {
 
     private List<Persona> followedPersonaList;
@@ -47,9 +46,6 @@ public class FollowedPersonaAdapter extends RecyclerView.Adapter<FollowedPersona
         return followedPersonaList != null ? followedPersonaList.size() : 0;
     }
 
-    /**
-     * ViewHolder类，持有单个Persona项的视图
-     */
     public class FollowedPersonaViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemFollowedPersonaBinding binding;
@@ -60,33 +56,29 @@ public class FollowedPersonaAdapter extends RecyclerView.Adapter<FollowedPersona
         }
 
         public void bind(Persona persona) {
-            // 设置Persona信息
             binding.tvPersonaName.setText(persona.getName());
             binding.tvPersonaBio.setText(persona.getBio());
 
-            // 使用Glide加载头像
             Glide.with(context)
                     .load(persona.getAvatarDrawableId())
                     .placeholder(R.drawable.ic_launcher_background)
                     .circleCrop()
                     .into(binding.ivPersonaAvatar);
 
-            // 设置点击事件，点击整个项跳转到聊天界面
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ChatActivity.class);
-                    intent.putExtra(ChatActivity.EXTRA_PERSONA, persona);
+                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
+                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
                     context.startActivity(intent);
                 }
             });
 
-            // 设置头像点击事件
             binding.ivPersonaAvatar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ChatActivity.class);
-                    intent.putExtra(ChatActivity.EXTRA_PERSONA, persona);
+                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
+                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
                     context.startActivity(intent);
                 }
             });

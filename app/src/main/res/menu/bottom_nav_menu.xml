@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_social_square"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="社交广场" />
+
+    <item
+        android:id="@+id/nav_followed_list"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="已关注列表" />
+
+    <item
+        android:id="@+id/nav_my_persona"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="我的Persona" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="个人中心" />
+</menu>

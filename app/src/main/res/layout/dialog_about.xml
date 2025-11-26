@@ -10,7 +10,7 @@
         android:id="@+id/tvAboutTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="关于 PersonaSpace"
+        android:text="关于 Persona"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="?attr/colorPrimary"
@@ -29,7 +29,7 @@
         android:id="@+id/tvAppName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="PersonaSpace"
+        android:text="Persona"
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -39,7 +39,7 @@
         android:id="@+id/tvAppVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="版本 1.0.0"
+        android:text="版本 1.0"
         android:textSize="16sp"
         android:gravity="center"
         android:layout_marginBottom="24dp" />
@@ -54,19 +54,7 @@
             android:id="@+id/tvAppDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PersonaSpace 是一款创新的AI社交应用，让您能够创建并与个性化的数字人格（Persona）进行互动交流。
-
-通过我们先进的AI技术，每个Persona都拥有独特的性格、背景故事和对话风格，为您提供丰富多样的社交体验。
-
-主要功能：
-• 创建个性化的数字人格
-• 与Persona进行深度对话
-• 在社交广场分享与Persona的互动
-• 探索其他用户创建的有趣Persona
-
-无论您是想寻找一个倾听者，还是希望体验不同性格的对话，PersonaSpace都能满足您的需求。
-
-让我们一起探索AI社交的无限可能！"
+            android:text="Persona是一款创新的AI社交应用，让您能够创建并与个性化的数字人格进行互动交流。通过我们先进的AI技术，每个Persona都拥有独特的性格、背景故事和对话风格，为您提供丰富多样的社交体验。无论您是想寻找一个倾听者，还是希望体验不同性格的对话，Persona都能满足您的需求。让我们一起探索AI社交的无限可能！"
             android:textSize="14sp"
             android:lineSpacingExtra="4dp"
             android:justificationMode="inter_word" />
@@ -77,7 +65,7 @@
         android:id="@+id/tvCopyright"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="© 2025 PersonaSpace Team. All rights reserved."
+        android:text="© 2025 Persona Team. All rights reserved."
         android:textSize="12sp"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
