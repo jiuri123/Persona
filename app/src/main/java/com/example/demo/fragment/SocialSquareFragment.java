@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 
-import com.example.demo.utils.MockData;
+import com.example.demo.repository.OtherPersonaPostRepository;
 import com.example.demo.model.Post;
 import com.example.demo.model.Persona;
 import com.example.demo.adapter.SocialSquarePostAdapter;
@@ -43,6 +43,8 @@ public class SocialSquareFragment extends Fragment {
     private PostGenerationViewModel postGenerationViewModel;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
+    // Repository，用于管理帖子数据
+    private OtherPersonaPostRepository postRepository;
 
     /**
      * 构造函数
@@ -62,6 +64,9 @@ public class SocialSquareFragment extends Fragment {
         // 获取与Activity关联的ViewModel实例
         postGenerationViewModel = new ViewModelProvider(requireActivity()).get(PostGenerationViewModel.class);
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
+        
+        // 初始化Repository
+        postRepository = new OtherPersonaPostRepository();
 
         // 观察错误信息，当有错误时显示Toast
         postGenerationViewModel.getError().observe(this, new Observer<String>() {
@@ -105,8 +110,8 @@ public class SocialSquareFragment extends Fragment {
         // 设置RecyclerView的布局管理器为线性布局
         binding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 获取模拟数据
-        postList = MockData.getMockPersonaPosts();
+        // 获取帖子数据
+        postList = postRepository.getSocialPosts().getValue();
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);

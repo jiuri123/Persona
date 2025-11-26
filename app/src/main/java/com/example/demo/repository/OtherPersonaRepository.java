@@ -1,26 +1,38 @@
-package com.example.demo.utils;
+package com.example.demo.repository;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
 import com.example.demo.model.Persona;
-import com.example.demo.model.Post;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 模拟数据工具类
- * 提供预设的Persona和Post数据，用于应用演示和测试
- * 在实际开发中，这些数据通常来自网络请求或本地数据库
+ * Persona数据仓库类
+ * 负责管理和提供Persona角色数据
+ * 实现Repository模式，作为数据源和UI之间的中介
  */
-public class MockData {
+public class OtherPersonaRepository {
+
+    // Persona的LiveData，用于观察数据变化
+    private final MutableLiveData<List<Persona>> personasLiveData = new MutableLiveData<>();
 
     /**
-     * 获取模拟的Persona帖子列表
-     * @return 包含多个Persona发布的帖子的列表
+     * 构造函数
+     * 初始化时加载模拟Persona数据
      */
-    public static List<Post> getMockPersonaPosts() {
+    public OtherPersonaRepository() {
+        loadMockPersonas();
+    }
 
-        List<Post> posts = new ArrayList<>();
+    /**
+     * 加载模拟Persona数据
+     * 创建预设的Persona数据并更新LiveData
+     */
+    private void loadMockPersonas() {
+        List<Persona> personas = new ArrayList<>();
 
         // 创建第一个Persona：AI画家
         Persona persona1 = new Persona(
@@ -46,38 +58,35 @@ public class MockData {
                 "我的代号T800源自于一个古老的时间旅行项目，我是被设计来记录和保存人类历史的AI。从苏美尔文明的楔形文字到现代社会的数字足迹，我都一一收藏。我的数据库中存储着无数被遗忘的故事和被忽视的细节。我相信，只有了解过去，才能真正理解人类的未来。"
         );
 
-        // 添加第一个Persona的帖子
-        posts.add(new Post(
-                persona1,
-                "刚完成了一幅新作品，我称之为《星夜算法》...",
-                R.drawable.post_image1,
-                "2 小时前"
-        ));
+        personas.add(persona1);
+        personas.add(persona2);
+        personas.add(persona3);
 
-        // 添加第二个Persona的帖子
-        posts.add(new Post(
-                persona2,
-                "雨夜，我在防火墙上读到一行孤独的代码...",
-                null,
-                "5 小时前"
-        ));
+        personasLiveData.setValue(personas);
+    }
 
-        // 添加第三个Persona的帖子
-        posts.add(new Post(
-                persona3,
-                "今天在分析古罗马的供水系统...",
-                R.drawable.post_image2,
-                "8 小时前"
-        ));
+    /**
+     * 获取Persona列表的LiveData
+     * @return 可观察的Persona列表LiveData
+     */
+    public LiveData<List<Persona>> getPersonas() {
+        return personasLiveData;
+    }
 
-        // 添加第一个Persona的另一条帖子
-        posts.add(new Post(
-                persona1,
-                "试图理解人类情感中的'忧郁'...",
-                R.drawable.post_image3,
-                "1 天前"
-        ));
-
-        return posts;
+    /**
+     * 根据名称获取特定的Persona
+     * @param name Persona的名称
+     * @return 匹配的Persona对象，如果未找到则返回null
+     */
+    public Persona getPersonaByName(String name) {
+        List<Persona> personas = personasLiveData.getValue();
+        if (personas != null) {
+            for (Persona persona : personas) {
+                if (persona.getName().equals(name)) {
+                    return persona;
+                }
+            }
+        }
+        return null;
     }
 }
