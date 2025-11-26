@@ -16,7 +16,7 @@ import com.example.demo.R;
 import com.example.demo.databinding.ItemPersonaPostBinding;
 import com.example.demo.activity.OtherPersonaChatActivity;
 import com.example.demo.viewmodel.PostGenerationViewModel;
-import com.example.demo.viewmodel.UserPersonaViewModel;
+import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
@@ -42,8 +42,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private Context context;
     // ViewModel，用于处理动态生成
     private PostGenerationViewModel postGenerationViewModel;
-    // ViewModel，用于处理用户Persona
-    private UserPersonaViewModel userPersonaViewModel;
+    // ViewModel，用于处理全局状态
+    private SharedViewModel sharedViewModel;
     // ViewModel，用于处理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
 
@@ -63,14 +63,17 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     /**
      * 设置ViewModel
      * @param postGenerationViewModel 动态生成ViewModel
-     * @param userPersonaViewModel 用户Persona ViewModel
      */
     public void setPostGenerationViewModel(PostGenerationViewModel postGenerationViewModel) {
         this.postGenerationViewModel = postGenerationViewModel;
     }
     
-    public void setUserPersonaViewModel(UserPersonaViewModel userPersonaViewModel) {
-        this.userPersonaViewModel = userPersonaViewModel;
+    /**
+     * 设置SharedViewModel
+     * @param sharedViewModel SharedViewModel实例
+     */
+    public void setSharedViewModel(SharedViewModel sharedViewModel) {
+        this.sharedViewModel = sharedViewModel;
     }
     
     public void setFollowedPersonaViewModel(FollowedPersonaListViewModel followedPersonaListViewModel) {

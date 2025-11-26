@@ -20,7 +20,7 @@ import com.example.demo.model.Persona;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
 import com.example.demo.viewmodel.PostGenerationViewModel;
-import com.example.demo.viewmodel.UserPersonaViewModel;
+import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
@@ -41,8 +41,6 @@ public class SocialSquareFragment extends Fragment {
     private List<Post> postList;
     // ViewModel，用于管理动态生成
     private PostGenerationViewModel postGenerationViewModel;
-    // ViewModel，用于管理用户Persona
-    private UserPersonaViewModel userPersonaViewModel;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
 
@@ -63,7 +61,6 @@ public class SocialSquareFragment extends Fragment {
 
         // 获取与Activity关联的ViewModel实例
         postGenerationViewModel = new ViewModelProvider(requireActivity()).get(PostGenerationViewModel.class);
-        userPersonaViewModel = new ViewModelProvider(requireActivity()).get(UserPersonaViewModel.class);
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
 
         // 观察错误信息，当有错误时显示Toast
@@ -114,7 +111,7 @@ public class SocialSquareFragment extends Fragment {
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
         adapter.setPostGenerationViewModel(postGenerationViewModel);
-        adapter.setUserPersonaViewModel(userPersonaViewModel);
+        adapter.setSharedViewModel(SharedViewModel.getInstance());
         adapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
         binding.rvSocialSquare.setAdapter(adapter);
 
@@ -125,9 +122,8 @@ public class SocialSquareFragment extends Fragment {
         binding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 获取当前用户Persona
-                Persona currentUser = userPersonaViewModel.getCurrentUserPersona();
-                postGenerationViewModel.generateNewPost(currentUser); // 通过ViewModel生成新帖子
+                // 通过ViewModel生成新帖子，不再需要传递当前用户Persona
+                postGenerationViewModel.generateNewPost();
             }
         });
     }

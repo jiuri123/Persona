@@ -13,7 +13,7 @@ import java.util.List;
  * 负责管理和提供社交广场的帖子数据
  * 实现Repository模式，作为数据源和UI之间的中介
  */
-public class SocialRepository {
+public class OtherPersonaPostRepository {
 
     // 社交帖子的LiveData，用于观察数据变化
     private final MutableLiveData<List<Post>> socialPostsLiveData = new MutableLiveData<>();
@@ -22,7 +22,7 @@ public class SocialRepository {
      * 构造函数
      * 初始化时加载模拟社交帖子数据
      */
-    public SocialRepository() {
+    public OtherPersonaPostRepository() {
         loadMockSocialPosts();
     }
 

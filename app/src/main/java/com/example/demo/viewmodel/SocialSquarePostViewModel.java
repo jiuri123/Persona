@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Post;
-import com.example.demo.repository.SocialRepository;
+import com.example.demo.repository.OtherPersonaPostRepository;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
 public class SocialSquarePostViewModel extends ViewModel {
 
     // 社交数据仓库和社交动态LiveData
-    private final SocialRepository socialRepository;
+    private final OtherPersonaPostRepository otherPersonaPostRepository;
     private final LiveData<List<Post>> socialPostsLiveData;
 
     /**
@@ -25,8 +25,8 @@ public class SocialSquarePostViewModel extends ViewModel {
      * 初始化社交数据仓库和LiveData
      */
     public SocialSquarePostViewModel() {
-        socialRepository = new SocialRepository();
-        socialPostsLiveData = socialRepository.getSocialPosts();
+        otherPersonaPostRepository = new OtherPersonaPostRepository();
+        socialPostsLiveData = otherPersonaPostRepository.getSocialPosts();
     }
 
     /**
