@@ -26,9 +26,13 @@ import retrofit2.Response;
  * Post数据仓库类
  * 负责管理与Post相关的API调用和数据管理
  * 实现Repository模式，封装网络请求和数据管理逻辑
+ * 使用单例模式确保全局只有一个实例
  */
 public class MyPersonaPostRepository {
-
+    
+    // 单例实例
+    private static MyPersonaPostRepository instance;
+    
     // API密钥和模型名称常量
     private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
     private static final String MODEL_NAME = "moonshot-v1-8k";
@@ -43,11 +47,22 @@ public class MyPersonaPostRepository {
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
     /**
-     * 构造函数
+     * 私有构造函数
      * 初始化API服务实例
      */
-    public MyPersonaPostRepository() {
+    private MyPersonaPostRepository() {
         this.apiService = ApiClient.getApiService();
+    }
+    
+    /**
+     * 获取单例实例
+     * @return MyPersonaPostRepository的单例实例
+     */
+    public static synchronized MyPersonaPostRepository getInstance() {
+        if (instance == null) {
+            instance = new MyPersonaPostRepository();
+        }
+        return instance;
     }
 
     /**

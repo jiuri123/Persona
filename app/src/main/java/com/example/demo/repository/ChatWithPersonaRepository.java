@@ -23,7 +23,7 @@ import retrofit2.Response;
  * 负责管理与聊天API的通信和聊天历史记录
  * 实现Repository模式，封装网络请求和数据管理逻辑
  */
-public class ChatRepository {
+public class ChatWithPersonaRepository {
 
     // API密钥，用于身份验证
     private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
@@ -44,7 +44,7 @@ public class ChatRepository {
      * 构造函数
      * @param persona 当前聊天的人格角色
      */
-    public ChatRepository(Persona persona) {
+    public ChatWithPersonaRepository(Persona persona) {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
         this.apiHistory = new ArrayList<>();

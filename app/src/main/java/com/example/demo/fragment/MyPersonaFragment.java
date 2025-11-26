@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.viewmodel.MyPersonaChatViewModel;
+import com.example.demo.viewmodel.PersonaChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
 import com.example.demo.activity.MainActivity;
@@ -34,7 +34,7 @@ public class MyPersonaFragment extends Fragment {
     // 聊天适配器，用于显示聊天消息
     private PersonaChatAdapter personaChatAdapter;
     // ViewModel，用于管理聊天数据和业务逻辑
-    private MyPersonaChatViewModel viewModel;
+    private PersonaChatViewModel viewModel;
 
     /**
      * 创建Fragment的视图
@@ -122,8 +122,8 @@ public class MyPersonaFragment extends Fragment {
      */
     private void initChatWithMVVM(Persona personaToChat) {
         // 使用工厂模式创建ViewModel，传入Persona对象
-        MyPersonaChatViewModel.Factory factory = new MyPersonaChatViewModel.Factory(personaToChat);
-        viewModel = new ViewModelProvider(this, factory).get(MyPersonaChatViewModel.class);
+        PersonaChatViewModel.Factory factory = new PersonaChatViewModel.Factory(personaToChat);
+        viewModel = new ViewModelProvider(this, factory).get(PersonaChatViewModel.class);
 
         // 创建聊天适配器
         personaChatAdapter = new PersonaChatAdapter(requireContext());

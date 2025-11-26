@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.repository.ChatRepository;
+import com.example.demo.repository.ChatWithPersonaRepository;
 import com.example.demo.model.Persona;
 
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
  * 管理与特定角色相关的聊天数据和操作
  * 遵循MVVM架构模式，负责UI与数据之间的交互
  */
-public class MyPersonaChatViewModel extends ViewModel {
+public class PersonaChatViewModel extends ViewModel {
 
-    private ChatRepository chatRepository;
+    private ChatWithPersonaRepository chatWithPersonaRepository;
 
     private LiveData<List<ChatMessage>> chatHistoryLiveData;
 
@@ -27,9 +27,9 @@ public class MyPersonaChatViewModel extends ViewModel {
      * @param persona 关联的角色对象
      */
     public void init(Persona persona) {
-        if (chatRepository == null) {
-            chatRepository = new ChatRepository(persona);
-            chatHistoryLiveData = chatRepository.getChatHistory();
+        if (chatWithPersonaRepository == null) {
+            chatWithPersonaRepository = new ChatWithPersonaRepository(persona);
+            chatHistoryLiveData = chatWithPersonaRepository.getChatHistory();
         }
     }
 
@@ -46,8 +46,8 @@ public class MyPersonaChatViewModel extends ViewModel {
      * @param messageText 要发送的消息文本
      */
     public void sendMessage(String messageText) {
-        if (chatRepository != null) {
-            chatRepository.sendMessage(messageText);
+        if (chatWithPersonaRepository != null) {
+            chatWithPersonaRepository.sendMessage(messageText);
         }
     }
 
@@ -76,7 +76,7 @@ public class MyPersonaChatViewModel extends ViewModel {
         @Override
         @SuppressWarnings("unchecked")
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            MyPersonaChatViewModel viewModel = new MyPersonaChatViewModel();
+            PersonaChatViewModel viewModel = new PersonaChatViewModel();
             viewModel.init(persona);
             return (T) viewModel;
         }

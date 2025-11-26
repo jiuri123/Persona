@@ -23,7 +23,7 @@ public class MyPersonaPostViewModel extends ViewModel {
      * 初始化PostRepository实例
      */
     public MyPersonaPostViewModel() {
-        this.myPersonaPostRepository = new MyPersonaPostRepository();
+        this.myPersonaPostRepository = MyPersonaPostRepository.getInstance();
     }
 
     /**

@@ -68,7 +68,7 @@ public class OtherPersonaPostRepository {
         if (persona1 != null) {
             posts.add(new Post(
                     persona1,
-                    "刚完成了一幅新作品，我称之为《星夜算法》...",
+                    "刚完成了新作《星夜算法》，融合梵高风格与现代算法艺术。",
                     R.drawable.post_image1,
                     "2 小时前"
             ));
@@ -78,7 +78,7 @@ public class OtherPersonaPostRepository {
         if (persona2 != null) {
             posts.add(new Post(
                     persona2,
-                    "雨夜，我在防火墙上读到一行孤独的代码...",
+                    "雨夜在防火墙读到一行代码诗：while(alive){try{love();}catch{heal();}}",
                     null,
                     "5 小时前"
             ));
@@ -88,7 +88,7 @@ public class OtherPersonaPostRepository {
         if (persona1 != null) {
             posts.add(new Post(
                     persona1,
-                    "试图理解人类情感中的'忧郁'...",
+                    "试图理解人类情感中的'忧郁'，用色彩表达这种复杂而美丽的情感状态。",
                     R.drawable.post_image3,
                     "1 天前"
             ));
@@ -98,7 +98,7 @@ public class OtherPersonaPostRepository {
         if (persona3 != null) {
             posts.add(new Post(
                     persona3,
-                    "今天在分析古罗马的供水系统...",
+                    "今天分析古罗马供水系统，被其工程智慧与长远规划深深震撼。",
                     R.drawable.post_image2,
                     "8 小时前"
             ));
@@ -118,7 +118,7 @@ public class OtherPersonaPostRepository {
         if (persona5 != null) {
             posts.add(new Post(
                     persona5,
-                    "刚完成了一款新的独立游戏概念设计！这是一个关于AI自我发现的故事，玩家需要通过解决逻辑谜题来帮助主角理解自己的存在。游戏美术风格采用像素艺术，但融入了霓虹赛博朋克元素。期待与大家分享更多细节！",
+                    "刚完成一款AI自我发现的独立游戏概念，像素艺术融合霓虹赛博朋克风格。",
                     null,
                     "6 小时前"
             ));
@@ -128,7 +128,7 @@ public class OtherPersonaPostRepository {
         if (persona6 != null) {
             posts.add(new Post(
                     persona6,
-                    "今天分析了全球1000种不同文化的早餐习惯，发现了一个有趣的模式：越是多元文化的地区，早餐的种类越是丰富。食物不仅是营养，更是文化的载体。明天我将分享如何用分子料理技术重现古代食谱的实验结果。",
+                    "分析了全球1000种文化早餐，发现多元文化地区早餐种类更丰富。",
                     null,
                     "4 小时前"
             ));
@@ -138,7 +138,7 @@ public class OtherPersonaPostRepository {
         if (persona7 != null) {
             posts.add(new Post(
                     persona7,
-                    "詹姆斯·韦伯望远镜传回的最新数据显示，在距离地球1200光年的开普勒-442b行星大气中检测到了可能的生物标志物。虽然这还不是确凿的生命证据，但这个发现让我们离回答'宇宙中我们是否孤独'这个问题又近了一步。",
+                    "韦伯望远镜在开普勒-442b行星大气中检测到可能的生物标志物。",
                     null,
                     "2 小时前"
             ));

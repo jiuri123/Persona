@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.adapter.PersonaChatAdapter;
 import com.example.demo.model.ChatMessage;
-import com.example.demo.viewmodel.MyPersonaChatViewModel;
+import com.example.demo.viewmodel.PersonaChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.ActivityChatBinding;
 
@@ -31,7 +31,7 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
     // 聊天消息适配器，用于显示聊天记录
     private PersonaChatAdapter personaChatAdapter;
     // ViewModel，处理聊天相关的业务逻辑
-    private MyPersonaChatViewModel viewModel;
+    private PersonaChatViewModel viewModel;
     // 当前聊天的Persona对象
     private Persona currentPersona;
 
@@ -78,8 +78,8 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
      */
     private void initChatWithMVVM(Persona personaToChat) {
         // 使用工厂模式创建ViewModel，传入Persona对象
-        MyPersonaChatViewModel.Factory factory = new MyPersonaChatViewModel.Factory(personaToChat);
-        viewModel = new ViewModelProvider(this, factory).get(MyPersonaChatViewModel.class);
+        PersonaChatViewModel.Factory factory = new PersonaChatViewModel.Factory(personaToChat);
+        viewModel = new ViewModelProvider(this, factory).get(PersonaChatViewModel.class);
 
         // 初始化聊天消息适配器
         personaChatAdapter = new PersonaChatAdapter(this);
