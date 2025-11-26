@@ -15,8 +15,12 @@ import java.util.List;
  * 社交数据仓库类
  * 负责管理和提供社交广场的帖子数据
  * 实现Repository模式，作为数据源和UI之间的中介
+ * 使用单例模式确保全局只有一个实例
  */
 public class OtherPersonaPostRepository {
+
+    // 单例实例
+    private static OtherPersonaPostRepository instance;
 
     // 社交帖子的LiveData，用于观察数据变化
     private final MutableLiveData<List<Post>> socialPostsLiveData = new MutableLiveData<>();
@@ -25,12 +29,23 @@ public class OtherPersonaPostRepository {
     private final OtherPersonaRepository personaRepository;
 
     /**
-     * 构造函数
+     * 私有构造函数，防止外部实例化
      * 初始化时加载模拟社交帖子数据
      */
-    public OtherPersonaPostRepository() {
-        personaRepository = new OtherPersonaRepository();
+    private OtherPersonaPostRepository() {
+        personaRepository = OtherPersonaRepository.getInstance();
         loadMockSocialPosts();
+    }
+
+    /**
+     * 获取单例实例
+     * @return OtherPersonaPostRepository的单例实例
+     */
+    public static synchronized OtherPersonaPostRepository getInstance() {
+        if (instance == null) {
+            instance = new OtherPersonaPostRepository();
+        }
+        return instance;
     }
 
     /**

@@ -65,7 +65,7 @@ public class SocialSquareFragment extends Fragment {
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
         
         // 初始化Repository
-        postRepository = new OtherPersonaPostRepository();
+        postRepository = OtherPersonaPostRepository.getInstance();
 
         // 观察错误信息，当有错误时显示Toast
         myPersonaPostViewModel.getError().observe(this, new Observer<String>() {

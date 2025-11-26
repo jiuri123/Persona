@@ -13,18 +13,32 @@ import java.util.List;
  * Persona数据仓库类
  * 负责管理和提供Persona角色数据
  * 实现Repository模式，作为数据源和UI之间的中介
+ * 使用单例模式确保全局只有一个实例
  */
 public class OtherPersonaRepository {
+
+    // 单例实例
+    private static OtherPersonaRepository instance;
 
     // Persona的LiveData，用于观察数据变化
     private final MutableLiveData<List<Persona>> personasLiveData = new MutableLiveData<>();
 
     /**
-     * 构造函数
-     * 初始化时加载模拟Persona数据
+     * 私有构造函数，实现单例模式
      */
-    public OtherPersonaRepository() {
+    private OtherPersonaRepository() {
         loadMockPersonas();
+    }
+    
+    /**
+     * 获取Repository的单例实例
+     * @return OtherPersonaRepository实例
+     */
+    public static synchronized OtherPersonaRepository getInstance() {
+        if (instance == null) {
+            instance = new OtherPersonaRepository();
+        }
+        return instance;
     }
 
     /**

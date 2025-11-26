@@ -25,7 +25,7 @@ public class OtherPersonaPostViewModel extends ViewModel {
      * 初始化社交数据仓库和LiveData
      */
     public OtherPersonaPostViewModel() {
-        otherPersonaPostRepository = new OtherPersonaPostRepository();
+        otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
         socialPostsLiveData = otherPersonaPostRepository.getSocialPosts();
     }
 
