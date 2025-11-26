@@ -18,7 +18,7 @@ import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
 import com.example.demo.activity.MainActivity;
 import com.example.demo.adapter.PersonaChatAdapter;
-import com.example.demo.viewmodel.MainViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
 
 import java.util.List;
 
@@ -35,11 +35,8 @@ public class MyPersonaFragment extends Fragment {
     private PersonaChatAdapter personaChatAdapter;
     // ViewModel，用于管理聊天数据和业务逻辑
     private MyPersonaChatViewModel viewModel;
-    // 主ViewModel，用于管理用户Persona
-    private MainViewModel mainViewModel;
-
-    // 当前用户的Persona对象
-    private Persona myPersona = null;
+    // ViewModel，用于管理用户Persona
+    private UserPersonaViewModel userPersonaViewModel;
 
     /**
      * 创建Fragment的视图
@@ -67,7 +64,7 @@ public class MyPersonaFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // 获取与Activity关联的ViewModel实例
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(requireActivity()).get(UserPersonaViewModel.class);
 
         // 设置UI
         setupUI();
@@ -78,11 +75,9 @@ public class MyPersonaFragment extends Fragment {
      * @param persona 新创建的Persona对象
      */
     public void onPersonaCreated(Persona persona) {
-        this.myPersona = persona;
-
-        // 将Persona设置到主ViewModel中
-        if (mainViewModel != null) {
-            mainViewModel.setUserPersona(persona);
+        // 将Persona设置到用户PersonaViewModel中
+        if (userPersonaViewModel != null) {
+            userPersonaViewModel.setUserPersona(persona);
         }
 
         // 如果视图已创建，则更新UI
@@ -96,7 +91,10 @@ public class MyPersonaFragment extends Fragment {
      * 根据是否有Persona显示不同的界面
      */
     private void setupUI() {
-        if (myPersona == null) {
+        // 从ViewModel获取当前用户Persona
+        Persona currentUserPersona = userPersonaViewModel != null ? userPersonaViewModel.getCurrentUserPersona() : null;
+        
+        if (currentUserPersona == null) {
             // 没有Persona时显示空状态界面
             binding.groupEmptyState.setVisibility(View.VISIBLE);
             binding.personaHeaderLayout.setVisibility(View.GONE);
@@ -117,11 +115,11 @@ public class MyPersonaFragment extends Fragment {
             binding.inputLayout.setVisibility(View.VISIBLE);
 
             // 设置Persona信息
-            binding.tvPersonaName.setText(myPersona.getName());
-            binding.ivPersonaAvatar.setImageResource(myPersona.getAvatarDrawableId());
+            binding.tvPersonaName.setText(currentUserPersona.getName());
+            binding.ivPersonaAvatar.setImageResource(currentUserPersona.getAvatarDrawableId());
 
             // 初始化聊天界面
-            initChatWithMVVM(myPersona);
+            initChatWithMVVM(currentUserPersona);
         }
     }
 

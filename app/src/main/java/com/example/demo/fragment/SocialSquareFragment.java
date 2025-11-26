@@ -16,9 +16,12 @@ import androidx.lifecycle.Observer;
 
 import com.example.demo.utils.MockData;
 import com.example.demo.model.Post;
+import com.example.demo.model.Persona;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
-import com.example.demo.viewmodel.MainViewModel;
+import com.example.demo.viewmodel.PostGenerationViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
+import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
 
@@ -36,8 +39,12 @@ public class SocialSquareFragment extends Fragment {
     private SocialSquarePostAdapter adapter;
     // 帖子数据列表
     private List<Post> postList;
-    // ViewModel，用于管理数据和业务逻辑
-    private MainViewModel mainViewModel;
+    // ViewModel，用于管理动态生成
+    private PostGenerationViewModel postGenerationViewModel;
+    // ViewModel，用于管理用户Persona
+    private UserPersonaViewModel userPersonaViewModel;
+    // ViewModel，用于管理关注列表
+    private FollowedPersonaListViewModel followedPersonaListViewModel;
 
     /**
      * 构造函数
@@ -55,15 +62,17 @@ public class SocialSquareFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // 获取与Activity关联的ViewModel实例
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        postGenerationViewModel = new ViewModelProvider(requireActivity()).get(PostGenerationViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(requireActivity()).get(UserPersonaViewModel.class);
+        followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
 
         // 观察错误信息，当有错误时显示Toast
-        mainViewModel.getError().observe(this, new Observer<String>() {
+        postGenerationViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    mainViewModel.clearError(); // 清除错误信息
+                    postGenerationViewModel.clearError(); // 清除错误信息
                 }
             }
         });
@@ -104,7 +113,9 @@ public class SocialSquareFragment extends Fragment {
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
-        adapter.setMainViewModel(mainViewModel);
+        adapter.setPostGenerationViewModel(postGenerationViewModel);
+        adapter.setUserPersonaViewModel(userPersonaViewModel);
+        adapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
         binding.rvSocialSquare.setAdapter(adapter);
 
         // 设置观察者
@@ -114,7 +125,9 @@ public class SocialSquareFragment extends Fragment {
         binding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainViewModel.generateNewPost(); // 通过ViewModel生成新帖子
+                // 获取当前用户Persona
+                Persona currentUser = userPersonaViewModel.getCurrentUserPersona();
+                postGenerationViewModel.generateNewPost(currentUser); // 通过ViewModel生成新帖子
             }
         });
     }
@@ -126,7 +139,7 @@ public class SocialSquareFragment extends Fragment {
     private void setupViewObservers() {
 
         // 观察新帖子的LiveData，当有新帖子时添加到列表顶部
-        mainViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {
+        postGenerationViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {
             @Override
             public void onChanged(Post newPost) {
                 if (newPost != null && adapter != null) {
@@ -137,7 +150,7 @@ public class SocialSquareFragment extends Fragment {
         });
 
         // 观察加载状态，根据加载状态启用或禁用添加按钮
-        mainViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        postGenerationViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 binding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮

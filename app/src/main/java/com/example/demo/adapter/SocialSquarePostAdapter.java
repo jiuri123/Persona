@@ -15,7 +15,9 @@ import com.example.demo.model.Post;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemPersonaPostBinding;
 import com.example.demo.activity.OtherPersonaChatActivity;
-import com.example.demo.viewmodel.MainViewModel;
+import com.example.demo.viewmodel.PostGenerationViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
+import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
 import java.util.HashSet;
@@ -38,8 +40,12 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private List<Post> postList;
     // 上下文，用于启动Activity和加载资源
     private Context context;
-    // ViewModel，用于处理关注/取消关注的业务逻辑
-    private MainViewModel mainViewModel;
+    // ViewModel，用于处理动态生成
+    private PostGenerationViewModel postGenerationViewModel;
+    // ViewModel，用于处理用户Persona
+    private UserPersonaViewModel userPersonaViewModel;
+    // ViewModel，用于处理关注列表
+    private FollowedPersonaListViewModel followedPersonaListViewModel;
 
     // 已关注的作者集合，用于快速判断是否已关注
     private Set<String> followedAuthors = new HashSet<>();
@@ -56,10 +62,19 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     
     /**
      * 设置ViewModel
-     * @param mainViewModel 主ViewModel
+     * @param postGenerationViewModel 动态生成ViewModel
+     * @param userPersonaViewModel 用户Persona ViewModel
      */
-    public void setMainViewModel(MainViewModel mainViewModel) {
-        this.mainViewModel = mainViewModel;
+    public void setPostGenerationViewModel(PostGenerationViewModel postGenerationViewModel) {
+        this.postGenerationViewModel = postGenerationViewModel;
+    }
+    
+    public void setUserPersonaViewModel(UserPersonaViewModel userPersonaViewModel) {
+        this.userPersonaViewModel = userPersonaViewModel;
+    }
+    
+    public void setFollowedPersonaViewModel(FollowedPersonaListViewModel followedPersonaListViewModel) {
+        this.followedPersonaListViewModel = followedPersonaListViewModel;
     }
 
     /**
@@ -202,8 +217,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                         updateButtonState(false);
                         
                         // 通过ViewModel更新数据
-                        if (mainViewModel != null) {
-                            mainViewModel.removeFollowedPersona(author);
+                        if (followedPersonaListViewModel != null) {
+                            followedPersonaListViewModel.removeFollowedPersona(author);
                         }
                     } else {
                         // 如果未关注，则添加关注
@@ -211,8 +226,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                         updateButtonState(true);
                         
                         // 通过ViewModel更新数据
-                        if (mainViewModel != null) {
-                            mainViewModel.addFollowedPersona(author);
+                        if (followedPersonaListViewModel != null) {
+                            followedPersonaListViewModel.addFollowedPersona(author);
                         }
                     }
                 }

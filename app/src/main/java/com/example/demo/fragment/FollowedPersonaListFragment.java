@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.demo.adapter.FollowedPersonaListAdapter;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentFollowedListBinding;
-import com.example.demo.viewmodel.MainViewModel;
+import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,8 @@ public class FollowedPersonaListFragment extends Fragment {
     private FragmentFollowedListBinding binding;
     // 关注列表适配器，用于显示已关注的Persona
     private FollowedPersonaListAdapter adapter;
-    // 主ViewModel，用于管理应用的全局状态和数据
-    private MainViewModel mainViewModel;
+    // ViewModel，用于管理关注列表
+    private FollowedPersonaListViewModel followedPersonaListViewModel;
     // 已关注的Persona数据列表
     private List<Persona> followedPersonaList;
 
@@ -51,15 +51,15 @@ public class FollowedPersonaListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         
         // 获取与Activity关联的ViewModel实例
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
         
         // 观察错误消息，当有错误时显示Toast
-        mainViewModel.getError().observe(this, new Observer<String>() {
+        followedPersonaListViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    mainViewModel.clearError(); // 清除错误消息
+                    followedPersonaListViewModel.clearError(); // 清除错误消息
                 }
             }
         });
@@ -102,7 +102,7 @@ public class FollowedPersonaListFragment extends Fragment {
         binding.rvFollowedList.setAdapter(adapter);
         
         // 观察已关注Persona列表的变化
-        mainViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
+        followedPersonaListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
             @Override
             public void onChanged(List<Persona> personas) {
                 if (personas != null) {
