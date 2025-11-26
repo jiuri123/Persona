@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvAboutTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="关于 PersonaSpace"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorPrimary"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <ImageView
+        android:id="@+id/ivAppIcon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PersonaSpace"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvAppVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="版本 1.0.0"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="200dp"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:id="@+id/tvAppDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PersonaSpace 是一款创新的AI社交应用，让您能够创建并与个性化的数字人格（Persona）进行互动交流。
+
+通过我们先进的AI技术，每个Persona都拥有独特的性格、背景故事和对话风格，为您提供丰富多样的社交体验。
+
+主要功能：
+• 创建个性化的数字人格
+• 与Persona进行深度对话
+• 在社交广场分享与Persona的互动
+• 探索其他用户创建的有趣Persona
+
+无论您是想寻找一个倾听者，还是希望体验不同性格的对话，PersonaSpace都能满足您的需求。
+
+让我们一起探索AI社交的无限可能！"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"
+            android:justificationMode="inter_word" />
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tvCopyright"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="© 2025 PersonaSpace Team. All rights reserved."
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="确定"
+        android:textColor="@android:color/white"
+        app:backgroundTint="?attr/colorPrimary" />
+
+</LinearLayout>
