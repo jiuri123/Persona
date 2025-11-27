@@ -233,8 +233,14 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
         private void updateButtonState(boolean isFollowed) {
             if (isFollowed) {
                 binding.btnFollow.setText("已关注");
+                // 设置已关注状态的颜色（灰色）
+                binding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.gray));
+                binding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
             } else {
                 binding.btnFollow.setText("关注");
+                // 设置未关注状态的颜色（使用主题色或紫色）
+                binding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
+                binding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
             }
         }
     }
