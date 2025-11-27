@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 
+import com.example.demo.callback.OnFollowActionListener;
+import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
@@ -27,8 +29,9 @@ import java.util.List;
  * 社交广场Fragment
  * 显示Persona发布的帖子列表
  * 实现了添加新帖子的功能，并使用ViewModel管理数据和状态
+ * 实现OnFollowActionListener接口处理关注/取消关注操作
  */
-public class SocialSquareFragment extends Fragment {
+public class SocialSquareFragment extends Fragment implements OnFollowActionListener {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentSocialSquareBinding fragmentSocialSquareBinding;
@@ -129,9 +132,9 @@ public class SocialSquareFragment extends Fragment {
             postList = new java.util.ArrayList<>();
         }
 
-        // 创建适配器并设置ViewModel
+        // 创建适配器并设置回调接口
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
-        socialSquarePostAdapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
+        socialSquarePostAdapter.setOnFollowActionListener(this);
         fragmentSocialSquareBinding.rvSocialSquare.setAdapter(socialSquarePostAdapter);
 
         // 设置观察者
@@ -214,7 +217,7 @@ public class SocialSquareFragment extends Fragment {
             public void onChanged(List<com.example.demo.model.Persona> followedPersonas) {
                 // 当关注列表发生变化时，通知适配器更新所有项目的关注状态
                 if (socialSquarePostAdapter != null) {
-                    socialSquarePostAdapter.notifyDataSetChanged();
+                    socialSquarePostAdapter.updateFollowedList(followedPersonas);
                 }
             }
         });
@@ -228,5 +231,25 @@ public class SocialSquareFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         fragmentSocialSquareBinding = null; // 避免内存泄漏
+    }
+
+    /**
+     * 实现OnFollowActionListener接口：处理关注按钮点击事件
+     * @param persona 被点击的Persona对象
+     */
+    @Override
+    public void onFollowClick(Persona persona) {
+        if (followedPersonaListViewModel != null) {
+            // 通过ViewModel检查当前关注状态
+            boolean currentlyFollowed = followedPersonaListViewModel.isFollowingPersona(persona);
+            
+            if (currentlyFollowed) {
+                // 如果已关注，则取消关注
+                followedPersonaListViewModel.removeFollowedPersona(persona);
+            } else {
+                // 如果未关注，则添加关注
+                followedPersonaListViewModel.addFollowedPersona(persona);
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 public class FollowedPersonaListViewModel extends ViewModel {
 
     // 关注角色数据仓库
-    private final FollowedPersonaRepository repository;
+    private final FollowedPersonaRepository followedPersonaRepository;
     
     // LiveData对象，用于观察错误消息
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
@@ -28,7 +28,7 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * 初始化Repository实例
      */
     public FollowedPersonaListViewModel() {
-        repository = FollowedPersonaRepository.getInstance();
+        followedPersonaRepository = FollowedPersonaRepository.getInstance();
     }
 
     /**
@@ -36,7 +36,7 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 关注角色列表的LiveData对象
      */
     public LiveData<List<Persona>> getFollowedPersonas() {
-        return repository.getFollowedPersonas();
+        return followedPersonaRepository.getFollowedPersonas();
     }
     
     /**
@@ -60,7 +60,7 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 如果成功添加返回true，如果已关注则返回false
      */
     public boolean addFollowedPersona(Persona persona) {
-        return repository.addFollowedPersona(persona);
+        return followedPersonaRepository.addFollowedPersona(persona);
     }
 
     /**
@@ -69,7 +69,7 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 如果成功移除返回true，如果未关注则返回false
      */
     public boolean removeFollowedPersona(Persona persona) {
-        return repository.removeFollowedPersona(persona);
+        return followedPersonaRepository.removeFollowedPersona(persona);
     }
 
     /**
@@ -78,7 +78,7 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 如果已关注返回true，否则返回false
      */
     public boolean isFollowingPersona(Persona persona) {
-        return repository.isFollowingPersona(persona);
+        return followedPersonaRepository.isFollowingPersona(persona);
     }
     
     /**
@@ -87,6 +87,6 @@ public class FollowedPersonaListViewModel extends ViewModel {
      * @return 如果已关注返回true，否则返回false
      */
     public boolean isFollowingPersonaByName(String personaName) {
-        return repository.isFollowingPersonaByName(personaName);
+        return followedPersonaRepository.isFollowingPersonaByName(personaName);
     }
 }

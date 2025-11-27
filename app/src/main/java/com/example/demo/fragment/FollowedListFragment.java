@@ -29,9 +29,9 @@ import java.util.List;
 public class FollowedListFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
-    private FragmentFollowedListBinding binding;
+    private FragmentFollowedListBinding fragmentFollowedListBinding;
     // 关注列表适配器，用于显示已关注的Persona
-    private FollowedPersonaListAdapter adapter;
+    private FollowedPersonaListAdapter followedPersonaListAdapter;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
     // 已关注的Persona数据列表
@@ -76,8 +76,8 @@ public class FollowedListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // 使用视图绑定创建布局
-        binding = FragmentFollowedListBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        fragmentFollowedListBinding = FragmentFollowedListBinding.inflate(inflater, container, false);
+        return fragmentFollowedListBinding.getRoot();
     }
 
     /**
@@ -91,15 +91,15 @@ public class FollowedListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         // 设置RecyclerView的布局管理器
-        binding.rvFollowedList.setLayoutManager(new LinearLayoutManager(getContext()));
+        fragmentFollowedListBinding.rvFollowedList.setLayoutManager(new LinearLayoutManager(getContext()));
         
         // 初始化已关注Persona列表
         followedPersonaList = new ArrayList<>();
         loadFollowedPersonas(); // 加载已关注的Persona数据
         
         // 创建并设置适配器
-        adapter = new FollowedPersonaListAdapter(getContext(), followedPersonaList);
-        binding.rvFollowedList.setAdapter(adapter);
+        followedPersonaListAdapter = new FollowedPersonaListAdapter(getContext(), followedPersonaList);
+        fragmentFollowedListBinding.rvFollowedList.setAdapter(followedPersonaListAdapter);
         
         // 观察已关注Persona列表的变化
         followedPersonaListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
@@ -109,17 +109,17 @@ public class FollowedListFragment extends Fragment {
                     // 更新本地列表数据
                     followedPersonaList.clear();
                     followedPersonaList.addAll(personas);
-                    adapter.notifyDataSetChanged(); // 通知适配器数据已变化
+                    followedPersonaListAdapter.notifyDataSetChanged(); // 通知适配器数据已变化
                     
                     // 根据数据是否为空显示不同的UI状态
                     if (personas.isEmpty()) {
                         // 显示空状态视图
-                        binding.tvEmptyState.setVisibility(View.VISIBLE);
-                        binding.rvFollowedList.setVisibility(View.GONE);
+                        fragmentFollowedListBinding.tvEmptyState.setVisibility(View.VISIBLE);
+                        fragmentFollowedListBinding.rvFollowedList.setVisibility(View.GONE);
                     } else {
                         // 显示列表视图
-                        binding.tvEmptyState.setVisibility(View.GONE);
-                        binding.rvFollowedList.setVisibility(View.VISIBLE);
+                        fragmentFollowedListBinding.tvEmptyState.setVisibility(View.GONE);
+                        fragmentFollowedListBinding.rvFollowedList.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -141,6 +141,6 @@ public class FollowedListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null; // 清理视图绑定
+        fragmentFollowedListBinding = null; // 清理视图绑定
     }
 }
