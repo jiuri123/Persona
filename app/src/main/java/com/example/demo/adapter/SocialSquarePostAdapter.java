@@ -38,10 +38,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private List<Post> postList;
     // 上下文，用于启动Activity和加载资源
     private Context context;
-    // ViewModel，用于处理动态生成
-    private MyPersonaPostViewModel myPersonaPostViewModel;
-    // ViewModel，用于处理全局状态
-    private SharedViewModel sharedViewModel;
     // ViewModel，用于处理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
 
@@ -56,22 +52,12 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     }
     
     /**
-     * 设置ViewModel
-     * @param myPersonaPostViewModel 动态生成ViewModel
+     * 设置关注的Persona列表视图模型
+     * 
+     * @param followedPersonaListViewModel 关注的Persona列表视图模型对象，用于存储和展示关注的Persona相关信息
      */
-    public void setPostGenerationViewModel(MyPersonaPostViewModel myPersonaPostViewModel) {
-        this.myPersonaPostViewModel = myPersonaPostViewModel;
-    }
-    
-    /**
-     * 设置SharedViewModel
-     * @param sharedViewModel SharedViewModel实例
-     */
-    public void setSharedViewModel(SharedViewModel sharedViewModel) {
-        this.sharedViewModel = sharedViewModel;
-    }
-    
     public void setFollowedPersonaViewModel(FollowedPersonaListViewModel followedPersonaListViewModel) {
+        // 将传入的关注的Persona列表视图模型对象赋值给当前实例的成员变量
         this.followedPersonaListViewModel = followedPersonaListViewModel;
     }
 

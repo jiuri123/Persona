@@ -112,8 +112,6 @@ public class SocialSquareFragment extends Fragment {
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
-        adapter.setPostGenerationViewModel(myPersonaPostViewModel);
-        adapter.setSharedViewModel(SharedViewModel.getInstance());
         adapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
         binding.rvSocialSquare.setAdapter(adapter);
 
