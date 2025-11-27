@@ -31,18 +31,21 @@ import java.util.List;
 public class SocialSquareFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
-    private FragmentSocialSquareBinding binding;
+    private FragmentSocialSquareBinding fragmentSocialSquareBinding;
 
-    // 适配器，用于管理帖子列表
-    private SocialSquarePostAdapter adapter;
-    // 帖子数据列表
-    private List<Post> postList;
-    // ViewModel，用于管理动态生成
-    private MyPersonaViewModel myPersonaViewModel;
-    // ViewModel，用于管理关注列表
+    // ViewModel，用于管理用户已关注的persona列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
-    // ViewModel，用于管理社交广场数据
+    // ViewModel，用于管理用户创建的persona的动态生成
+    private MyPersonaViewModel myPersonaViewModel;
+    
+    // ViewModel，用于管理其他persona的动态生成
     private OtherPersonaPostViewModel otherPersonaPostViewModel;
+    
+    // 帖子数据列表，包括用户的帖子和其他persona的帖子
+    private List<Post> postList;
+    
+    // 适配器，用于绘制社交广场的帖子列表
+    private SocialSquarePostAdapter socialSquarePostAdapter;
 
     /**
      * 构造函数
@@ -61,8 +64,8 @@ public class SocialSquareFragment extends Fragment {
 
         // 获取与Activity关联的ViewModel实例
         myPersonaViewModel = new ViewModelProvider(requireActivity()).get(MyPersonaViewModel.class);
-        followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
         otherPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(OtherPersonaPostViewModel.class);
+        followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
 
         // 观察错误信息，当有错误时显示Toast
         myPersonaViewModel.getError().observe(this, new Observer<String>() {
@@ -88,25 +91,25 @@ public class SocialSquareFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // 使用视图绑定创建布局
-        binding = FragmentSocialSquareBinding.inflate(inflater, container, false);
+        fragmentSocialSquareBinding = FragmentSocialSquareBinding.inflate(inflater, container, false);
 
-        return binding.getRoot();
+        return fragmentSocialSquareBinding.getRoot();
     }
-
+    
     /**
      * 视图创建完成后调用
      * 初始化RecyclerView、适配器和观察者
      * @param view 创建的视图
      * @param savedInstanceState 保存的Fragment状态
-     */
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // 设置RecyclerView的布局管理器为线性布局
-        binding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // 获取其他Persona的帖子数据
+    */
+   @Override
+   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+       super.onViewCreated(view, savedInstanceState);
+       
+       // 设置RecyclerView的布局管理器为线性布局
+       fragmentSocialSquareBinding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
+        
+       // 获取其他Persona的帖子数据
         List<Post> otherPosts = otherPersonaPostViewModel.getOtherPostsLiveData().getValue();
         
         // 获取我的历史帖子数据
@@ -127,15 +130,15 @@ public class SocialSquareFragment extends Fragment {
         }
 
         // 创建适配器并设置ViewModel
-        adapter = new SocialSquarePostAdapter(getContext(), postList);
-        adapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
-        binding.rvSocialSquare.setAdapter(adapter);
+        socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
+        socialSquarePostAdapter.setFollowedPersonaViewModel(followedPersonaListViewModel);
+        fragmentSocialSquareBinding.rvSocialSquare.setAdapter(socialSquarePostAdapter);
 
         // 设置观察者
         setupViewObservers();
 
         // 设置添加帖子按钮的点击事件
-        binding.fabAddPost.setOnClickListener(new View.OnClickListener() {
+        fragmentSocialSquareBinding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 通过ViewModel生成新帖子，不再需要传递当前用户Persona
@@ -154,7 +157,7 @@ public class SocialSquareFragment extends Fragment {
         myPersonaViewModel.getMyPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
             public void onChanged(List<Post> myPosts) {
-                if (myPosts != null && adapter != null) {
+                if (myPosts != null && socialSquarePostAdapter != null) {
                     // 获取其他Persona的帖子
                     List<Post> otherPosts = otherPersonaPostViewModel.getOtherPostsLiveData().getValue();
                     
@@ -166,11 +169,11 @@ public class SocialSquareFragment extends Fragment {
                     }
                     
                     // 更新适配器的数据
-                    adapter.updatePosts(mergedPosts);
+                    socialSquarePostAdapter.updatePosts(mergedPosts);
                     
                     // 如果是新添加的帖子（在列表顶部），滚动到顶部
                     if (!myPosts.isEmpty()) {
-                        binding.rvSocialSquare.scrollToPosition(0);
+                        fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
                     }
                 }
             }
@@ -180,7 +183,7 @@ public class SocialSquareFragment extends Fragment {
         otherPersonaPostViewModel.getOtherPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
             public void onChanged(List<Post> posts) {
-                if (posts != null && adapter != null) {
+                if (posts != null && socialSquarePostAdapter != null) {
                     // 获取我的历史帖子
                     List<Post> myPosts = myPersonaViewModel.getMyPostsLiveData().getValue();
                     
@@ -192,7 +195,7 @@ public class SocialSquareFragment extends Fragment {
                     mergedPosts.addAll(posts); // 再添加其他Persona的帖子
                     
                     // 更新适配器的数据
-                    adapter.updatePosts(mergedPosts);
+                    socialSquarePostAdapter.updatePosts(mergedPosts);
                 }
             }
         });
@@ -201,7 +204,7 @@ public class SocialSquareFragment extends Fragment {
         myPersonaViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
-                binding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮
+                fragmentSocialSquareBinding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮
             }
         });
         
@@ -210,8 +213,8 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onChanged(List<com.example.demo.model.Persona> followedPersonas) {
                 // 当关注列表发生变化时，通知适配器更新所有项目的关注状态
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
+                if (socialSquarePostAdapter != null) {
+                    socialSquarePostAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -224,6 +227,6 @@ public class SocialSquareFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null; // 避免内存泄漏
+        fragmentSocialSquareBinding = null; // 避免内存泄漏
     }
 }

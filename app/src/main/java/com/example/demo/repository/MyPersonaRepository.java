@@ -55,7 +55,7 @@ public class MyPersonaRepository {
     
     // 用户创建的Persona列表
     private final MutableLiveData<List<Persona>> userPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
-    // 当前选中的Persona
+    // 当前用户正在使用的Persona
     private final MutableLiveData<Persona> currentUserPersonaLiveData = new MutableLiveData<>(null);
     // 用于快速查找Persona的名称集合
     private final Set<String> personaNameSet = new HashSet<>();

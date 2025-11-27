@@ -22,7 +22,7 @@ public class OtherPersonaPostRepository {
     // 单例实例
     private static OtherPersonaPostRepository instance;
 
-    // 社交帖子的LiveData，用于观察数据变化
+    // 社交帖子的LiveData
     private final MutableLiveData<List<Post>> socialPostsLiveData = new MutableLiveData<>();
     
     // Persona数据仓库的引用

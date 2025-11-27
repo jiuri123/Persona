@@ -8,12 +8,10 @@ public class Post {
 
     // 帖子作者
     private Persona author;
-
     // 帖子文本内容
     private String contentText;
     // 帖子图片资源ID（可选）
     private Integer imageDrawableId;
-
     // 帖子发布时间戳
     private String timestamp;
 

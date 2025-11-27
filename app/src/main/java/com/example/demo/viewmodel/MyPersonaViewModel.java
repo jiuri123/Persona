@@ -133,8 +133,8 @@ public class MyPersonaViewModel extends ViewModel {
     }
     
     /**
-     * 获取当前选中的Persona LiveData
-     * @return 当前选中Persona的LiveData对象
+     * 获取当前用户正在使用的Persona LiveData
+     * @return 当前用户正在使用的Persona的LiveData对象
      */
     public LiveData<Persona> getCurrentUserPersona() {
         return myPersonaRepository.getCurrentUserPersona();
