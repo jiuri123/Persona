@@ -41,8 +41,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private Context context;
     // ViewModel，用于处理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
-    // 我的Persona和Post ViewModel
-    private MyPersonaViewModel myPersonaViewModel;
 
     /**
      * 构造函数
@@ -52,7 +50,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     public SocialSquarePostAdapter(Context context, List<Post> postList) {
         this.context = context;
         this.postList = postList;
-        this.myPersonaViewModel = new MyPersonaViewModel();
     }
     
     /**
@@ -97,19 +94,23 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         // 使用视图绑定创建布局
-        ItemPersonaPostBinding binding = ItemPersonaPostBinding.inflate(inflater, parent, false);
-        return new PostViewHolder(binding);
+        ItemPersonaPostBinding itemPersonaPostBinding = ItemPersonaPostBinding.inflate(inflater, parent, false);
+        return new PostViewHolder(itemPersonaPostBinding);
     }
 
     /**
-     * 绑定数据到ViewHolder
+     * 绑定数据到ViewHolder，列表首次加载（启动软件）、列表滚动、
+     * 特定项被通知更新或调用 notifyDataSetChanged() 时调用
+     * 该函数的调用与“视图即将变得可见”这一事件强相关
      * RecyclerView会调用此方法将数据绑定到指定位置的ViewHolder
      * @param holder 要绑定数据的ViewHolder
      * @param position 数据在列表中的位置
      */
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+        // 获取即将进入用户视图的那条帖子
         Post post = postList.get(position);
+        // 将该帖子绑定到视图，更新视图上的显示内容
         holder.bind(post);
     }
 
@@ -129,18 +130,18 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     public class PostViewHolder extends RecyclerView.ViewHolder {
 
         // 视图绑定对象，用于访问布局中的各个组件
-        private final ItemPersonaPostBinding binding;
+        private final ItemPersonaPostBinding itemPersonaPostBinding;
         
         // Markwon实例，用于渲染Markdown文本
         private final Markwon markwon;
         
         /**
          * ViewHolder构造函数
-         * @param binding 视图绑定对象
+         * @param itemPersonaPostBinding 视图绑定对象
          */
-        public PostViewHolder(ItemPersonaPostBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
+        public PostViewHolder(ItemPersonaPostBinding itemPersonaPostBinding) {
+            super(itemPersonaPostBinding.getRoot());
+            this.itemPersonaPostBinding = itemPersonaPostBinding;
             
             // 初始化Markwon，配置各种插件支持Markdown特性
             markwon = Markwon.builder(itemView.getContext())
@@ -158,8 +159,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
         public void bind(Post post) {
             Persona author = post.getAuthor();
             // 设置作者名称和简介
-            binding.tvAuthorName.setText(author.getName());
-            binding.tvAuthorBioOrTime.setText(author.getBio());
+            itemPersonaPostBinding.tvAuthorName.setText(author.getName());
+            itemPersonaPostBinding.tvAuthorBioOrTime.setText(author.getBio());
 
             // 创建点击监听器，用于点击头像或作者名称时跳转到聊天界面
             View.OnClickListener startChatListener = new View.OnClickListener() {
@@ -171,47 +172,42 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                     context.startActivity(intent);
                 }
             };
+            // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
+            itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像
+            itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称
+            itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间
 
-            // 为头像和作者名称设置点击监听器
-            binding.ivAvatar.setOnClickListener(startChatListener);
-            binding.tvAuthorName.setOnClickListener(startChatListener);
 
-            // 使用Markwon渲染Markdown内容
-            markwon.setMarkdown(binding.tvContentText, post.getContentText());
+            // 使用Markwon将帖子的内容渲染成Markdown
+            markwon.setMarkdown(itemPersonaPostBinding.tvContentText, post.getContentText());
             
             // 使用Glide加载头像
             Glide.with(context)
                     .load(author.getAvatarDrawableId())
                     .placeholder(R.drawable.ic_launcher_background) // 占位图
                     .circleCrop() // 圆形裁剪
-                    .into(binding.ivAvatar);
+                    .into(itemPersonaPostBinding.ivAvatar);
             
-            // 如果帖子有图片，则显示并加载
+            // 如果帖子有图片，则显示并加载图片
             if (post.getImageDrawableId() != null) {
-                binding.ivPostImage.setVisibility(View.VISIBLE);
+                itemPersonaPostBinding.ivPostImage.setVisibility(View.VISIBLE);
                 Glide.with(context)
                         .load(post.getImageDrawableId())
                         .placeholder(R.drawable.ic_launcher_background)
-                        .into(binding.ivPostImage);
+                        .into(itemPersonaPostBinding.ivPostImage);
             } else {
                 // 没有图片则隐藏图片视图
-                binding.ivPostImage.setVisibility(View.GONE);
+                itemPersonaPostBinding.ivPostImage.setVisibility(View.GONE);
             }
 
             String authorName = author.getName();
             
-            // 通过MyPersonaPostViewModel获取当前用户Persona
-            Persona currentUserPersona = myPersonaViewModel.getCurrentUserPersona().getValue();
-            
-            // 检查是否是自己的帖子
-            boolean isOwnPost = currentUserPersona != null && 
-                               currentUserPersona.getName().equals(authorName);
-            
             // 如果是自己的帖子，隐藏关注按钮
-            if (isOwnPost) {
-                binding.btnFollow.setVisibility(View.GONE);
+            if (post.isUserPersonaPost()) {
+                itemPersonaPostBinding.btnFollow.setVisibility(View.GONE);
             } else {
-                binding.btnFollow.setVisibility(View.VISIBLE);
+                // 如果不是自己的帖子，显示关注按钮
+                itemPersonaPostBinding.btnFollow.setVisibility(View.VISIBLE);
                 
                 // 通过ViewModel检查是否已关注该作者
                 boolean isFollowed = followedPersonaListViewModel != null && 
@@ -219,7 +215,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                 updateButtonState(isFollowed);
 
                 // 设置关注按钮的点击事件
-                binding.btnFollow.setOnClickListener(new View.OnClickListener() {
+                itemPersonaPostBinding.btnFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (followedPersonaListViewModel != null) {
@@ -245,15 +241,15 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
          */
         private void updateButtonState(boolean isFollowed) {
             if (isFollowed) {
-                binding.btnFollow.setText("已关注");
+                itemPersonaPostBinding.btnFollow.setText("已关注");
                 // 设置已关注状态的颜色（灰色）
-                binding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.gray));
-                binding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
+                itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.gray));
+                itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
             } else {
-                binding.btnFollow.setText("关注");
+                itemPersonaPostBinding.btnFollow.setText("关注");
                 // 设置未关注状态的颜色（使用主题色或紫色）
-                binding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
-                binding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
+                itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
+                itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
             }
         }
     }

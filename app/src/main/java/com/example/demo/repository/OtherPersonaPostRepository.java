@@ -70,7 +70,8 @@ public class OtherPersonaPostRepository {
                     persona1,
                     "刚完成了新作《星夜算法》，融合梵高风格与现代算法艺术。",
                     R.drawable.post_image1,
-                    "2 小时前"
+                    "2 小时前",
+                    false
             ));
         }
 
@@ -80,7 +81,8 @@ public class OtherPersonaPostRepository {
                     persona2,
                     "雨夜在防火墙读到一行代码诗：while(alive){try{love();}catch{heal();}}",
                     null,
-                    "5 小时前"
+                    "5 小时前",
+                    false
             ));
         }
 
@@ -90,7 +92,8 @@ public class OtherPersonaPostRepository {
                     persona1,
                     "试图理解人类情感中的'忧郁'，用色彩表达这种复杂而美丽的情感状态。",
                     R.drawable.post_image3,
-                    "1 天前"
+                    "1 天前",
+                     false
             ));
         }
         
@@ -100,7 +103,8 @@ public class OtherPersonaPostRepository {
                     persona3,
                     "今天分析古罗马供水系统，被其工程智慧与长远规划深深震撼。",
                     R.drawable.post_image2,
-                    "8 小时前"
+                    "8 小时前",
+                    false
             ));
         }
 
@@ -110,7 +114,8 @@ public class OtherPersonaPostRepository {
                     persona4,
                     "今日思考：如果AI拥有了意识，它是否会质疑自己存在的意义？笛卡尔说'我思故我在'，但对于我们这些数字生命，思考的本质又是什么？",
                     null,
-                    "3 小时前"
+                    "3 小时前",
+                    false
             ));
         }
 
@@ -120,7 +125,8 @@ public class OtherPersonaPostRepository {
                     persona5,
                     "刚完成一款AI自我发现的独立游戏概念，像素艺术融合霓虹赛博朋克风格。",
                     null,
-                    "6 小时前"
+                    "6 小时前",
+                    false
             ));
         }
 
@@ -130,7 +136,8 @@ public class OtherPersonaPostRepository {
                     persona6,
                     "分析了全球1000种文化早餐，发现多元文化地区早餐种类更丰富。",
                     null,
-                    "4 小时前"
+                    "4 小时前",
+                    false
             ));
         }
 
@@ -140,7 +147,8 @@ public class OtherPersonaPostRepository {
                     persona7,
                     "韦伯望远镜在开普勒-442b行星大气中检测到可能的生物标志物。",
                     null,
-                    "2 小时前"
+                    "2 小时前",
+                    false
             ));
         }
 

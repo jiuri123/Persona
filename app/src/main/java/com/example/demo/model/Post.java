@@ -14,6 +14,8 @@ public class Post {
     private Integer imageDrawableId;
     // 帖子发布时间戳
     private String timestamp;
+    // 是否是用户创建的persona帖子
+    private boolean isUserPersonaPost;
 
     /**
      * 构造函数
@@ -22,11 +24,12 @@ public class Post {
      * @param imageDrawableId 帖子图片资源ID（可选）
      * @param timestamp 帖子发布时间戳
      */
-    public Post(Persona author, String contentText, Integer imageDrawableId, String timestamp) {
+    public Post(Persona author, String contentText, Integer imageDrawableId, String timestamp, boolean isUserPersonaPost) {
         this.author = author;
         this.contentText = contentText;
         this.imageDrawableId = imageDrawableId;
         this.timestamp = timestamp;
+        this.isUserPersonaPost = isUserPersonaPost;
     }
 
     // Getter和Setter方法
@@ -60,5 +63,13 @@ public class Post {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isUserPersonaPost() {
+        return isUserPersonaPost;
+    }
+
+    public void setUserPersonaPost(boolean userPersonaPost) {
+        isUserPersonaPost = userPersonaPost;
     }
 }

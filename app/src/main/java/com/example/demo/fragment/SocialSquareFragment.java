@@ -153,7 +153,7 @@ public class SocialSquareFragment extends Fragment {
      */
     private void setupViewObservers() {
 
-        // 观察我的历史帖子数据的变化
+        // 观察我的persona历史帖子数据的变化
         myPersonaViewModel.getMyPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
             public void onChanged(List<Post> myPosts) {
@@ -179,7 +179,7 @@ public class SocialSquareFragment extends Fragment {
             }
         });
 
-        // 观察社交广场数据的变化
+        // 观察其他persona的帖子的变化
         otherPersonaPostViewModel.getOtherPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
             public void onChanged(List<Post> posts) {
@@ -200,7 +200,7 @@ public class SocialSquareFragment extends Fragment {
             }
         });
 
-        // 观察加载状态，根据加载状态启用或禁用添加按钮
+        // 观察我的persona生成帖子的状态，没生成好就禁用添加按钮，生成好了就启用按钮
         myPersonaViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
@@ -208,7 +208,7 @@ public class SocialSquareFragment extends Fragment {
             }
         });
         
-        // 观察关注列表的变化，当关注列表更新时刷新适配器
+        // 观察已关注persona列表的变化，当已关注列表更新时刷新适配器
         followedPersonaListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<com.example.demo.model.Persona>>() {
             @Override
             public void onChanged(List<com.example.demo.model.Persona> followedPersonas) {

@@ -177,7 +177,8 @@ public class MyPersonaPostRepository {
                                     currentUser,
                                     postContent,
                                     null,
-                                    "刚刚"
+                                    "刚刚",
+                                    true
                             );
 
                             // 将新帖子添加到历史帖子列表
