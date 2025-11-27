@@ -18,7 +18,7 @@ public class OtherPersonaPostViewModel extends ViewModel {
 
     // 社交数据仓库和社交动态LiveData
     private final OtherPersonaPostRepository otherPersonaPostRepository;
-    private final LiveData<List<Post>> socialPostsLiveData;
+    private final LiveData<List<Post>> otherPersonaPostLiveData;
 
     /**
      * 构造函数
@@ -26,14 +26,14 @@ public class OtherPersonaPostViewModel extends ViewModel {
      */
     public OtherPersonaPostViewModel() {
         otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
-        socialPostsLiveData = otherPersonaPostRepository.getSocialPosts();
+        otherPersonaPostLiveData = otherPersonaPostRepository.getSocialPosts();
     }
 
     /**
-     * 获取社交动态LiveData
-     * @return 社交动态列表的LiveData对象，UI组件可以观察此数据变化
+     * 获取其他用户的动态LiveData
+     * @return 其他用户动态列表的LiveData对象，UI组件可以观察此数据变化
      */
-    public LiveData<List<Post>> getSocialPosts() {
-        return socialPostsLiveData;
+    public LiveData<List<Post>> getOtherPersonaPostLiveData() {
+        return otherPersonaPostLiveData;
     }
 }

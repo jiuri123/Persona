@@ -37,11 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private FollowedListFragment followedListFragment;
     
     // 视图绑定，用于替代findViewById，提高性能和类型安全
-    private ActivityMainBinding binding;
+    private ActivityMainBinding activityMainBinding;
     
     // Activity结果启动器，用于处理从CreateMyPersonaActivity返回的结果
     // 这是AndroidX推荐的替代startActivityForResult的方式
-    private ActivityResultLauncher<Intent> createPersonaLauncher;
+    private ActivityResultLauncher<Intent> createMyPersonaLauncher;
     
     // Fragment标签，用于标识不同的Fragment
     private static final String TAG_SOCIAL = "SOCIAL_SQUARE";
@@ -57,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 使用视图绑定初始化布局，避免findViewById的性能开销和类型转换错误
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(activityMainBinding.getRoot());
         
         // 注册Activity结果启动器，用于处理从CreateMyPersonaActivity返回的数据
         // 使用registerForActivityResult替代已废弃的startActivityForResult方法
-        createPersonaLauncher = registerForActivityResult(
+        createMyPersonaLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
                             Intent data = result.getData();
                             if (data != null) {
                                 // 获取从CreateMyPersonaActivity返回的Persona对象
-                                Persona persona = data.getParcelableExtra(CreateMyPersonaActivity.EXTRA_PERSONA_RESULT);
-                                if (persona != null) {
-                                    handleNewPersona(persona);
+                                Persona myPersona = data.getParcelableExtra(CreateMyPersonaActivity.EXTRA_PERSONA_RESULT);
+                                if (myPersona != null) {
+                                    handleNewPersona(myPersona);
                                 }
                             }
                         }
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         loadFragment(socialSquareFragment, TAG_SOCIAL);
         
         // 设置底部导航栏的选中项监听器
-        binding.bottomNavView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+        activityMainBinding.bottomNavView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
@@ -121,20 +121,20 @@ public class MainActivity extends AppCompatActivity {
      */
     public void launchCreatePersonaActivity() {
         Intent intent = new Intent(this, CreateMyPersonaActivity.class);
-        createPersonaLauncher.launch(intent);
+        createMyPersonaLauncher.launch(intent);
     }
     
     /**
      * 处理新创建的Persona对象
-     * @param persona 新创建的Persona对象
+     * @param myPersona 新创建的Persona对象
      */
-    private void handleNewPersona(Persona persona) {
+    private void handleNewPersona(Persona myPersona) {
         // 切换到我的Persona页面
-        binding.bottomNavView.setSelectedItemId(R.id.nav_my_persona);
+        activityMainBinding.bottomNavView.setSelectedItemId(R.id.nav_my_persona);
         
         // 使用post方法确保在UI线程中执行，并且等待Fragment完全加载后再调用
         // 这是一种处理Fragment生命周期和UI更新的安全方式
-        binding.getRoot().post(new Runnable() {
+        activityMainBinding.getRoot().post(new Runnable() {
             @Override
             public void run() {
                 // 获取当前显示的Fragment
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 
                 // 如果当前显示的是MyPersonaFragment，则调用其onPersonaCreated方法
                 if (currentFragment instanceof MyPersonaFragment) {
-                    ((MyPersonaFragment) currentFragment).onPersonaCreated(persona);
+                    ((MyPersonaFragment) currentFragment).onPersonaCreated(myPersona);
                 }
             }
         });

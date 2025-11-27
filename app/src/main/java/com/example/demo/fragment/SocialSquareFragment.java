@@ -14,11 +14,11 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 
-import com.example.demo.repository.OtherPersonaPostRepository;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
 import com.example.demo.viewmodel.MyPersonaPostViewModel;
+import com.example.demo.viewmodel.OtherPersonaPostViewModel;
 import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
@@ -42,8 +42,8 @@ public class SocialSquareFragment extends Fragment {
     private MyPersonaPostViewModel myPersonaPostViewModel;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
-    // Repository，用于管理帖子数据
-    private OtherPersonaPostRepository postRepository;
+    // ViewModel，用于管理社交广场数据
+    private OtherPersonaPostViewModel otherPersonaPostViewModel;
 
     /**
      * 构造函数
@@ -63,9 +63,7 @@ public class SocialSquareFragment extends Fragment {
         // 获取与Activity关联的ViewModel实例
         myPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(MyPersonaPostViewModel.class);
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
-        
-        // 初始化Repository
-        postRepository = OtherPersonaPostRepository.getInstance();
+        otherPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(OtherPersonaPostViewModel.class);
 
         // 观察错误信息，当有错误时显示Toast
         myPersonaPostViewModel.getError().observe(this, new Observer<String>() {
@@ -109,8 +107,8 @@ public class SocialSquareFragment extends Fragment {
         // 设置RecyclerView的布局管理器为线性布局
         binding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 获取帖子数据
-        postList = postRepository.getSocialPosts().getValue();
+        // 通过ViewModel获取帖子数据
+        postList = otherPersonaPostViewModel.getOtherPersonaPostLiveData().getValue();
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
@@ -137,6 +135,17 @@ public class SocialSquareFragment extends Fragment {
      * 观察ViewModel中的LiveData变化
      */
     private void setupViewObservers() {
+
+        // 观察社交广场数据的变化
+        otherPersonaPostViewModel.getOtherPersonaPostLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
+            @Override
+            public void onChanged(List<Post> posts) {
+                if (posts != null && adapter != null) {
+                    // 更新适配器的数据
+                    adapter.updatePosts(posts);
+                }
+            }
+        });
 
         // 观察新帖子的LiveData，当有新帖子时添加到列表顶部
         myPersonaPostViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {

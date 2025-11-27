@@ -22,9 +22,9 @@ import androidx.lifecycle.ViewModelProvider;
 public class CreateMyPersonaActivity extends AppCompatActivity {
 
     // 视图绑定，用于访问布局中的组件
-    private ActivityCreatePersonaBinding binding;
+    private ActivityCreatePersonaBinding activityCreatePersonaBinding;
     // ViewModel，处理AI生成Persona的业务逻辑
-    private CreateMyPersonaViewModel viewModel;
+    private CreateMyPersonaViewModel createMyPersonaViewModel;
 
     // 用于返回结果的Intent键名常量
     public static final String EXTRA_PERSONA_RESULT = "com.example.demo.PERSONA_RESULT";
@@ -33,17 +33,17 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 使用视图绑定初始化布局
-        binding = ActivityCreatePersonaBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        activityCreatePersonaBinding = ActivityCreatePersonaBinding.inflate(getLayoutInflater());
+        setContentView(activityCreatePersonaBinding.getRoot());
 
         // 获取ViewModel实例，ViewModel在配置变更时不会被销毁
-        viewModel = new ViewModelProvider(this).get(CreateMyPersonaViewModel.class);
+        createMyPersonaViewModel = new ViewModelProvider(this).get(CreateMyPersonaViewModel.class);
 
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
 
         // 返回按钮点击事件
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
+        activityCreatePersonaBinding.btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 关闭当前Activity，返回上一个界面
@@ -52,7 +52,7 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
         });
 
         // 创建按钮点击事件
-        binding.btnCreate.setOnClickListener(new View.OnClickListener() {
+        activityCreatePersonaBinding.btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 创建Persona并返回结果
@@ -61,11 +61,11 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
         });
 
         // AI生成按钮点击事件
-        binding.btnAiGenerate.setOnClickListener(new View.OnClickListener() {
+        activityCreatePersonaBinding.btnAiGenerate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 调用ViewModel的方法生成Persona详情
-                viewModel.generatePersonaDetails();
+                createMyPersonaViewModel.generatePersonaDetails();
             }
         });
     }
@@ -75,23 +75,23 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
      */
     private void createPersonaAndReturn() {
         // 获取用户输入的名称和背景故事
-        String name = binding.etPersonaName.getText().toString().trim();
-        String story = binding.etPersonaStory.getText().toString().trim();
+        String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
+        String myPersonaStore = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
 
         // 验证输入是否为空
-        if (name.isEmpty() || story.isEmpty()) {
+        if (myPersonaName.isEmpty() || myPersonaStore.isEmpty()) {
             Toast.makeText(this, "名称和背景故事不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // 创建Persona对象
-        String bio = "由你创建的 Persona";
+        String myPersonaBio = "由你创建的 Persona";
         int avatarId = R.drawable.avatar_zero;
-        Persona newPersona = new Persona(name, avatarId, bio, story);
+        Persona myPersona = new Persona(myPersonaName, avatarId, myPersonaBio, myPersonaStore);
 
         // 创建Intent并放入Persona对象
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(EXTRA_PERSONA_RESULT, newPersona);
+        resultIntent.putExtra(EXTRA_PERSONA_RESULT, myPersona);
 
         // 设置结果并关闭Activity
         setResult(AppCompatActivity.RESULT_OK, resultIntent);
@@ -103,43 +103,43 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
      */
     private void setupObservers() {
         // 监听加载状态，更新UI显示
-        viewModel.getIsLoading().observe(this, new Observer<Boolean>() {
+        createMyPersonaViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 if (isLoading) {
                     // 加载中，禁用按钮并显示加载文本
-                    binding.btnAiGenerate.setEnabled(false);
-                    binding.btnAiGenerate.setText("生成中...");
+                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(false);
+                    activityCreatePersonaBinding.btnAiGenerate.setText("生成中...");
                 } else {
                     // 加载完成，启用按钮并恢复原始文本
-                    binding.btnAiGenerate.setEnabled(true);
-                    binding.btnAiGenerate.setText("AI 辅助生成");
+                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(true);
+                    activityCreatePersonaBinding.btnAiGenerate.setText("AI 辅助生成");
                 }
             }
         });
 
         // 监听生成的名称，更新UI
-        viewModel.getGeneratedName().observe(this, new Observer<String>() {
+        createMyPersonaViewModel.getGeneratedName().observe(this, new Observer<String>() {
             @Override
-            public void onChanged(String name) {
-                if (name != null) {
-                    binding.etPersonaName.setText(name);
+            public void onChanged(String myPersonaName) {
+                if (myPersonaName != null) {
+                    activityCreatePersonaBinding.etPersonaName.setText(myPersonaName);
                 }
             }
         });
 
         // 监听生成的背景故事，更新UI
-        viewModel.getGeneratedStory().observe(this, new Observer<String>() {
+        createMyPersonaViewModel.getGeneratedStory().observe(this, new Observer<String>() {
             @Override
-            public void onChanged(String story) {
-                if (story != null) {
-                    binding.etPersonaStory.setText(story);
+            public void onChanged(String myPersonaStore) {
+                if (myPersonaStore != null) {
+                    activityCreatePersonaBinding.etPersonaStory.setText(myPersonaStore);
                 }
             }
         });
 
         // 监听错误信息，显示Toast提示
-        viewModel.getError().observe(this, new Observer<String>() {
+        createMyPersonaViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {

@@ -87,6 +87,15 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     }
 
     /**
+     * 更新整个帖子列表
+     * @param newPosts 新的帖子列表
+     */
+    public void updatePosts(List<Post> newPosts) {
+        this.postList = newPosts;
+        notifyDataSetChanged(); // 通知适配器整个列表已更新
+    }
+
+    /**
      * 创建ViewHolder
      * RecyclerView会调用此方法创建新的ViewHolder实例
      * @param parent 父视图组
