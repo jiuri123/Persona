@@ -6,27 +6,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.example.demo.R;
+import com.example.demo.activity.OtherPersonaChatActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
-import com.example.demo.R;
+import com.example.demo.viewmodel.MyPersonaViewModel;
 import com.example.demo.databinding.ItemPersonaPostBinding;
-import com.example.demo.activity.OtherPersonaChatActivity;
-import com.example.demo.viewmodel.MyPersonaPostViewModel;
-import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
-import java.util.List;
-
-// Markwon库用于在Android中渲染Markdown文本
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
+
+import java.util.List;
+
+// Markwon库用于在Android中渲染Markdown文本
+
 
 /**
  * 社交广场帖子适配器
@@ -40,6 +41,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private Context context;
     // ViewModel，用于处理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
+    // 我的Persona和Post ViewModel
+    private MyPersonaViewModel myPersonaViewModel;
 
     /**
      * 构造函数
@@ -49,6 +52,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     public SocialSquarePostAdapter(Context context, List<Post> postList) {
         this.context = context;
         this.postList = postList;
+        this.myPersonaViewModel = new MyPersonaViewModel();
     }
     
     /**
@@ -195,30 +199,44 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             }
 
             String authorName = author.getName();
+            
+            // 通过MyPersonaPostViewModel获取当前用户Persona
+            Persona currentUserPersona = myPersonaViewModel.getCurrentUserPersona().getValue();
+            
+            // 检查是否是自己的帖子
+            boolean isOwnPost = currentUserPersona != null && 
+                               currentUserPersona.getName().equals(authorName);
+            
+            // 如果是自己的帖子，隐藏关注按钮
+            if (isOwnPost) {
+                binding.btnFollow.setVisibility(View.GONE);
+            } else {
+                binding.btnFollow.setVisibility(View.VISIBLE);
+                
+                // 通过ViewModel检查是否已关注该作者
+                boolean isFollowed = followedPersonaListViewModel != null && 
+                                   followedPersonaListViewModel.isFollowingPersonaByName(authorName);
+                updateButtonState(isFollowed);
 
-            // 通过ViewModel检查是否已关注该作者
-            boolean isFollowed = followedPersonaListViewModel != null && 
-                               followedPersonaListViewModel.isFollowingPersonaByName(authorName);
-            updateButtonState(isFollowed);
-
-            // 设置关注按钮的点击事件
-            binding.btnFollow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (followedPersonaListViewModel != null) {
-                        // 通过ViewModel检查当前关注状态
-                        boolean currentlyFollowed = followedPersonaListViewModel.isFollowingPersonaByName(authorName);
-                        
-                        if (currentlyFollowed) {
-                            // 如果已关注，则取消关注
-                            followedPersonaListViewModel.removeFollowedPersona(author);
-                        } else {
-                            // 如果未关注，则添加关注
-                            followedPersonaListViewModel.addFollowedPersona(author);
+                // 设置关注按钮的点击事件
+                binding.btnFollow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (followedPersonaListViewModel != null) {
+                            // 通过ViewModel检查当前关注状态
+                            boolean currentlyFollowed = followedPersonaListViewModel.isFollowingPersonaByName(authorName);
+                            
+                            if (currentlyFollowed) {
+                                // 如果已关注，则取消关注
+                                followedPersonaListViewModel.removeFollowedPersona(author);
+                            } else {
+                                // 如果未关注，则添加关注
+                                followedPersonaListViewModel.addFollowedPersona(author);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         /**

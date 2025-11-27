@@ -4,25 +4,24 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
-import com.example.demo.repository.MyPersonaRepository;
 
 /**
  * 创建角色ViewModel类
  * 管理角色创建相关的数据和操作
- * 使用PersonaRepository处理API调用
+ * 使用MyPersonaPostViewModel处理API调用和数据管理
  * 使用LiveData观察数据变化，通知UI更新
  */
 public class CreateMyPersonaViewModel extends ViewModel {
 
-    // Persona数据仓库
-    private final MyPersonaRepository myPersonaRepository;
+    // 我的Persona和Post ViewModel
+    private final MyPersonaViewModel myPersonaViewModel;
 
     /**
      * 构造函数
-     * 初始化PersonaRepository实例
+     * 初始化MyPersonaPostViewModel实例
      */
     public CreateMyPersonaViewModel() {
-        this.myPersonaRepository = MyPersonaRepository.getInstance();
+        this.myPersonaViewModel = new MyPersonaViewModel();
     }
 
     /**
@@ -30,7 +29,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 角色名称的LiveData对象
      */
     public LiveData<String> getGeneratedName() {
-        return myPersonaRepository.getGeneratedName();
+        return myPersonaViewModel.getGeneratedName();
     }
 
     /**
@@ -38,7 +37,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 角色故事的LiveData对象
      */
     public LiveData<String> getGeneratedStory() {
-        return myPersonaRepository.getGeneratedStory();
+        return myPersonaViewModel.getGeneratedStory();
     }
 
     /**
@@ -46,7 +45,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 加载状态的LiveData对象
      */
     public LiveData<Boolean> getIsLoading() {
-        return myPersonaRepository.getIsLoading();
+        return myPersonaViewModel.getPersonaIsLoading();
     }
 
     /**
@@ -54,22 +53,22 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 错误信息的LiveData对象
      */
     public LiveData<String> getError() {
-        return myPersonaRepository.getError();
+        return myPersonaViewModel.getPersonaError();
     }
 
     /**
      * 清除错误信息
      */
     public void clearError() {
-        myPersonaRepository.clearError();
+        myPersonaViewModel.clearPersonaError();
     }
 
     /**
      * 生成角色详情
-     * 调用PersonaRepository生成角色名称和背景故事
+     * 调用MyPersonaPostViewModel生成角色名称和背景故事
      */
     public void generatePersonaDetails() {
-        myPersonaRepository.generatePersonaDetails();
+        myPersonaViewModel.generatePersonaDetails();
     }
 
     /**
@@ -83,8 +82,8 @@ public class CreateMyPersonaViewModel extends ViewModel {
     public Persona createPersona(String name, int avatarDrawableId, String bio, String backgroundStory) {
         Persona newPersona = new Persona(name, avatarDrawableId, bio, backgroundStory);
         
-        // 将创建的Persona设置为当前用户Persona
-        SharedViewModel.getInstance().setCurrentUserPersona(newPersona);
+        // 通过MyPersonaPostViewModel将创建的Persona添加到Repository
+        myPersonaViewModel.addUserPersona(newPersona);
         
         return newPersona;
     }

@@ -120,17 +120,6 @@ public class FollowedPersonaListAdapter extends RecyclerView.Adapter<FollowedPer
                     context.startActivity(intent);
                 }
             });
-
-            // 设置头像的点击事件，点击后也跳转到聊天界面
-            binding.ivPersonaAvatar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
-                    // 通过Intent传递Persona对象
-                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
-                    context.startActivity(intent);
-                }
-            });
         }
     }
 }

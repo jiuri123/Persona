@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.demo.model.Persona;
 import com.example.demo.network.ApiClient;
 import com.example.demo.network.ApiService;
 import com.example.demo.network.ChatRequestMessage;
@@ -13,8 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,6 +52,13 @@ public class MyPersonaRepository {
     private final MutableLiveData<String> generatedStoryLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
+    
+    // 用户创建的Persona列表
+    private final MutableLiveData<List<Persona>> userPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
+    // 当前选中的Persona
+    private final MutableLiveData<Persona> currentUserPersonaLiveData = new MutableLiveData<>(null);
+    // 用于快速查找Persona的名称集合
+    private final Set<String> personaNameSet = new HashSet<>();
 
     /**
      * 私有构造函数，防止外部实例化
@@ -100,6 +110,22 @@ public class MyPersonaRepository {
     public LiveData<String> getError() {
         return errorLiveData;
     }
+    
+    /**
+     * 获取用户创建的Persona列表LiveData
+     * @return 用户Persona列表的LiveData对象
+     */
+    public LiveData<List<Persona>> getUserPersonas() {
+        return userPersonasLiveData;
+    }
+    
+    /**
+     * 获取当前选中的Persona LiveData
+     * @return 当前选中Persona的LiveData对象
+     */
+    public LiveData<Persona> getCurrentUserPersona() {
+        return currentUserPersonaLiveData;
+    }
 
     /**
      * 清除错误信息
@@ -130,7 +156,8 @@ public class MyPersonaRepository {
         // 用户提示，包含随机主题
         String userPrompt = "请为我生成一个独特且有趣的 Persona 角色。" +
                 "请让人设带有一点 [" + randomTheme + "] 风格。" +
-                " (这是一个新的请求, 编号: " + randomNumber + ")";
+                " (这是一个新的请求, 编号: " + randomNumber + ")" +
+                "确保每次生成的人设名称和背景故事都是唯一的，而且每次生成的名字的第一个字都不同。";
 
         // 构建API请求历史
         List<ChatRequestMessage> apiHistory = new ArrayList<>();
@@ -185,5 +212,130 @@ public class MyPersonaRepository {
                 errorLiveData.postValue("网络请求失败: " + t.getMessage());
             }
         });
+    }
+    
+    /**
+     * 添加新的Persona到用户列表
+     * @param persona 要添加的Persona
+     * @return 如果成功添加返回true，如果名称已存在则返回false
+     */
+    public boolean addUserPersona(Persona persona) {
+        if (persona == null || persona.getName() == null || persona.getName().trim().isEmpty()) {
+            return false;
+        }
+        
+        String personaName = persona.getName();
+        
+        // 检查是否已经存在同名Persona
+        if (personaNameSet.contains(personaName)) {
+            return false;
+        }
+        
+        // 添加到集合和列表
+        personaNameSet.add(personaName);
+        List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
+        currentList.add(persona);
+        userPersonasLiveData.setValue(currentList);
+        
+        // 如果这是第一个Persona，自动设为当前Persona
+        if (currentList.size() == 1) {
+            currentUserPersonaLiveData.setValue(persona);
+        }
+        
+        return true;
+    }
+    
+    /**
+     * 删除用户Persona
+     * @param persona 要删除的Persona
+     * @return 如果成功删除返回true，如果不存在则返回false
+     */
+    public boolean removeUserPersona(Persona persona) {
+        if (persona == null || persona.getName() == null) {
+            return false;
+        }
+        
+        String personaName = persona.getName();
+        
+        // 检查是否存在
+        if (!personaNameSet.contains(personaName)) {
+            return false;
+        }
+        
+        // 从集合和列表中移除
+        personaNameSet.remove(personaName);
+        List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
+        currentList.removeIf(p -> p.getName().equals(personaName));
+        userPersonasLiveData.setValue(currentList);
+        
+        // 如果删除的是当前Persona，需要重新选择
+        Persona currentPersona = currentUserPersonaLiveData.getValue();
+        if (currentPersona != null && currentPersona.getName().equals(personaName)) {
+            // 如果还有其他Persona，选择第一个；否则设为null
+            if (!currentList.isEmpty()) {
+                currentUserPersonaLiveData.setValue(currentList.get(0));
+            } else {
+                currentUserPersonaLiveData.setValue(null);
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * 设置当前选中的Persona
+     * @param persona 要设为当前的Persona
+     * @return 如果成功设置返回true，如果Persona不存在于用户列表中则返回false
+     */
+    public boolean setCurrentUserPersona(Persona persona) {
+        if (persona == null || persona.getName() == null) {
+            return false;
+        }
+        
+        String personaName = persona.getName();
+        
+        // 检查Persona是否存在于用户列表中
+        if (!personaNameSet.contains(personaName)) {
+            return false;
+        }
+        
+        currentUserPersonaLiveData.setValue(persona);
+        return true;
+    }
+    
+    /**
+     * 根据名称获取用户Persona
+     * @param name Persona的名称
+     * @return 匹配的Persona对象，如果未找到则返回null
+     */
+    public Persona getUserPersonaByName(String name) {
+        if (name == null) {
+            return null;
+        }
+        
+        List<Persona> personas = userPersonasLiveData.getValue();
+        if (personas != null) {
+            for (Persona persona : personas) {
+                if (persona.getName().equals(name)) {
+                    return persona;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 检查是否有当前用户Persona
+     * @return 如果有当前用户Persona返回true，否则返回false
+     */
+    public boolean hasCurrentUserPersona() {
+        return currentUserPersonaLiveData.getValue() != null;
+    }
+    
+    /**
+     * 清除当前用户Persona
+     */
+    public void clearCurrentUserPersona() {
+        currentUserPersonaLiveData.setValue(null);
     }
 }

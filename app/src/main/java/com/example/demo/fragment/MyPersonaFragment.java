@@ -13,12 +13,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.model.ChatMessage;
+import com.example.demo.viewmodel.MyPersonaViewModel;
 import com.example.demo.viewmodel.PersonaChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
 import com.example.demo.activity.MainActivity;
 import com.example.demo.adapter.PersonaChatAdapter;
-import com.example.demo.viewmodel.SharedViewModel;
 
 import java.util.List;
 
@@ -35,6 +35,8 @@ public class MyPersonaFragment extends Fragment {
     private PersonaChatAdapter personaChatAdapter;
     // ViewModel，用于管理聊天数据和业务逻辑
     private PersonaChatViewModel viewModel;
+    // 我的Persona和Post ViewModel
+    private MyPersonaViewModel myPersonaViewModel;
 
     /**
      * 创建Fragment的视图
@@ -60,6 +62,9 @@ public class MyPersonaFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        // 初始化ViewModel
+        myPersonaViewModel = new ViewModelProvider(this).get(MyPersonaViewModel.class);
 
         // 设置UI
         setupUI();
@@ -70,8 +75,8 @@ public class MyPersonaFragment extends Fragment {
      * @param persona 新创建的Persona对象
      */
     public void onPersonaCreated(Persona persona) {
-        // 将Persona设置到SharedViewModel中
-        SharedViewModel.getInstance().setCurrentUserPersona(persona);
+        // 通过MyPersonaPostViewModel将Persona添加到Repository
+        myPersonaViewModel.addUserPersona(persona);
 
         // 如果视图已创建，则更新UI
         if (binding != null) {
@@ -84,8 +89,8 @@ public class MyPersonaFragment extends Fragment {
      * 根据是否有Persona显示不同的界面
      */
     private void setupUI() {
-        // 从SharedViewModel获取当前用户Persona
-        Persona currentUserPersona = SharedViewModel.getInstance().getCurrentUserPersona().getValue();
+        // 从MyPersonaPostViewModel获取当前用户Persona
+        Persona currentUserPersona = myPersonaViewModel.getCurrentUserPersona().getValue();
         
         if (currentUserPersona == null) {
             // 没有Persona时显示空状态界面

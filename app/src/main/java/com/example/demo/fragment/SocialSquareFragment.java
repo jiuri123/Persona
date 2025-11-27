@@ -17,9 +17,8 @@ import androidx.lifecycle.Observer;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
-import com.example.demo.viewmodel.MyPersonaPostViewModel;
+import com.example.demo.viewmodel.MyPersonaViewModel;
 import com.example.demo.viewmodel.OtherPersonaPostViewModel;
-import com.example.demo.viewmodel.SharedViewModel;
 import com.example.demo.viewmodel.FollowedPersonaListViewModel;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class SocialSquareFragment extends Fragment {
     // 帖子数据列表
     private List<Post> postList;
     // ViewModel，用于管理动态生成
-    private MyPersonaPostViewModel myPersonaPostViewModel;
+    private MyPersonaViewModel myPersonaViewModel;
     // ViewModel，用于管理关注列表
     private FollowedPersonaListViewModel followedPersonaListViewModel;
     // ViewModel，用于管理社交广场数据
@@ -61,17 +60,17 @@ public class SocialSquareFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // 获取与Activity关联的ViewModel实例
-        myPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(MyPersonaPostViewModel.class);
+        myPersonaViewModel = new ViewModelProvider(requireActivity()).get(MyPersonaViewModel.class);
         followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
         otherPersonaPostViewModel = new ViewModelProvider(requireActivity()).get(OtherPersonaPostViewModel.class);
 
         // 观察错误信息，当有错误时显示Toast
-        myPersonaPostViewModel.getError().observe(this, new Observer<String>() {
+        myPersonaViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    myPersonaPostViewModel.clearError(); // 清除错误信息
+                    myPersonaViewModel.clearError(); // 清除错误信息
                 }
             }
         });
@@ -107,8 +106,25 @@ public class SocialSquareFragment extends Fragment {
         // 设置RecyclerView的布局管理器为线性布局
         binding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 通过ViewModel获取帖子数据
-        postList = otherPersonaPostViewModel.getOtherPersonaPostLiveData().getValue();
+        // 获取其他Persona的帖子数据
+        List<Post> otherPosts = otherPersonaPostViewModel.getOtherPostsLiveData().getValue();
+        
+        // 获取我的历史帖子数据
+        List<Post> myPosts = myPersonaViewModel.getMyPostsLiveData().getValue();
+        
+        // 合并两个数据源的帖子
+        if (otherPosts != null && myPosts != null) {
+            // 创建合并后的列表，将我的帖子放在前面
+            postList = new java.util.ArrayList<>();
+            postList.addAll(myPosts); // 先添加我的帖子
+            postList.addAll(otherPosts); // 再添加其他Persona的帖子
+        } else if (otherPosts != null) {
+            postList = otherPosts;
+        } else if (myPosts != null) {
+            postList = myPosts;
+        } else {
+            postList = new java.util.ArrayList<>();
+        }
 
         // 创建适配器并设置ViewModel
         adapter = new SocialSquarePostAdapter(getContext(), postList);
@@ -123,7 +139,7 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 通过ViewModel生成新帖子，不再需要传递当前用户Persona
-                myPersonaPostViewModel.generateNewPost();
+                myPersonaViewModel.generateNewPost();
             }
         });
     }
@@ -134,30 +150,55 @@ public class SocialSquareFragment extends Fragment {
      */
     private void setupViewObservers() {
 
-        // 观察社交广场数据的变化
-        otherPersonaPostViewModel.getOtherPersonaPostLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
+        // 观察我的历史帖子数据的变化
+        myPersonaViewModel.getMyPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
-            public void onChanged(List<Post> posts) {
-                if (posts != null && adapter != null) {
+            public void onChanged(List<Post> myPosts) {
+                if (myPosts != null && adapter != null) {
+                    // 获取其他Persona的帖子
+                    List<Post> otherPosts = otherPersonaPostViewModel.getOtherPostsLiveData().getValue();
+                    
+                    // 合并两个数据源的帖子
+                    List<Post> mergedPosts = new java.util.ArrayList<>();
+                    mergedPosts.addAll(myPosts); // 先添加我的帖子
+                    if (otherPosts != null) {
+                        mergedPosts.addAll(otherPosts); // 再添加其他Persona的帖子
+                    }
+                    
                     // 更新适配器的数据
-                    adapter.updatePosts(posts);
+                    adapter.updatePosts(mergedPosts);
+                    
+                    // 如果是新添加的帖子（在列表顶部），滚动到顶部
+                    if (!myPosts.isEmpty()) {
+                        binding.rvSocialSquare.scrollToPosition(0);
+                    }
                 }
             }
         });
 
-        // 观察新帖子的LiveData，当有新帖子时添加到列表顶部
-        myPersonaPostViewModel.getNewPostLiveData().observe(getViewLifecycleOwner(), new Observer<Post>() {
+        // 观察社交广场数据的变化
+        otherPersonaPostViewModel.getOtherPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
             @Override
-            public void onChanged(Post newPost) {
-                if (newPost != null && adapter != null) {
-                    adapter.addPostAtTop(newPost); // 在列表顶部添加新帖子
-                    binding.rvSocialSquare.scrollToPosition(0); // 滚动到顶部显示新帖子
+            public void onChanged(List<Post> posts) {
+                if (posts != null && adapter != null) {
+                    // 获取我的历史帖子
+                    List<Post> myPosts = myPersonaViewModel.getMyPostsLiveData().getValue();
+                    
+                    // 合并两个数据源的帖子
+                    List<Post> mergedPosts = new java.util.ArrayList<>();
+                    if (myPosts != null) {
+                        mergedPosts.addAll(myPosts); // 先添加我的帖子
+                    }
+                    mergedPosts.addAll(posts); // 再添加其他Persona的帖子
+                    
+                    // 更新适配器的数据
+                    adapter.updatePosts(mergedPosts);
                 }
             }
         });
 
         // 观察加载状态，根据加载状态启用或禁用添加按钮
-        myPersonaPostViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        myPersonaViewModel.getIsLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 binding.fabAddPost.setEnabled(!isLoading); // 加载时禁用按钮

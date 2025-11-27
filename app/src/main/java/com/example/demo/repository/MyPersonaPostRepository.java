@@ -42,7 +42,7 @@ public class MyPersonaPostRepository {
     private final Random random = new Random();
 
     // LiveData对象，用于观察数据变化
-    private final MutableLiveData<Post> newPostLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<Post>> myPostsLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
@@ -66,14 +66,6 @@ public class MyPersonaPostRepository {
     }
 
     /**
-     * 获取新动态LiveData
-     * @return 新动态的LiveData对象
-     */
-    public LiveData<Post> getNewPostLiveData() {
-        return newPostLiveData;
-    }
-
-    /**
      * 获取加载状态LiveData
      * @return 加载状态的LiveData对象
      */
@@ -90,10 +82,26 @@ public class MyPersonaPostRepository {
     }
 
     /**
+     * 获取我的历史帖子LiveData
+     * @return 我的帖子列表的LiveData对象
+     */
+    public LiveData<List<Post>> getMyPostsLiveData() {
+        return myPostsLiveData;
+    }
+
+    /**
      * 清除错误信息
      */
     public void clearError() {
         errorLiveData.setValue(null);
+    }
+
+    /**
+     * 设置错误信息
+     * @param error 错误信息
+     */
+    public void setError(String error) {
+        errorLiveData.setValue(error);
     }
 
     /**
@@ -102,11 +110,6 @@ public class MyPersonaPostRepository {
      * @param currentUser 当前用户的Persona对象
      */
     public void generateNewPost(Persona currentUser) {
-        if (currentUser == null) {
-            errorLiveData.setValue("请先在 '我的 Persona' 标签页中创建一个人设");
-            return;
-        }
-
         // 如果正在加载，则不执行新的请求
         if (Boolean.TRUE.equals(isLoadingLiveData.getValue())) {
             return;
@@ -142,6 +145,7 @@ public class MyPersonaPostRepository {
                 "4. 列表 (用- 项目或1. 项目表示)" +
                 "5. [链接文本](URL) (用[文本](URL)表示)" +
                 "6. `代码` (用`代码`表示)" +
+                "请确保动态内容简洁明了，字数控制在50-100字之间。" +
                 "(请求编号: " + randomNumber + ")";
 
         // 构建API请求历史
@@ -176,8 +180,13 @@ public class MyPersonaPostRepository {
                                     "刚刚"
                             );
 
-                            // 更新LiveData，通知UI更新
-                            newPostLiveData.postValue(newPost);
+                            // 将新帖子添加到历史帖子列表
+                            List<Post> currentPosts = myPostsLiveData.getValue();
+                            if (currentPosts == null) {
+                                currentPosts = new ArrayList<>();
+                            }
+                            currentPosts.add(0, newPost); // 添加到列表顶部
+                            myPostsLiveData.postValue(currentPosts);
 
                         } catch (JSONException e) {
                             // JSON解析错误

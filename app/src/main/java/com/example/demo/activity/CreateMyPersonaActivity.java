@@ -85,7 +85,7 @@ public class CreateMyPersonaActivity extends AppCompatActivity {
         }
 
         // 创建Persona对象
-        String myPersonaBio = "由你创建的 Persona";
+        String myPersonaBio = "你创建的 Persona";
         int avatarId = R.drawable.avatar_zero;
         Persona myPersona = new Persona(myPersonaName, avatarId, myPersonaBio, myPersonaStore);
 

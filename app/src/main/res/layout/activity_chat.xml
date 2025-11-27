@@ -30,7 +30,7 @@
             android:id="@+id/etChatMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="和你的 Persona 对话..."
+            android:hint="和 Persona 对话..."
             android:inputType="textMultiLine"
             android:padding="12dp"
             android:layout_marginEnd="8dp"
