@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.demo.viewmodel.CreateUserPersonaViewModel;
+import com.example.demo.viewmodel.UserPersonaCreatingViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.R;
 import com.example.demo.databinding.ActivityCreatePersonaBinding;
@@ -19,12 +19,12 @@ import androidx.lifecycle.ViewModelProvider;
  * 创建Persona的活动界面
  * 允许用户手动输入或使用AI生成Persona的名称和背景故事
  */
-public class CreateUserPersonaActivity extends AppCompatActivity {
+public class UserPersonaCreatingActivity extends AppCompatActivity {
 
     // 视图绑定，用于访问布局中的组件
     private ActivityCreatePersonaBinding activityCreatePersonaBinding;
     // ViewModel，处理AI生成Persona的业务逻辑
-    private CreateUserPersonaViewModel createUserPersonaViewModel;
+    private UserPersonaCreatingViewModel userPersonaCreatingViewModel;
 
     // 用于返回结果的Intent键名常量
     public static final String EXTRA_PERSONA_RESULT = "com.example.demo.PERSONA_RESULT";
@@ -37,7 +37,7 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
         setContentView(activityCreatePersonaBinding.getRoot());
 
         // 获取ViewModel实例，ViewModel在配置变更时不会被销毁
-        createUserPersonaViewModel = new ViewModelProvider(this).get(CreateUserPersonaViewModel.class);
+        userPersonaCreatingViewModel = new ViewModelProvider(this).get(UserPersonaCreatingViewModel.class);
 
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
@@ -65,7 +65,7 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 调用ViewModel的方法生成Persona详情
-                createUserPersonaViewModel.generatePersonaDetails();
+                userPersonaCreatingViewModel.generatePersonaDetails();
             }
         });
     }
@@ -103,7 +103,7 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
      */
     private void setupObservers() {
         // 监听加载状态，更新UI显示
-        createUserPersonaViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
+        userPersonaCreatingViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 if (isLoading) {
@@ -119,7 +119,7 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
         });
 
         // 监听生成的名称，更新UI
-        createUserPersonaViewModel.getGeneratedName().observe(this, new Observer<String>() {
+        userPersonaCreatingViewModel.getGeneratedName().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String myPersonaName) {
                 if (myPersonaName != null) {
@@ -129,7 +129,7 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
         });
 
         // 监听生成的背景故事，更新UI
-        createUserPersonaViewModel.getGeneratedStory().observe(this, new Observer<String>() {
+        userPersonaCreatingViewModel.getGeneratedStory().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String myPersonaStore) {
                 if (myPersonaStore != null) {
@@ -139,11 +139,11 @@ public class CreateUserPersonaActivity extends AppCompatActivity {
         });
 
         // 监听错误信息，显示Toast提示
-        createUserPersonaViewModel.getError().observe(this, new Observer<String>() {
+        userPersonaCreatingViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
-                    Toast.makeText(CreateUserPersonaActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserPersonaCreatingActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
                 }
             }
         });

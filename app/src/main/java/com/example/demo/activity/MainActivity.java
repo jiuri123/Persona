@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent data = result.getData();
                             if (data != null) {
                                 // 获取从CreateMyPersonaActivity返回的Persona对象
-                                Persona myPersona = data.getParcelableExtra(CreateUserPersonaActivity.EXTRA_PERSONA_RESULT);
+                                Persona myPersona = data.getParcelableExtra(UserPersonaCreatingActivity.EXTRA_PERSONA_RESULT);
                                 if (myPersona != null) {
                                     handleNewPersona(myPersona);
                                 }
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
      * 这是AndroidX推荐的现代方式，提供类型安全和更清晰的API
      */
     public void launchCreatePersonaActivity() {
-        Intent intent = new Intent(this, CreateUserPersonaActivity.class);
+        Intent intent = new Intent(this, UserPersonaCreatingActivity.class);
         createMyPersonaLauncher.launch(intent);
     }
     

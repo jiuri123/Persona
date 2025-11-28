@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
 import com.example.demo.viewmodel.PersonaChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
@@ -36,7 +36,7 @@ public class UserPersonaFragment extends Fragment {
     // ViewModel，用于管理聊天数据和业务逻辑
     private PersonaChatViewModel personaChatViewModel;
     // 我的Persona和Post ViewModel
-    private UserPersonaCreateAndChatViewModel userPersonaCreateAndChatViewModel;
+    private UserPersonaViewModel userPersonaViewModel;
 
     /**
      * 创建Fragment的视图
@@ -64,7 +64,7 @@ public class UserPersonaFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         // 初始化ViewModel
-        userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
 
         // 设置UI
         setupUI();
@@ -76,7 +76,7 @@ public class UserPersonaFragment extends Fragment {
      */
     public void onPersonaCreated(Persona persona) {
         // 通过MyPersonaPostViewModel将Persona添加到Repository
-        userPersonaCreateAndChatViewModel.addUserPersona(persona);
+        userPersonaViewModel.addUserPersona(persona);
 
         // 如果视图已创建，则更新UI
         if (fragmentMyPersonaBinding != null) {
@@ -90,7 +90,7 @@ public class UserPersonaFragment extends Fragment {
      */
     private void setupUI() {
         // 从MyPersonaPostViewModel获取当前用户Persona
-        Persona currentUserPersona = userPersonaCreateAndChatViewModel.getCurrentUserPersona().getValue();
+        Persona currentUserPersona = userPersonaViewModel.getCurrentUserPersona().getValue();
         
         if (currentUserPersona == null) {
             // 没有Persona时显示空状态界面
