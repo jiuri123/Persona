@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.demo.model.Persona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
-import com.example.demo.activity.OtherPersonaChatActivity;
+import com.example.demo.activity.ChatWithOtherPersonaActivity;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import java.util.List;
  * 用于在RecyclerView中显示用户已关注的Persona列表
  * 实现了点击Persona项或头像跳转到聊天界面的功能
  */
-public class FollowedPersonaListAdapter extends RecyclerView.Adapter<FollowedPersonaListAdapter.FollowedPersonaViewHolder> {
+public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedListAdapter.FollowedPersonaViewHolder> {
 
     // 已关注的Persona数据列表
     private List<Persona> followedPersonaList;
@@ -34,7 +34,7 @@ public class FollowedPersonaListAdapter extends RecyclerView.Adapter<FollowedPer
      * @param context 上下文
      * @param followedPersonaList 已关注的Persona数据列表
      */
-    public FollowedPersonaListAdapter(Context context, List<Persona> followedPersonaList) {
+    public UserFollowedListAdapter(Context context, List<Persona> followedPersonaList) {
         this.context = context;
         this.followedPersonaList = followedPersonaList;
     }
@@ -114,9 +114,9 @@ public class FollowedPersonaListAdapter extends RecyclerView.Adapter<FollowedPer
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
+                    Intent intent = new Intent(context, ChatWithOtherPersonaActivity.class);
                     // 通过Intent传递Persona对象
-                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
+                    intent.putExtra(ChatWithOtherPersonaActivity.EXTRA_PERSONA, persona);
                     context.startActivity(intent);
                 }
             });

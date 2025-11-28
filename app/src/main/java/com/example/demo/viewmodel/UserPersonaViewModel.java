@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
-import com.example.demo.repository.MyPersonaPostRepository;
-import com.example.demo.repository.MyPersonaRepository;
+import com.example.demo.repository.UserPersonaPostRepository;
+import com.example.demo.repository.UserPersonaRepository;
 
 import java.util.List;
 
@@ -16,21 +16,21 @@ import java.util.List;
  * 作为MyPersonaRepository的统一入口，符合MVVM架构原则
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class MyPersonaViewModel extends ViewModel {
+public class UserPersonaViewModel extends ViewModel {
 
     // Post数据仓库
-    private final MyPersonaPostRepository myPersonaPostRepository;
+    private final UserPersonaPostRepository userPersonaPostRepository;
     
     // Persona数据仓库
-    private final MyPersonaRepository myPersonaRepository;
+    private final UserPersonaRepository userPersonaRepository;
 
     /**
      * 构造函数
      * 初始化PostRepository和PersonaRepository实例
      */
-    public MyPersonaViewModel() {
-        this.myPersonaPostRepository = MyPersonaPostRepository.getInstance();
-        this.myPersonaRepository = MyPersonaRepository.getInstance();
+    public UserPersonaViewModel() {
+        this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
+        this.userPersonaRepository = UserPersonaRepository.getInstance();
     }
 
     // ========== Post相关方法 ==========
@@ -40,7 +40,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 加载状态的LiveData对象
      */
     public LiveData<Boolean> getIsLoading() {
-        return myPersonaPostRepository.getIsLoading();
+        return userPersonaPostRepository.getIsLoading();
     }
 
     /**
@@ -48,14 +48,14 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 错误信息的LiveData对象
      */
     public LiveData<String> getError() {
-        return myPersonaPostRepository.getError();
+        return userPersonaPostRepository.getError();
     }
 
     /**
      * 清除错误信息
      */
     public void clearError() {
-        myPersonaPostRepository.clearError();
+        userPersonaPostRepository.clearError();
     }
 
     /**
@@ -63,7 +63,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 我的帖子列表的LiveData对象
      */
     public LiveData<List<Post>> getMyPostsLiveData() {
-        return myPersonaPostRepository.getMyPostsLiveData();
+        return userPersonaPostRepository.getMyPostsLiveData();
     }
 
     /**
@@ -72,14 +72,14 @@ public class MyPersonaViewModel extends ViewModel {
      */
     public void generateNewPost() {
         // 从MyPersonaRepository获取当前用户Persona
-        Persona currentUser = myPersonaRepository.getCurrentUserPersona().getValue();
+        Persona currentUser = userPersonaRepository.getCurrentUserPersona().getValue();
         // 如果当前用户为空，设置错误信息并返回
         if (currentUser == null) {
-            myPersonaPostRepository.setError("请先在 '我的 Persona' 中创建一个人设");
+            userPersonaPostRepository.setError("请先在 '我的 Persona' 中创建一个人设");
             return;
         }else{
             // 调用PostRepository生成新动态
-            myPersonaPostRepository.generateNewPost(currentUser);
+            userPersonaPostRepository.generateNewPost(currentUser);
         }
     }
     
@@ -90,7 +90,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 角色名称的LiveData对象
      */
     public LiveData<String> getGeneratedName() {
-        return myPersonaRepository.getGeneratedName();
+        return userPersonaRepository.getGeneratedName();
     }
 
     /**
@@ -98,7 +98,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 角色故事的LiveData对象
      */
     public LiveData<String> getGeneratedStory() {
-        return myPersonaRepository.getGeneratedStory();
+        return userPersonaRepository.getGeneratedStory();
     }
 
     /**
@@ -106,7 +106,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return Persona加载状态的LiveData对象
      */
     public LiveData<Boolean> getPersonaIsLoading() {
-        return myPersonaRepository.getIsLoading();
+        return userPersonaRepository.getIsLoading();
     }
 
     /**
@@ -114,14 +114,14 @@ public class MyPersonaViewModel extends ViewModel {
      * @return Persona错误信息的LiveData对象
      */
     public LiveData<String> getPersonaError() {
-        return myPersonaRepository.getError();
+        return userPersonaRepository.getError();
     }
 
     /**
      * 清除Persona错误信息
      */
     public void clearPersonaError() {
-        myPersonaRepository.clearError();
+        userPersonaRepository.clearError();
     }
     
     /**
@@ -129,7 +129,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 用户Persona列表的LiveData对象
      */
     public LiveData<List<Persona>> getUserPersonas() {
-        return myPersonaRepository.getUserPersonas();
+        return userPersonaRepository.getUserPersonas();
     }
     
     /**
@@ -137,7 +137,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 当前用户正在使用的Persona的LiveData对象
      */
     public LiveData<Persona> getCurrentUserPersona() {
-        return myPersonaRepository.getCurrentUserPersona();
+        return userPersonaRepository.getCurrentUserPersona();
     }
     
     /**
@@ -145,7 +145,7 @@ public class MyPersonaViewModel extends ViewModel {
      * 调用PersonaRepository生成角色名称和背景故事
      */
     public void generatePersonaDetails() {
-        myPersonaRepository.generatePersonaDetails();
+        userPersonaRepository.generatePersonaDetails();
     }
     
     /**
@@ -154,7 +154,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 如果成功添加返回true，如果名称已存在则返回false
      */
     public boolean addUserPersona(Persona persona) {
-        return myPersonaRepository.addUserPersona(persona);
+        return userPersonaRepository.addUserPersona(persona);
     }
     
     /**
@@ -163,7 +163,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 如果成功删除返回true，如果不存在则返回false
      */
     public boolean removeUserPersona(Persona persona) {
-        return myPersonaRepository.removeUserPersona(persona);
+        return userPersonaRepository.removeUserPersona(persona);
     }
     
     /**
@@ -172,7 +172,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 如果成功设置返回true，如果Persona不存在于用户列表中则返回false
      */
     public boolean setCurrentUserPersona(Persona persona) {
-        return myPersonaRepository.setCurrentUserPersona(persona);
+        return userPersonaRepository.setCurrentUserPersona(persona);
     }
     
     /**
@@ -181,7 +181,7 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 匹配的Persona对象，如果未找到则返回null
      */
     public Persona getUserPersonaByName(String name) {
-        return myPersonaRepository.getUserPersonaByName(name);
+        return userPersonaRepository.getUserPersonaByName(name);
     }
     
     /**
@@ -189,13 +189,13 @@ public class MyPersonaViewModel extends ViewModel {
      * @return 如果有当前用户Persona返回true，否则返回false
      */
     public boolean hasCurrentUserPersona() {
-        return myPersonaRepository.hasCurrentUserPersona();
+        return userPersonaRepository.hasCurrentUserPersona();
     }
     
     /**
      * 清除当前用户Persona
      */
     public void clearCurrentUserPersona() {
-        myPersonaRepository.clearCurrentUserPersona();
+        userPersonaRepository.clearCurrentUserPersona();
     }
 }

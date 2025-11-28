@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.repository.ChatWithPersonaRepository;
+import com.example.demo.repository.ChatRepository;
 import com.example.demo.model.Persona;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class PersonaChatViewModel extends ViewModel {
 
-    private ChatWithPersonaRepository chatWithPersonaRepository;
+    private ChatRepository chatRepository;
 
     private LiveData<List<ChatMessage>> chatHistoryLiveData;
 
@@ -27,9 +27,9 @@ public class PersonaChatViewModel extends ViewModel {
      * @param persona 关联的角色对象
      */
     public void init(Persona persona) {
-        if (chatWithPersonaRepository == null) {
-            chatWithPersonaRepository = new ChatWithPersonaRepository(persona);
-            chatHistoryLiveData = chatWithPersonaRepository.getChatHistory();
+        if (chatRepository == null) {
+            chatRepository = new ChatRepository(persona);
+            chatHistoryLiveData = chatRepository.getChatHistory();
         }
     }
 
@@ -46,8 +46,8 @@ public class PersonaChatViewModel extends ViewModel {
      * @param messageText 要发送的消息文本
      */
     public void sendMessage(String messageText) {
-        if (chatWithPersonaRepository != null) {
-            chatWithPersonaRepository.sendMessage(messageText);
+        if (chatRepository != null) {
+            chatRepository.sendMessage(messageText);
         }
     }
 

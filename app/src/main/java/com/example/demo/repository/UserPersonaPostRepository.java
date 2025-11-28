@@ -28,10 +28,10 @@ import retrofit2.Response;
  * 实现Repository模式，封装网络请求和数据管理逻辑
  * 使用单例模式确保全局只有一个实例
  */
-public class MyPersonaPostRepository {
+public class UserPersonaPostRepository {
     
     // 单例实例
-    private static MyPersonaPostRepository instance;
+    private static UserPersonaPostRepository instance;
     
     // API密钥和模型名称常量
     private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
@@ -50,7 +50,7 @@ public class MyPersonaPostRepository {
      * 私有构造函数
      * 初始化API服务实例
      */
-    private MyPersonaPostRepository() {
+    private UserPersonaPostRepository() {
         this.apiService = ApiClient.getApiService();
     }
     
@@ -58,9 +58,9 @@ public class MyPersonaPostRepository {
      * 获取单例实例
      * @return MyPersonaPostRepository的单例实例
      */
-    public static synchronized MyPersonaPostRepository getInstance() {
+    public static synchronized UserPersonaPostRepository getInstance() {
         if (instance == null) {
-            instance = new MyPersonaPostRepository();
+            instance = new UserPersonaPostRepository();
         }
         return instance;
     }

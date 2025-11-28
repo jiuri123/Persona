@@ -14,10 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Demo">
         <activity
-            android:name=".activity.OtherPersonaChatActivity"
+            android:name=".activity.ChatWithOtherPersonaActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.CreateMyPersonaActivity"
+            android:name=".activity.CreateUserPersonaActivity"
             android:exported="false" />
         <activity
             android:name=".activity.MainActivity"

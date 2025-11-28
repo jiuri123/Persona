@@ -13,10 +13,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.demo.adapter.FollowedPersonaListAdapter;
+import com.example.demo.adapter.UserFollowedListAdapter;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentFollowedListBinding;
-import com.example.demo.viewmodel.FollowedPersonaListViewModel;
+import com.example.demo.viewmodel.UserFollowedListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +26,19 @@ import java.util.List;
  * 显示用户已关注的Persona列表
  * 使用ViewModel管理数据，通过LiveData观察数据变化
  */
-public class FollowedListFragment extends Fragment {
+public class UserFollowedListFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentFollowedListBinding fragmentFollowedListBinding;
     // 关注列表适配器，用于显示已关注的Persona
-    private FollowedPersonaListAdapter followedPersonaListAdapter;
+    private UserFollowedListAdapter userFollowedListAdapter;
     // ViewModel，用于管理关注列表
-    private FollowedPersonaListViewModel followedPersonaListViewModel;
+    private UserFollowedListViewModel userFollowedListViewModel;
     // 已关注的Persona数据列表
     private List<Persona> followedPersonaList;
 
     // 默认构造函数
-    public FollowedListFragment() {
+    public UserFollowedListFragment() {
     }
 
     /**
@@ -51,15 +51,15 @@ public class FollowedListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         
         // 获取与Activity关联的ViewModel实例
-        followedPersonaListViewModel = new ViewModelProvider(requireActivity()).get(FollowedPersonaListViewModel.class);
+        userFollowedListViewModel = new ViewModelProvider(requireActivity()).get(UserFollowedListViewModel.class);
         
         // 观察错误消息，当有错误时显示Toast
-        followedPersonaListViewModel.getError().observe(this, new Observer<String>() {
+        userFollowedListViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    followedPersonaListViewModel.clearError(); // 清除错误消息
+                    userFollowedListViewModel.clearError(); // 清除错误消息
                 }
             }
         });
@@ -98,18 +98,18 @@ public class FollowedListFragment extends Fragment {
         loadFollowedPersonas(); // 加载已关注的Persona数据
         
         // 创建并设置适配器
-        followedPersonaListAdapter = new FollowedPersonaListAdapter(getContext(), followedPersonaList);
-        fragmentFollowedListBinding.rvFollowedList.setAdapter(followedPersonaListAdapter);
+        userFollowedListAdapter = new UserFollowedListAdapter(getContext(), followedPersonaList);
+        fragmentFollowedListBinding.rvFollowedList.setAdapter(userFollowedListAdapter);
         
         // 观察已关注Persona列表的变化
-        followedPersonaListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
+        userFollowedListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
             @Override
             public void onChanged(List<Persona> personas) {
                 if (personas != null) {
                     // 更新本地列表数据
                     followedPersonaList.clear();
                     followedPersonaList.addAll(personas);
-                    followedPersonaListAdapter.notifyDataSetChanged(); // 通知适配器数据已变化
+                    userFollowedListAdapter.notifyDataSetChanged(); // 通知适配器数据已变化
                     
                     // 根据数据是否为空显示不同的UI状态
                     if (personas.isEmpty()) {

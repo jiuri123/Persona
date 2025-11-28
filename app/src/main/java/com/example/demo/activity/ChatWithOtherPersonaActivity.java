@@ -21,7 +21,7 @@ import java.util.List;
  * 与其他Persona聊天的活动界面
  * 显示聊天界面，允许用户与选择的Persona进行对话
  */
-public class OtherPersonaChatActivity extends AppCompatActivity {
+public class ChatWithOtherPersonaActivity extends AppCompatActivity {
 
     // 用于传递Persona对象的Intent键名常量
     public static final String EXTRA_PERSONA = "com.example.demo.EXTRA_PERSONA";

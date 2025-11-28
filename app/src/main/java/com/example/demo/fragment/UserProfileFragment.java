@@ -18,13 +18,13 @@ import com.example.demo.databinding.FragmentProfileBinding;
  * 个人资料Fragment
  * 显示用户个人资料页面，包含我的Persona、应用设置、关于和退出登录等功能
  */
-public class MyProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentProfileBinding binding;
 
     // 默认构造函数
-    public MyProfileFragment() {
+    public UserProfileFragment() {
     }
 
     /**

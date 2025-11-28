@@ -11,17 +11,17 @@ import com.example.demo.model.Persona;
  * 使用MyPersonaPostViewModel处理API调用和数据管理
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class CreateMyPersonaViewModel extends ViewModel {
+public class CreateUserPersonaViewModel extends ViewModel {
 
     // 我的Persona和Post ViewModel
-    private final MyPersonaViewModel myPersonaViewModel;
+    private final UserPersonaViewModel userPersonaViewModel;
 
     /**
      * 构造函数
      * 初始化MyPersonaPostViewModel实例
      */
-    public CreateMyPersonaViewModel() {
-        this.myPersonaViewModel = new MyPersonaViewModel();
+    public CreateUserPersonaViewModel() {
+        this.userPersonaViewModel = new UserPersonaViewModel();
     }
 
     /**
@@ -29,7 +29,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 角色名称的LiveData对象
      */
     public LiveData<String> getGeneratedName() {
-        return myPersonaViewModel.getGeneratedName();
+        return userPersonaViewModel.getGeneratedName();
     }
 
     /**
@@ -37,7 +37,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 角色故事的LiveData对象
      */
     public LiveData<String> getGeneratedStory() {
-        return myPersonaViewModel.getGeneratedStory();
+        return userPersonaViewModel.getGeneratedStory();
     }
 
     /**
@@ -45,7 +45,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 加载状态的LiveData对象
      */
     public LiveData<Boolean> getIsLoading() {
-        return myPersonaViewModel.getPersonaIsLoading();
+        return userPersonaViewModel.getPersonaIsLoading();
     }
 
     /**
@@ -53,14 +53,14 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * @return 错误信息的LiveData对象
      */
     public LiveData<String> getError() {
-        return myPersonaViewModel.getPersonaError();
+        return userPersonaViewModel.getPersonaError();
     }
 
     /**
      * 清除错误信息
      */
     public void clearError() {
-        myPersonaViewModel.clearPersonaError();
+        userPersonaViewModel.clearPersonaError();
     }
 
     /**
@@ -68,7 +68,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
      * 调用MyPersonaPostViewModel生成角色名称和背景故事
      */
     public void generatePersonaDetails() {
-        myPersonaViewModel.generatePersonaDetails();
+        userPersonaViewModel.generatePersonaDetails();
     }
 
     /**
@@ -83,7 +83,7 @@ public class CreateMyPersonaViewModel extends ViewModel {
         Persona newPersona = new Persona(name, avatarDrawableId, bio, backgroundStory);
         
         // 通过MyPersonaPostViewModel将创建的Persona添加到Repository
-        myPersonaViewModel.addUserPersona(newPersona);
+        userPersonaViewModel.addUserPersona(newPersona);
         
         return newPersona;
     }

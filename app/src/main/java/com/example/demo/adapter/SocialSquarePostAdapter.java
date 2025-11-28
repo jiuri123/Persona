@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
-import com.example.demo.activity.OtherPersonaChatActivity;
-import com.example.demo.callback.OnFollowActionListener;
+import com.example.demo.activity.ChatWithOtherPersonaActivity;
+import com.example.demo.callback.UserFollowActionListener;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.databinding.ItemPersonaPostBinding;
@@ -41,7 +41,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 关注操作回调接口
-    private OnFollowActionListener followActionListener;
+    private UserFollowActionListener userFollowActionListener;
 
     /**
      * 构造函数
@@ -69,10 +69,10 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     /**
      * 设置关注操作回调接口
      * 
-     * @param followActionListener 关注操作回调接口实现
+     * @param userFollowActionListener 关注操作回调接口实现
      */
-    public void setOnFollowActionListener(OnFollowActionListener followActionListener) {
-        this.followActionListener = followActionListener;
+    public void setOnFollowActionListener(UserFollowActionListener userFollowActionListener) {
+        this.userFollowActionListener = userFollowActionListener;
     }
 
     /**
@@ -200,8 +200,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             // 如果是自己的帖子，隐藏关注按钮
             if (post.isUserPersonaPost()) {
                 itemPersonaPostBinding.btnFollow.setVisibility(View.GONE);
-            } else {
-                // 如果不是自己的帖子，显示关注按钮
+            } else { // 如果不是自己的帖子
+                // 显示关注按钮
                 itemPersonaPostBinding.btnFollow.setVisibility(View.VISIBLE);
                 
                 // 通过回调接口检查是否已关注该作者
@@ -212,25 +212,25 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                 itemPersonaPostBinding.btnFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (followActionListener != null) {
+                        if (userFollowActionListener != null) {
                             // 通过回调接口处理关注/取消关注操作
-                            followActionListener.onFollowClick(author);
+                            userFollowActionListener.onFollowClick(author);
                         }
                     }
                 });
             }
 
-            // 创建点击监听器，用于点击头像或作者名称时跳转到聊天界面
+            // 设置点击头像、作者名称或简介/时间区域时，启动与该作者的聊天界面
             View.OnClickListener startChatListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
+                    Intent intent = new Intent(context, ChatWithOtherPersonaActivity.class);
                     // 通过Intent传递Persona对象
-                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, author);
+                    intent.putExtra(ChatWithOtherPersonaActivity.EXTRA_PERSONA, author);
                     context.startActivity(intent);
                 }
             };
-            // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
+            // 为其他persona的帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
             itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像
             itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称
             itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间

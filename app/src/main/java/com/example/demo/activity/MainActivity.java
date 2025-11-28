@@ -14,10 +14,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.demo.fragment.FollowedListFragment;
-import com.example.demo.fragment.MyPersonaFragment;
+import com.example.demo.fragment.UserFollowedListFragment;
+import com.example.demo.fragment.UserPersonaFragment;
 import com.example.demo.model.Persona;
-import com.example.demo.fragment.MyProfileFragment;
+import com.example.demo.fragment.UserProfileFragment;
 import com.example.demo.R;
 import com.example.demo.fragment.SocialSquareFragment;
 import com.example.demo.databinding.ActivityMainBinding;
@@ -32,9 +32,9 @@ import com.google.android.material.navigation.NavigationBarView;
 public class MainActivity extends AppCompatActivity {
     // Fragment实例，用于管理不同的页面
     private SocialSquareFragment socialSquareFragment;
-    private MyPersonaFragment myPersonaFragment;
-    private MyProfileFragment myProfileFragment;
-    private FollowedListFragment followedListFragment;
+    private UserPersonaFragment userPersonaFragment;
+    private UserProfileFragment userProfileFragment;
+    private UserFollowedListFragment userFollowedListFragment;
     
     // 视图绑定，用于替代findViewById，提高性能和类型安全
     private ActivityMainBinding activityMainBinding;
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent data = result.getData();
                             if (data != null) {
                                 // 获取从CreateMyPersonaActivity返回的Persona对象
-                                Persona myPersona = data.getParcelableExtra(CreateMyPersonaActivity.EXTRA_PERSONA_RESULT);
+                                Persona myPersona = data.getParcelableExtra(CreateUserPersonaActivity.EXTRA_PERSONA_RESULT);
                                 if (myPersona != null) {
                                     handleNewPersona(myPersona);
                                 }
@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
         
         // 初始化所有Fragment实例
         socialSquareFragment = new SocialSquareFragment();
-        myPersonaFragment = new MyPersonaFragment();
-        myProfileFragment = new MyProfileFragment();
-        followedListFragment = new FollowedListFragment();
+        userPersonaFragment = new UserPersonaFragment();
+        userProfileFragment = new UserProfileFragment();
+        userFollowedListFragment = new UserFollowedListFragment();
         
         // 默认加载社交广场Fragment
         loadFragment(socialSquareFragment, TAG_SOCIAL);
@@ -100,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(socialSquareFragment, TAG_SOCIAL);
                     return true;
                 } else if (itemId == R.id.nav_followed_list) {
-                    loadFragment(followedListFragment, TAG_FOLLOWED);
+                    loadFragment(userFollowedListFragment, TAG_FOLLOWED);
                     return true;
                 } else if (itemId == R.id.nav_my_persona) {
-                    loadFragment(myPersonaFragment, TAG_PERSONA);
+                    loadFragment(userPersonaFragment, TAG_PERSONA);
                     return true;
                 } else if (itemId == R.id.nav_profile) {
-                    loadFragment(myProfileFragment, TAG_PROFILE);
+                    loadFragment(userProfileFragment, TAG_PROFILE);
                     return true;
                 }
                 return false;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
      * 这是AndroidX推荐的现代方式，提供类型安全和更清晰的API
      */
     public void launchCreatePersonaActivity() {
-        Intent intent = new Intent(this, CreateMyPersonaActivity.class);
+        Intent intent = new Intent(this, CreateUserPersonaActivity.class);
         createMyPersonaLauncher.launch(intent);
     }
     
@@ -141,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(TAG_PERSONA);
                 
                 // 如果当前显示的是MyPersonaFragment，则调用其onPersonaCreated方法
-                if (currentFragment instanceof MyPersonaFragment) {
-                    ((MyPersonaFragment) currentFragment).onPersonaCreated(myPersona);
+                if (currentFragment instanceof UserPersonaFragment) {
+                    ((UserPersonaFragment) currentFragment).onPersonaCreated(myPersona);
                 }
             }
         });
