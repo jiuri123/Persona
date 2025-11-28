@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 
 
+import com.example.demo.activity.UserPostCreateActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
@@ -118,8 +120,15 @@ public class SocialSquareFragment extends Fragment implements SocialSquarePostAd
         fragmentSocialSquareBinding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 通过SocialSquareViewModel生成新帖子
-                socialSquareViewModel.generateNewPost();
+                // 检查是否有当前用户Persona
+                if (!socialSquareViewModel.hasCurrentUserPersona()) {
+                    // 如果没有，显示提示信息
+                    Toast.makeText(getContext(), "请先去创建你的Persona~", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                // 跳转到发布动态编辑页面
+                Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
+                startActivity(intent);
             }
         });
     }

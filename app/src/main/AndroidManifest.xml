@@ -20,6 +20,9 @@
             android:name=".activity.UserPersonaCreatingActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.UserPostCreateActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
