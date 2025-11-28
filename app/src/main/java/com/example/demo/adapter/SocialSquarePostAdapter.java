@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.activity.OtherPersonaChatActivity;
-import com.example.demo.callback.SocialSquareFollowActionListener;
+
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.databinding.ItemPersonaPostBinding;
@@ -41,7 +41,19 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 关注操作回调接口
-    private SocialSquareFollowActionListener socialSquareFollowActionListener;
+    private OnFollowClickListener onFollowClickListener;
+
+    /**
+     * 关注操作回调接口
+     * 用于解耦Adapter和ViewModel，遵循MVVM架构原则
+     */
+    public interface OnFollowClickListener {
+        /**
+         * 处理关注按钮点击事件
+         * @param persona 被点击的Persona对象
+         */
+        void onFollowClick(Persona persona);
+    }
 
     /**
      * 构造函数
@@ -69,10 +81,10 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     /**
      * 设置关注操作回调接口
      * 
-     * @param socialSquareFollowActionListener 关注操作回调接口实现
+     * @param onFollowClickListener 关注操作回调接口实现
      */
-    public void setOnFollowActionListener(SocialSquareFollowActionListener socialSquareFollowActionListener) {
-        this.socialSquareFollowActionListener = socialSquareFollowActionListener;
+    public void setOnFollowActionListener(OnFollowClickListener onFollowClickListener) {
+        this.onFollowClickListener = onFollowClickListener;
     }
 
     /**
@@ -212,9 +224,9 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                 itemPersonaPostBinding.btnFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (socialSquareFollowActionListener != null) {
+                        if (onFollowClickListener != null) {
                             // 通过回调接口处理关注/取消关注操作
-                            socialSquareFollowActionListener.onFollowClick(author);
+                            onFollowClickListener.onFollowClick(author);
                         }
                     }
                 });
