@@ -190,96 +190,32 @@ public class UserPersonaPostRepository {
      * @param currentUser 当前用户的Persona对象
      */
     public void generateNewPost(Persona currentUser) {
-        // 如果正在加载，则不执行新的请求
-        if (Boolean.TRUE.equals(isLoadingLiveData.getValue())) {
-            return;
-        }
-        
-        // 设置加载状态为true
-        isLoadingLiveData.setValue(true);
-
-        // 生成随机数和语言选择
-        int randomNumber = random.nextInt(10000);
-        boolean useEnglish = random.nextBoolean();
-        String languageInstruction = useEnglish ? 
-                "请用英文写这条动态。" : 
-                "请用中文写这条动态。";
-
-        // 用户提示，包含角色信息和动态要求
-        String userPrompt = "请你扮演以下角色：" +
-                "名称: " + currentUser.getName() + "\n" +
-                "简介: " + currentUser.getBio() + "\n" +
-                "背景故事: " + currentUser.getBackgroundStory() + "\n" +
-                "请用这个角色的口吻，写一条全新的、有趣的社交媒体动态。" +
-                languageInstruction +
-                "这条动态必须包含以下Markdown格式中的至少3种：" +
-                "1. **粗体文本** (用**文本**表示)" +
-                "2. *斜体文本* (用*文本*表示)" +
-                "3. ~~删除线~~ (用~~文本~~表示)" +
-                "4. 列表 (用- 项目或1. 项目表示)" +
-                "5. [链接文本](URL) (用[文本](URL)表示)" +
-                "6. `代码` (用`代码`表示)" +
-                "请确保动态内容简洁明了，字数控制在50-100字之间。" +
-                "(请求编号: " + randomNumber + ")";
-
-        apiHistory.add(new ChatRequestMessage("user", userPrompt));
-        
-        // 创建聊天请求
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
-
-        // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        // 调用aiGenerateContent函数生成内容，然后在回调中处理结果
+        aiGenerateContent(currentUser, new ContentCallback() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
-                // 请求完成，设置加载状态为false
-                isLoadingLiveData.postValue(false);
-                
-                if (response.isSuccessful() && response.body() != null) {
-                    // 获取AI返回的内容
-                    String aiContent = response.body().getFirstMessageContent();
-                    if (aiContent != null) {
-                        try {
-                            // 解析JSON响应
-                            JSONObject jsonResponse = new JSONObject(aiContent);
-                            String postContent = jsonResponse.getString("content");
+            public void onSuccess(String generatedContent) {
+                // 创建新的Post对象
+                Post newPost = new Post(
+                        currentUser,
+                        generatedContent,
+                        null,
+                        "刚刚",
+                        true
+                );
 
-                            // 创建新的Post对象
-                            Post newPost = new Post(
-                                    currentUser,
-                                    postContent,
-                                    null,
-                                    "刚刚",
-                                    true
-                            );
-
-                            // 将新帖子添加到历史帖子列表
-                            List<Post> historyPosts = userPostsLiveData.getValue();
-                            if (historyPosts == null) {
-                                historyPosts = new ArrayList<>();
-                            }
-                            historyPosts.add(0, newPost); // 添加到列表顶部
-                            userPostsLiveData.postValue(historyPosts);
-
-                        } catch (JSONException e) {
-                            // JSON解析错误
-                            errorLiveData.postValue("AI 返回的数据格式错误");
-                        }
-                    } else {
-                        // API返回空内容
-                        errorLiveData.postValue("API 返回了空内容");
-                    }
-                } else {
-                    // API错误
-                    errorLiveData.postValue("API 错误: " + response.code());
+                // 将新帖子添加到历史帖子列表
+                List<Post> historyPosts = userPostsLiveData.getValue();
+                if (historyPosts == null) {
+                    historyPosts = new ArrayList<>();
                 }
+                historyPosts.add(0, newPost); // 添加到列表顶部
+                userPostsLiveData.postValue(historyPosts);
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
-                // 请求失败，设置加载状态为false
-                isLoadingLiveData.postValue(false);
-                // 网络错误
-                errorLiveData.postValue("网络请求失败: " + t.getMessage());
+            public void onError(String error) {
+                // 设置错误信息
+                errorLiveData.postValue(error);
             }
         });
     }
