@@ -15,7 +15,7 @@ import java.util.Set;
  * 负责管理和提供用户关注的Persona数据
  * 实现Repository模式，作为关注数据的单一数据源
  */
-public class UserFollowedPersonaRepository {
+public class UserFollowedListRepository {
 
     // 关注的Persona列表LiveData，用于观察数据变化
     private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
@@ -24,12 +24,12 @@ public class UserFollowedPersonaRepository {
     private final Set<String> followedPersonaNames = new HashSet<>();
     
     // 单例实例
-    private static UserFollowedPersonaRepository instance;
+    private static UserFollowedListRepository instance;
     
     /**
      * 私有构造函数，实现单例模式
      */
-    private UserFollowedPersonaRepository() {
+    private UserFollowedListRepository() {
         // 初始化时可以为空，或者从持久化存储加载数据
     }
     
@@ -37,9 +37,9 @@ public class UserFollowedPersonaRepository {
      * 获取Repository的单例实例
      * @return FollowedPersonaRepository实例
      */
-    public static synchronized UserFollowedPersonaRepository getInstance() {
+    public static synchronized UserFollowedListRepository getInstance() {
         if (instance == null) {
-            instance = new UserFollowedPersonaRepository();
+            instance = new UserFollowedListRepository();
         }
         return instance;
     }
