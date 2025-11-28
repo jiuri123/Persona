@@ -1,6 +1,7 @@
 package com.example.demo.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
@@ -14,6 +15,12 @@ import com.example.demo.repository.UserPersonaRepository;
  */
 public class UserPersonaCreatingViewModel extends ViewModel {
 
+    // 使用MediatorLiveData作为数据中转
+    private final MediatorLiveData<String> generatedNameLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<String> generatedStoryLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> isLoadingLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<String> errorLiveData = new MediatorLiveData<>();
+    
     // Persona数据仓库
     private final UserPersonaRepository userPersonaRepository;
 
@@ -23,6 +30,24 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      */
     public UserPersonaCreatingViewModel() {
         this.userPersonaRepository = UserPersonaRepository.getInstance();
+        setupMediatorLiveData();
+    }
+    
+    /**
+     * 设置MediatorLiveData观察Repository的LiveData
+     */
+    private void setupMediatorLiveData() {
+        // 观察生成的名称
+        generatedNameLiveData.addSource(userPersonaRepository.getGeneratedName(), generatedNameLiveData::setValue);
+        
+        // 观察生成的故事
+        generatedStoryLiveData.addSource(userPersonaRepository.getGeneratedStory(), generatedStoryLiveData::setValue);
+        
+        // 观察加载状态
+        isLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), isLoadingLiveData::setValue);
+        
+        // 观察错误信息
+        errorLiveData.addSource(userPersonaRepository.getError(), errorLiveData::setValue);
     }
 
     /**
@@ -30,7 +55,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @return 角色名称的LiveData对象
      */
     public LiveData<String> getGeneratedName() {
-        return userPersonaRepository.getGeneratedName();
+        return generatedNameLiveData;
     }
 
     /**
@@ -38,7 +63,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @return 角色故事的LiveData对象
      */
     public LiveData<String> getGeneratedStory() {
-        return userPersonaRepository.getGeneratedStory();
+        return generatedStoryLiveData;
     }
 
     /**
@@ -46,7 +71,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @return 加载状态的LiveData对象
      */
     public LiveData<Boolean> getIsLoading() {
-        return userPersonaRepository.getIsLoading();
+        return isLoadingLiveData;
     }
 
     /**
@@ -54,7 +79,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @return 错误信息的LiveData对象
      */
     public LiveData<String> getError() {
-        return userPersonaRepository.getError();
+        return errorLiveData;
     }
 
     /**

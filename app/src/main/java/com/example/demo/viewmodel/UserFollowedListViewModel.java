@@ -1,6 +1,7 @@
 package com.example.demo.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -22,6 +23,9 @@ public class UserFollowedListViewModel extends ViewModel {
     
     // LiveData对象，用于观察错误消息
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
+    
+    // 使用MediatorLiveData包装关注角色列表
+    private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -29,14 +33,23 @@ public class UserFollowedListViewModel extends ViewModel {
      */
     public UserFollowedListViewModel() {
         userFollowedListRepository = UserFollowedListRepository.getInstance();
+        setupMediatorLiveData();
     }
 
+    /**
+     * 设置MediatorLiveData观察Repository的LiveData
+     */
+    private void setupMediatorLiveData() {
+        // 观察关注角色列表变化
+        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
+    }
+    
     /**
      * 获取关注角色列表LiveData
      * @return 关注角色列表的LiveData对象
      */
     public LiveData<List<Persona>> getFollowedPersonas() {
-        return userFollowedListRepository.getFollowedPersonas();
+        return followedPersonasLiveData;
     }
     
     /**

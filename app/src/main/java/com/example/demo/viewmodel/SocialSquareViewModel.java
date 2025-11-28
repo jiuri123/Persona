@@ -1,6 +1,7 @@
 package com.example.demo.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -41,6 +42,9 @@ public class SocialSquareViewModel extends ViewModel {
     
     // 错误信息LiveData
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
+    
+    // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
+    private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -57,6 +61,9 @@ public class SocialSquareViewModel extends ViewModel {
         
         // 设置仓库的观察器
         setupRepositoryObservers();
+        
+        // 设置MediatorLiveData观察Repository的LiveData
+        setupMediatorLiveData();
     }
 
     /**
@@ -174,9 +181,17 @@ public class SocialSquareViewModel extends ViewModel {
      * @return 已关注Persona列表LiveData
      */
     public LiveData<List<Persona>> getFollowedPersonasLiveData() {
-        return userFollowedListRepository.getFollowedPersonas();
+        return followedPersonasLiveData;
     }
 
+    /**
+     * 设置MediatorLiveData观察Repository的LiveData
+     */
+    private void setupMediatorLiveData() {
+        // 观察已关注Persona列表变化
+        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
+    }
+    
     /**
      * 清除错误信息
      */

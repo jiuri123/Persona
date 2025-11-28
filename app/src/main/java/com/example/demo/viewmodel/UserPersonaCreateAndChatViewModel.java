@@ -1,6 +1,7 @@
 package com.example.demo.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.ChatMessage;
@@ -23,6 +24,15 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     
     // 用户自己创建的Persona聊天仓库
     private final UserPersonaChatRepository userPersonaChatRepository;
+    
+    // 使用MediatorLiveData包装所有Repository的LiveData
+    private final MediatorLiveData<String> generatedNameLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<String> generatedStoryLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> personaIsLoadingLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<String> personaErrorLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<Persona> currentUserPersonaLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<ChatMessage>> chatHistoryLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -31,8 +41,25 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     public UserPersonaCreateAndChatViewModel() {
         this.userPersonaRepository = UserPersonaRepository.getInstance();
         this.userPersonaChatRepository = UserPersonaChatRepository.getInstance();
+        setupMediatorLiveData();
     }
 
+    /**
+     * 设置MediatorLiveData观察Repository的LiveData
+     */
+    private void setupMediatorLiveData() {
+        // Persona相关LiveData
+        generatedNameLiveData.addSource(userPersonaRepository.getGeneratedName(), generatedNameLiveData::setValue);
+        generatedStoryLiveData.addSource(userPersonaRepository.getGeneratedStory(), generatedStoryLiveData::setValue);
+        personaIsLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), personaIsLoadingLiveData::setValue);
+        personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
+        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
+        currentUserPersonaLiveData.addSource(userPersonaRepository.getCurrentUserPersona(), currentUserPersonaLiveData::setValue);
+        
+        // 聊天相关LiveData
+        chatHistoryLiveData.addSource(userPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
+    }
+    
     // ========== Persona相关方法 ==========
     
     /**
@@ -40,7 +67,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return 角色名称的LiveData对象
      */
     public LiveData<String> getGeneratedName() {
-        return userPersonaRepository.getGeneratedName();
+        return generatedNameLiveData;
     }
 
     /**
@@ -48,7 +75,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return 角色故事的LiveData对象
      */
     public LiveData<String> getGeneratedStory() {
-        return userPersonaRepository.getGeneratedStory();
+        return generatedStoryLiveData;
     }
 
     /**
@@ -56,7 +83,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return Persona加载状态的LiveData对象
      */
     public LiveData<Boolean> getPersonaIsLoading() {
-        return userPersonaRepository.getIsLoading();
+        return personaIsLoadingLiveData;
     }
 
     /**
@@ -64,7 +91,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return Persona错误信息的LiveData对象
      */
     public LiveData<String> getPersonaError() {
-        return userPersonaRepository.getError();
+        return personaErrorLiveData;
     }
 
     /**
@@ -79,7 +106,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return 用户Persona列表的LiveData对象
      */
     public LiveData<List<Persona>> getUserPersonas() {
-        return userPersonaRepository.getUserPersonas();
+        return userPersonasLiveData;
     }
     
     /**
@@ -87,7 +114,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return 当前用户正在使用的Persona的LiveData对象
      */
     public LiveData<Persona> getCurrentUserPersona() {
-        return userPersonaRepository.getCurrentUserPersona();
+        return currentUserPersonaLiveData;
     }
     
     /**
@@ -161,7 +188,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * @return 聊天历史消息的LiveData对象，UI组件可以观察此数据变化
      */
     public LiveData<List<ChatMessage>> getChatHistory() {
-        return userPersonaChatRepository.getChatHistory();
+        return chatHistoryLiveData;
     }
     
     /**
