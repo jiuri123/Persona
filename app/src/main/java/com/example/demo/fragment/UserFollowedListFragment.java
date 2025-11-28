@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +28,7 @@ import java.util.List;
  * 显示用户已关注的Persona列表
  * 使用ViewModel管理数据，通过LiveData观察数据变化
  */
-public class UserFollowedListFragment extends Fragment {
+public class UserFollowedListFragment extends Fragment implements UserFollowedListAdapter.OnUnfollowClickListener {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentFollowedListBinding fragmentFollowedListBinding;
@@ -99,6 +101,7 @@ public class UserFollowedListFragment extends Fragment {
         
         // 创建并设置适配器
         userFollowedListAdapter = new UserFollowedListAdapter(getContext(), followedPersonaList);
+        userFollowedListAdapter.setOnUnfollowClickListener(this);
         fragmentFollowedListBinding.rvFollowedList.setAdapter(userFollowedListAdapter);
         
         // 观察已关注Persona列表的变化
@@ -142,5 +145,26 @@ public class UserFollowedListFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         fragmentFollowedListBinding = null; // 清理视图绑定
+    }
+
+    /**
+     * 取消关注点击事件的实现
+     * @param persona 要取消关注的Persona对象
+     */
+    @Override
+    public void onUnfollowClick(Persona persona) {
+        // 创建并显示确认对话框
+        new AlertDialog.Builder(requireContext())
+                .setTitle("取消关注")
+                .setMessage("你确定取消关注" + persona.getName() + "？")
+                .setNegativeButton("取消", null) // 取消按钮，不执行任何操作
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 调用ViewModel的取消关注方法
+                        userFollowedListViewModel.removeFollowedPersona(persona);
+                    }
+                })
+                .show();
     }
 }

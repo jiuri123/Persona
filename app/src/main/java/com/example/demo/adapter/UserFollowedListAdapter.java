@@ -2,9 +2,13 @@ package com.example.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +32,15 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
     private List<Persona> followedPersonaList;
     // 上下文，用于启动Activity和加载资源
     private Context context;
+    // 取消关注操作的回调接口
+    private OnUnfollowClickListener onUnfollowClickListener;
+
+    /**
+     * 取消关注点击事件的回调接口
+     */
+    public interface OnUnfollowClickListener {
+        void onUnfollowClick(Persona persona);
+    }
 
     /**
      * 构造函数
@@ -37,6 +50,14 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
     public UserFollowedListAdapter(Context context, List<Persona> followedPersonaList) {
         this.context = context;
         this.followedPersonaList = followedPersonaList;
+    }
+
+    /**
+     * 设置取消关注点击事件的回调接口
+     * @param onUnfollowClickListener 回调接口实例
+     */
+    public void setOnUnfollowClickListener(OnUnfollowClickListener onUnfollowClickListener) {
+        this.onUnfollowClickListener = onUnfollowClickListener;
     }
 
     /**
@@ -118,6 +139,35 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
                     // 通过Intent传递Persona对象
                     intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
                     context.startActivity(intent);
+                }
+            });
+
+            // 设置长按事件，显示取消关注菜单
+            binding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // 创建PopupMenu，设置为竖排显示
+                    PopupMenu popupMenu = new PopupMenu(context, v, Gravity.END);
+                    popupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "取消关注");
+                    
+                    // 设置菜单点击事件
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            if (item.getItemId() == 1) {
+                                // 调用取消关注回调
+                                if (onUnfollowClickListener != null) {
+                                    onUnfollowClickListener.onUnfollowClick(persona);
+                                }
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                    
+                    // 显示菜单
+                    popupMenu.show();
+                    return true;
                 }
             });
         }
