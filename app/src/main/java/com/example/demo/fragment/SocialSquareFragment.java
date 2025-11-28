@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
 
-import com.example.demo.callback.UserFollowActionListener;
+import com.example.demo.callback.SocialSquareFollowActionListener;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
@@ -29,7 +29,7 @@ import java.util.List;
  * 实现了添加新帖子的功能，并使用ViewModel管理数据和状态
  * 实现OnFollowActionListener接口处理关注/取消关注操作
  */
-public class SocialSquareFragment extends Fragment implements UserFollowActionListener {
+public class SocialSquareFragment extends Fragment implements SocialSquareFollowActionListener {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentSocialSquareBinding fragmentSocialSquareBinding;

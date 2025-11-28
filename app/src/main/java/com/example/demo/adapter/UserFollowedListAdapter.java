@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.demo.model.Persona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
-import com.example.demo.activity.ChatWithOtherPersonaActivity;
+import com.example.demo.activity.OtherPersonaChatActivity;
 
 import java.util.List;
 
@@ -114,9 +114,9 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, ChatWithOtherPersonaActivity.class);
+                    Intent intent = new Intent(context, OtherPersonaChatActivity.class);
                     // 通过Intent传递Persona对象
-                    intent.putExtra(ChatWithOtherPersonaActivity.EXTRA_PERSONA, persona);
+                    intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, persona);
                     context.startActivity(intent);
                 }
             });

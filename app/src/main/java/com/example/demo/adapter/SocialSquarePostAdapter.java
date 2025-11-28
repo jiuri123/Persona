@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
-import com.example.demo.activity.ChatWithOtherPersonaActivity;
-import com.example.demo.callback.UserFollowActionListener;
+import com.example.demo.activity.OtherPersonaChatActivity;
+import com.example.demo.callback.SocialSquareFollowActionListener;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.databinding.ItemPersonaPostBinding;
@@ -41,7 +41,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 关注操作回调接口
-    private UserFollowActionListener userFollowActionListener;
+    private SocialSquareFollowActionListener socialSquareFollowActionListener;
 
     /**
      * 构造函数
@@ -69,10 +69,10 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     /**
      * 设置关注操作回调接口
      * 
-     * @param userFollowActionListener 关注操作回调接口实现
+     * @param socialSquareFollowActionListener 关注操作回调接口实现
      */
-    public void setOnFollowActionListener(UserFollowActionListener userFollowActionListener) {
-        this.userFollowActionListener = userFollowActionListener;
+    public void setOnFollowActionListener(SocialSquareFollowActionListener socialSquareFollowActionListener) {
+        this.socialSquareFollowActionListener = socialSquareFollowActionListener;
     }
 
     /**
@@ -212,9 +212,9 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                 itemPersonaPostBinding.btnFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (userFollowActionListener != null) {
+                        if (socialSquareFollowActionListener != null) {
                             // 通过回调接口处理关注/取消关注操作
-                            userFollowActionListener.onFollowClick(author);
+                            socialSquareFollowActionListener.onFollowClick(author);
                         }
                     }
                 });
@@ -226,9 +226,9 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                 View.OnClickListener startChatListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(context, ChatWithOtherPersonaActivity.class);
+                        Intent intent = new Intent(context, OtherPersonaChatActivity.class);
                         // 通过Intent传递Persona对象
-                        intent.putExtra(ChatWithOtherPersonaActivity.EXTRA_PERSONA, author);
+                        intent.putExtra(OtherPersonaChatActivity.EXTRA_PERSONA, author);
                         context.startActivity(intent);
                     }
                 };

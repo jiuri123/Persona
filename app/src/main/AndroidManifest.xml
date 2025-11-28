@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Demo">
         <activity
-            android:name=".activity.ChatWithOtherPersonaActivity"
+            android:name=".activity.OtherPersonaChatActivity"
             android:exported="false" />
         <activity
             android:name=".activity.UserPersonaCreatingActivity"
