@@ -31,7 +31,7 @@ import java.util.List;
  * 实现了添加新帖子的功能，并使用ViewModel管理数据和状态
  * 实现OnFollowActionListener接口处理关注/取消关注操作
  */
-public class SocialSquareFragment extends Fragment implements SocialSquarePostAdapter.OnFollowClickListener {
+public class SocialSquareFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentSocialSquareBinding fragmentSocialSquareBinding;
@@ -110,7 +110,12 @@ public class SocialSquareFragment extends Fragment implements SocialSquarePostAd
 
         // 创建适配器并设置回调接口
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
-        socialSquarePostAdapter.setOnFollowActionListener(this);
+        socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
+            @Override
+            public void onFollowClick(Persona persona) {
+                socialSquareViewModel.onFollowClick(persona);
+            }
+        });
         fragmentSocialSquareBinding.rvSocialSquare.setAdapter(socialSquarePostAdapter);
 
         // 设置观察者
@@ -183,15 +188,5 @@ public class SocialSquareFragment extends Fragment implements SocialSquarePostAd
     public void onDestroyView() {
         super.onDestroyView();
         fragmentSocialSquareBinding = null; // 避免内存泄漏
-    }
-
-    /**
-     * 实现OnFollowActionListener接口：处理关注按钮点击事件
-     * @param persona 被点击的Persona对象
-     */
-    @Override
-    public void onFollowClick(Persona persona) {
-        // 通过SocialSquareViewModel处理关注/取消关注操作
-        socialSquareViewModel.onFollowClick(persona);
     }
 }
