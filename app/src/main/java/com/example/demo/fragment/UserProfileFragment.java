@@ -10,9 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.demo.R;
 import com.example.demo.databinding.FragmentProfileBinding;
+import com.example.demo.viewmodel.UserProfileViewModel;
 
 /**
  * 个人资料Fragment
@@ -22,6 +24,9 @@ public class UserProfileFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentProfileBinding binding;
+    
+    // 个人资料ViewModel
+    private UserProfileViewModel viewModel;
 
     // 默认构造函数
     public UserProfileFragment() {
@@ -51,24 +56,31 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        // 初始化ViewModel
+        viewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
 
         // 设置"我的Persona"点击事件
         binding.tvMyPersonas.setOnClickListener(v -> {
+            viewModel.onMyPersonasClick();
             showToast("功能暂未开放");
         });
 
         // 设置"应用设置"点击事件
         binding.tvAppSettings.setOnClickListener(v -> {
+            viewModel.onAppSettingsClick();
             showToast("功能暂未开放");
         });
 
         // 设置"关于"点击事件，显示关于对话框
         binding.tvAbout.setOnClickListener(v -> {
+            viewModel.onAboutClick();
             showAboutDialog();
         });
 
         // 设置"退出登录"点击事件
         binding.btnLogOut.setOnClickListener(v -> {
+            viewModel.onLogOutClick();
             showToast("已退出登录");
         });
     }
