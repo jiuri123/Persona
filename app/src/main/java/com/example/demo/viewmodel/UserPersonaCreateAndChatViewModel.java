@@ -4,85 +4,29 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
-import com.example.demo.model.Post;
-import com.example.demo.repository.UserPersonaPostRepository;
 import com.example.demo.repository.UserPersonaRepository;
 
 import java.util.List;
 
 /**
  * 我的Persona ViewModel类
- * 负责管理Persona和Post相关的数据和操作
- * 作为MyPersonaRepository的统一入口，符合MVVM架构原则
+ * 负责管理Persona相关的数据和操作
+ * 作为UserPersonaRepository的统一入口，符合MVVM架构原则
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class UserPersonaViewModel extends ViewModel {
+public class UserPersonaCreateAndChatViewModel extends ViewModel {
 
-    // Post数据仓库
-    private final UserPersonaPostRepository userPersonaPostRepository;
-    
     // Persona数据仓库
     private final UserPersonaRepository userPersonaRepository;
 
     /**
      * 构造函数
-     * 初始化PostRepository和PersonaRepository实例
+     * 初始化PersonaRepository实例
      */
-    public UserPersonaViewModel() {
-        this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
+    public UserPersonaCreateAndChatViewModel() {
         this.userPersonaRepository = UserPersonaRepository.getInstance();
     }
 
-    // ========== Post相关方法 ==========
-    
-    /**
-     * 获取加载状态LiveData
-     * @return 加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsLoading() {
-        return userPersonaPostRepository.getIsLoading();
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息的LiveData对象
-     */
-    public LiveData<String> getError() {
-        return userPersonaPostRepository.getError();
-    }
-
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        userPersonaPostRepository.clearError();
-    }
-
-    /**
-     * 获取我的历史帖子LiveData
-     * @return 我的帖子列表的LiveData对象
-     */
-    public LiveData<List<Post>> getMyPostsLiveData() {
-        return userPersonaPostRepository.getMyPostsLiveData();
-    }
-
-    /**
-     * 生成新动态
-     * 调用PostRepository生成基于用户角色的社交媒体动态
-     */
-    public void generateNewPost() {
-        // 从MyPersonaRepository获取当前用户Persona
-        Persona currentUser = userPersonaRepository.getCurrentUserPersona().getValue();
-        // 如果当前用户为空，设置错误信息并返回
-        if (currentUser == null) {
-            userPersonaPostRepository.setError("请先在 '我的 Persona' 中创建一个人设");
-            return;
-        }else{
-            // 调用PostRepository生成新动态
-            userPersonaPostRepository.generateNewPost(currentUser);
-        }
-    }
-    
     // ========== Persona相关方法 ==========
     
     /**
