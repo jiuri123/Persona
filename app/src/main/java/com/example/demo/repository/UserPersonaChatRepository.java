@@ -14,6 +14,7 @@ import com.example.demo.network.ChatResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.demo.BuildConfig;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,11 +30,10 @@ public class UserPersonaChatRepository {
     // 单例实例
     private static UserPersonaChatRepository instance;
 
-    // API密钥，用于身份验证
-    private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
-
-    // 使用的AI模型名称
-    private static final String MODEL_NAME = "moonshot-v1-8k";
+    // API密钥，从BuildConfig获取
+    // BuildConfig中的值从gradle.properties注入
+    
+    // 使用的AI模型名称，从BuildConfig获取
 
     // Retrofit API服务接口
     private final ApiService apiService;
@@ -124,10 +124,10 @@ public class UserPersonaChatRepository {
 
         // 添加用户消息到API历史
         apiHistory.add(new ChatRequestMessage("user", userMessageText));
-        ChatRequest request = new ChatRequest(MODEL_NAME, apiHistory);
+        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

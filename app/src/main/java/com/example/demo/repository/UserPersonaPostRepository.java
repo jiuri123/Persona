@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.example.demo.BuildConfig;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,9 +34,8 @@ public class UserPersonaPostRepository {
     // 单例实例
     private static UserPersonaPostRepository instance;
     
-    // API密钥和模型名称常量
-    private static final String API_KEY = "Bearer sk-XCV331xFtjmzsMB4vB2P1dXjD3HLuqDwsOHigF1Ray0o9t8L";
-    private static final String MODEL_NAME = "moonshot-v1-8k";
+    // API密钥和模型名称从BuildConfig获取
+    // BuildConfig中的值从gradle.properties注入
     
     // 网络服务和随机数生成器
     private final ApiService apiService;
@@ -155,10 +155,10 @@ public class UserPersonaPostRepository {
         apiHistory.add(new ChatRequestMessage("user", userPrompt));
         
         // 创建聊天请求
-        ChatRequest request = new ChatRequest(MODEL_NAME, apiHistory);
+        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
                 // 请求完成，设置加载状态为false

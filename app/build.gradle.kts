@@ -16,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // 从gradle.properties注入到BuildConfig
+        buildConfigField("String", "API_KEY", "\"${project.property("API_KEY")}\"")
+        buildConfigField("String", "MODEL_NAME", "\"${project.property("MODEL_NAME")}\"")
     }
 
     buildTypes {
@@ -33,6 +37,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
