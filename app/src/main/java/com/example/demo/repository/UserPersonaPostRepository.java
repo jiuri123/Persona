@@ -101,6 +101,40 @@ public class UserPersonaPostRepository {
     }
     
     /**
+     * 检测输入内容的主要语言
+     * @param content 输入的内容
+     * @return true表示中文，false表示英文
+     */
+    private boolean isChineseContent(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            // 空输入默认使用中文
+            return true;
+        }
+        
+        int chineseCharCount = 0;
+        int totalCharCount = 0;
+        
+        for (char c : content.toCharArray()) {
+            if (Character.isWhitespace(c)) {
+                continue;
+            }
+            totalCharCount++;
+            // 检测中文字符（Unicode范围：\u4e00-\u9fa5）
+            if (c >= '\u4e00' && c <= '\u9fa5') {
+                chineseCharCount++;
+            }
+        }
+        
+        if (totalCharCount == 0) {
+            // 纯符号输入默认使用中文
+            return true;
+        }
+        
+        // 如果中文字符占比超过50%，则使用中文
+        return (double) chineseCharCount / totalCharCount > 0.5;
+    }
+    
+    /**
      * 获取单例实例
      * @return MyPersonaPostRepository的单例实例
      */
@@ -269,10 +303,10 @@ public class UserPersonaPostRepository {
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
-        boolean useEnglish = random.nextBoolean();
-        String languageInstruction = useEnglish ? 
-                "请用英文扩展这条动态。" : 
-                "请用中文扩展这条动态。";
+        boolean isChinese = isChineseContent(currentContent);
+        String languageInstruction = isChinese ? 
+                "请用中文扩展这条动态。" : 
+                "请用英文扩展这条动态。";
 
         // 用户提示，包含角色信息和扩展要求
         String userPrompt = "请你扮演以下角色：" +
