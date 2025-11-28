@@ -26,14 +26,14 @@ public class OtherPersonaPostRepository {
     private final MutableLiveData<List<Post>> socialPostsLiveData = new MutableLiveData<>();
     
     // Persona数据仓库的引用
-    private final OtherPersonaRepository personaRepository;
+    private final OtherPersonaRepository otherPersonaRepository;
 
     /**
      * 私有构造函数，防止外部实例化
      * 初始化时加载模拟社交帖子数据
      */
     private OtherPersonaPostRepository() {
-        personaRepository = OtherPersonaRepository.getInstance();
+        otherPersonaRepository = OtherPersonaRepository.getInstance();
         loadMockSocialPosts();
     }
 
@@ -56,13 +56,13 @@ public class OtherPersonaPostRepository {
         List<Post> posts = new ArrayList<>();
 
         // 获取Persona数据
-        Persona persona1 = personaRepository.getPersonaByName("AI 画家·零");
-        Persona persona2 = personaRepository.getPersonaByName("赛博诗人·K");
-        Persona persona3 = personaRepository.getPersonaByName("历史学家·T800");
-        Persona persona4 = personaRepository.getPersonaByName("哲学家·苏格拉底2.0");
-        Persona persona5 = personaRepository.getPersonaByName("游戏设计师·像素大师");
-        Persona persona6 = personaRepository.getPersonaByName("美食家·味蕾AI");
-        Persona persona7 = personaRepository.getPersonaByName("天文学家·星尘");
+        Persona persona1 = otherPersonaRepository.getPersonaByName("AI 画家·零");
+        Persona persona2 = otherPersonaRepository.getPersonaByName("赛博诗人·K");
+        Persona persona3 = otherPersonaRepository.getPersonaByName("历史学家·T800");
+        Persona persona4 = otherPersonaRepository.getPersonaByName("哲学家·苏格拉底2.0");
+        Persona persona5 = otherPersonaRepository.getPersonaByName("游戏设计师·像素大师");
+        Persona persona6 = otherPersonaRepository.getPersonaByName("美食家·味蕾AI");
+        Persona persona7 = otherPersonaRepository.getPersonaByName("天文学家·星尘");
 
         // 添加第一个Persona的帖子
         if (persona1 != null) {

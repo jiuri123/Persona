@@ -41,8 +41,11 @@ public class UserPersonaPostRepository {
     private final ApiService apiService;
     private final Random random = new Random();
 
+    // 构建API请求历史
+    List<ChatRequestMessage> apiHistory = new ArrayList<>();
+
     // LiveData对象，用于观察数据变化
-    private final MutableLiveData<List<Post>> myPostsLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Post>> userPostsLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
@@ -52,6 +55,13 @@ public class UserPersonaPostRepository {
      */
     private UserPersonaPostRepository() {
         this.apiService = ApiClient.getApiService();
+        // 系统提示，要求AI返回特定格式的JSON
+        String systemPrompt = "你是一个社交媒体动态生成器。" +
+                "请你只返回一个 JSON 对象，格式如下：" +
+                "{\"content\": \"[生成的动态正文，必须包含Markdown格式，如**粗体**、*斜体*、~~删除线~~、列表等]\"}" +
+                "不要在 JSON 之外添加任何解释性文字。";
+
+        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
     }
     
     /**
@@ -86,7 +96,7 @@ public class UserPersonaPostRepository {
      * @return 我的帖子列表的LiveData对象
      */
     public LiveData<List<Post>> getMyPostsLiveData() {
-        return myPostsLiveData;
+        return userPostsLiveData;
     }
 
     /**
@@ -118,19 +128,13 @@ public class UserPersonaPostRepository {
         // 设置加载状态为true
         isLoadingLiveData.setValue(true);
 
-        // 系统提示，要求AI返回特定格式的JSON
-        String systemPrompt = "你是一个社交媒体动态生成器。" +
-                "请你只返回一个 JSON 对象，格式如下：" +
-                "{\"content\": \"[生成的动态正文，必须包含Markdown格式，如**粗体**、*斜体*、~~删除线~~、列表等]\"}" +
-                "不要在 JSON 之外添加任何解释性文字。";
-
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
         boolean useEnglish = random.nextBoolean();
         String languageInstruction = useEnglish ? 
                 "请用英文写这条动态。" : 
                 "请用中文写这条动态。";
-        
+
         // 用户提示，包含角色信息和动态要求
         String userPrompt = "请你扮演以下角色：" +
                 "名称: " + currentUser.getName() + "\n" +
@@ -148,9 +152,6 @@ public class UserPersonaPostRepository {
                 "请确保动态内容简洁明了，字数控制在50-100字之间。" +
                 "(请求编号: " + randomNumber + ")";
 
-        // 构建API请求历史
-        List<ChatRequestMessage> apiHistory = new ArrayList<>();
-        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
         apiHistory.add(new ChatRequestMessage("user", userPrompt));
         
         // 创建聊天请求
@@ -182,12 +183,12 @@ public class UserPersonaPostRepository {
                             );
 
                             // 将新帖子添加到历史帖子列表
-                            List<Post> currentPosts = myPostsLiveData.getValue();
-                            if (currentPosts == null) {
-                                currentPosts = new ArrayList<>();
+                            List<Post> historyPosts = userPostsLiveData.getValue();
+                            if (historyPosts == null) {
+                                historyPosts = new ArrayList<>();
                             }
-                            currentPosts.add(0, newPost); // 添加到列表顶部
-                            myPostsLiveData.postValue(currentPosts);
+                            historyPosts.add(0, newPost); // 添加到列表顶部
+                            userPostsLiveData.postValue(historyPosts);
 
                         } catch (JSONException e) {
                             // JSON解析错误
