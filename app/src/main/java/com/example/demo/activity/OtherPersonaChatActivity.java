@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class OtherPersonaChatActivity extends AppCompatActivity {
 
-    // 用于传递Persona对象的Intent键名常量
+    // 用于传递Persona聊天对象的Intent键名常量
     public static final String EXTRA_PERSONA = "com.example.demo.EXTRA_PERSONA";
 
     // 视图绑定，用于访问布局中的组件

@@ -1,6 +1,7 @@
 package com.example.demo.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.ChatMessage;
@@ -20,15 +21,15 @@ public class OtherPersonaChatViewModel extends ViewModel {
 
     private final OtherPersonaChatRepository otherPersonaChatRepository;
 
-    private final LiveData<List<ChatMessage>> chatHistoryLiveData;
+    private final MediatorLiveData<List<ChatMessage>> chatHistoryLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
      * 初始化PersonaRepository实例
      */
     public OtherPersonaChatViewModel() {
-        this.otherPersonaChatRepository = new OtherPersonaChatRepository();
-        this.chatHistoryLiveData = otherPersonaChatRepository.getChatHistory();
+        this.otherPersonaChatRepository = OtherPersonaChatRepository.getInstance();
+        this.chatHistoryLiveData.addSource(otherPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
     }
 
     /**

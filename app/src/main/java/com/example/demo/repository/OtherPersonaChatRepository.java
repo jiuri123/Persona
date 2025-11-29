@@ -27,10 +27,8 @@ import retrofit2.Response;
  */
 public class OtherPersonaChatRepository {
 
-    // API密钥，从BuildConfig获取
-    // BuildConfig中的值从gradle.properties注入
-    
-    // 使用的AI模型名称，从BuildConfig获取
+    // 单例实例
+    private static OtherPersonaChatRepository instance;
 
     // Retrofit API服务接口
     private final ApiService apiService;
@@ -46,24 +44,22 @@ public class OtherPersonaChatRepository {
 
     /**
      * 构造函数
-     * @param persona 当前聊天的人格角色
      */
     public OtherPersonaChatRepository() {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
         this.apiHistory = new ArrayList<>();
+    }
 
-        // 构建系统提示，设置AI的角色和行为
-        String systemPrompt = "你现在扮演 " + currentPersona.getName() + "。" +
-                "你的背景故事是：" + currentPersona.getBackgroundStory() + "。" +
-                "你的个性签名是：" + currentPersona.getSignature() + "。" +
-                "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
-
-        // 添加系统消息到API历史
-        this.apiHistory.add(new ChatRequestMessage("system", systemPrompt));
-
-        // 初始化空的聊天历史
-        this.chatHistoryLiveData.setValue(new ArrayList<>());
+    /**
+     * 获取单例实例
+     * @return UserPersonaChatRepository的单例实例
+     */
+    public static synchronized OtherPersonaChatRepository getInstance() {
+        if (instance == null) {
+            instance = new OtherPersonaChatRepository();
+        }
+        return instance;
     }
 
     /**
@@ -79,6 +75,18 @@ public class OtherPersonaChatRepository {
      * @param userMessageText 用户输入的消息文本
      */
     public void sendMessage(String userMessageText) {
+
+        // 构建系统提示，设置AI的角色和行为
+        String systemPrompt = "你现在扮演 " + currentPersona.getName() + "。" +
+                "你的背景故事是：" + currentPersona.getBackgroundStory() + "。" +
+                "你的个性签名是：" + currentPersona.getSignature() + "。" +
+                "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
+
+        // 添加系统消息到API历史
+        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+
+        // 初始化空的聊天历史
+        chatHistoryLiveData.setValue(new ArrayList<>());
         // 创建用户消息并添加到UI历史
         ChatMessage uiUserMessage = new ChatMessage(userMessageText, true);
         List<ChatMessage> currentUiHistory = chatHistoryLiveData.getValue();
@@ -86,10 +94,11 @@ public class OtherPersonaChatRepository {
             currentUiHistory = new ArrayList<>();
         }
         currentUiHistory.add(uiUserMessage);
-        chatHistoryLiveData.setValue(currentUiHistory);
 
+        chatHistoryLiveData.setValue(currentUiHistory);
         // 添加用户消息到API历史
         apiHistory.add(new ChatRequestMessage("user", userMessageText));
+
         ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API

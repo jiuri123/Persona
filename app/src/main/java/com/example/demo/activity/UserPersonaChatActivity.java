@@ -27,13 +27,10 @@ public class UserPersonaChatActivity extends AppCompatActivity {
     private PersonaChatAdapter personaChatAdapter;
     
     // 当前聊天的Persona
-    private Persona currentPersona;
+    private Persona personaToChat;
     
     // 我的Persona和聊天ViewModel
     private UserPersonaViewModel userPersonaViewModel;
-    
-    // 用户自己创建的Persona聊天仓库
-    private UserPersonaChatRepository userPersonaChatRepository;
     
     // 用于传递Persona对象的Intent键
     public static final String EXTRA_PERSONA = "extra_persona";
@@ -47,9 +44,9 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         
         // 获取从Intent传递过来的Persona对象
-        currentPersona = getIntent().getParcelableExtra(EXTRA_PERSONA);
+        personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
         
-        if (currentPersona == null) {
+        if (personaToChat == null) {
             // 如果没有Persona对象，显示错误信息并返回
             Toast.makeText(this, "没有找到Persona信息", Toast.LENGTH_SHORT).show();
             finish();
@@ -58,26 +55,23 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         
         // 设置工具栏
         setupToolbar();
-        
+
         // 初始化ViewModel
         userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
         
-        // 初始化聊天仓库
-        userPersonaChatRepository = UserPersonaChatRepository.getInstance();
-        
         // 设置当前聊天的Persona
-        userPersonaChatRepository.setCurrentPersona(currentPersona);
-        
+        userPersonaViewModel.setCurrentPersona(personaToChat);
+
         // 初始化UI
         setupUI();
-        
+
         // 设置观察者
         setupObservers();
         
         // 设置按钮点击事件
         setupButtonListeners();
     }
-    
+
     /**
      * 设置工具栏，显示返回按钮和Persona名称
      */
@@ -87,7 +81,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
             // 显示返回按钮
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             // 设置标题为Persona的名称
-            getSupportActionBar().setTitle(currentPersona.getName());
+            getSupportActionBar().setTitle(personaToChat.getName());
         }
     }
     
@@ -111,7 +105,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
      */
     private void setupUI() {
         // 设置标题为Persona名称
-        setTitle(currentPersona.getName());
+        setTitle(personaToChat.getName());
         
         // 初始化聊天适配器
         personaChatAdapter = new PersonaChatAdapter(this);
@@ -128,7 +122,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
      */
     private void setupObservers() {
         // 观察聊天历史变化
-        userPersonaChatRepository.getChatHistory().observe(this, chatMessages -> {
+        userPersonaViewModel.getChatHistory().observe(this, chatMessages -> {
             if (chatMessages != null) {
                 personaChatAdapter.setData(chatMessages);
                 // 滚动到最新消息
@@ -146,7 +140,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
             String messageText = binding.etChatMessage.getText().toString().trim();
             if (!messageText.isEmpty()) {
                 // 发送消息
-                userPersonaChatRepository.sendMessage(messageText);
+                userPersonaViewModel.sendMessage(messageText);
                 // 清空输入框
                 binding.etChatMessage.setText("");
             }

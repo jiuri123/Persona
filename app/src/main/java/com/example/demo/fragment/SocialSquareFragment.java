@@ -43,7 +43,7 @@ public class SocialSquareFragment extends Fragment {
     // 适配器，用于绘制社交广场的帖子列表
     private SocialSquarePostAdapter socialSquarePostAdapter;
 
-    // 用户是否有Persona
+    // 用户是否已创建Persona
     private boolean mHasUserPersona = false;
 
     /**
@@ -180,7 +180,7 @@ public class SocialSquareFragment extends Fragment {
             }
         });
 
-        // 5. (响应式) 观察“是否已创建Persona”的 *状态*
+        // 5. (响应式) 观察“是否已创建Persona”的状态
         socialSquareViewModel.getHasUserPersonaState().observe(getViewLifecycleOwner(), hasPersona -> {
             // 6. 持续更新 Fragment 中保存的本地状态
             this.mHasUserPersona = hasPersona;

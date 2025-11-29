@@ -51,11 +51,11 @@ public class UserPersonaViewModel extends ViewModel {
         personaIsLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), personaIsLoadingLiveData::setValue);
         personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
-        
+
         // 聊天相关LiveData
         chatHistoryLiveData.addSource(userPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
     }
-    
+
     // ========== Persona相关方法 ==========
     
     /**
@@ -148,5 +148,13 @@ public class UserPersonaViewModel extends ViewModel {
      */
     public void sendMessage(String messageText) {
         userPersonaChatRepository.sendMessage(messageText);
+    }
+
+    /**
+     * 设置当前聊天的Persona
+     * @param currentPersona 要设置的Persona对象
+     */
+    public void setCurrentPersona(Persona currentPersona) {
+        userPersonaChatRepository.setCurrentPersona(currentPersona);
     }
 }
