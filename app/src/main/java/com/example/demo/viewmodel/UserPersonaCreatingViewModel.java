@@ -89,6 +89,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * 创建并保存Persona
      * @param name 角色名称
      * @param avatarDrawableId 头像资源ID
+     * @param avatarUri 头像URI（用于从相册选择的图片）
      * @param bio 个人简介
      * @param backgroundStory 背景故事
      * @param gender 性别
@@ -98,9 +99,9 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @param catchphrase 口头禅
      * @return 创建的Persona对象
      */
-    public Persona createPersona(String name, int avatarDrawableId, String bio, String backgroundStory,
+    public Persona createPersona(String name, int avatarDrawableId, String avatarUri, String bio, String backgroundStory,
                                  String gender, int age, String personality, String relationship, String catchphrase) {
-        Persona newPersona = new Persona(name, avatarDrawableId, bio, backgroundStory, 
+        Persona newPersona = new Persona(name, avatarDrawableId, avatarUri, bio, backgroundStory, 
                                          gender, age, personality, relationship, catchphrase);
         
         // 直接通过UserPersonaRepository将创建的Persona添加到仓库

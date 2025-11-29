@@ -14,6 +14,8 @@ public class Persona implements Parcelable {
     private String name;
     // 头像资源ID
     private int avatarDrawableId;
+    // 头像URI（用于从相册选择的图片）
+    private String avatarUri;
     // 个人简介
     private String bio;
     // 背景故事
@@ -33,6 +35,7 @@ public class Persona implements Parcelable {
      * 构造函数
      * @param name Persona名称
      * @param avatarDrawableId 头像资源ID
+     * @param avatarUri 头像URI（用于从相册选择的图片）
      * @param bio 个人简介
      * @param backgroundStory 背景故事
      * @param gender 性别
@@ -41,10 +44,11 @@ public class Persona implements Parcelable {
      * @param relationship 关系（和我的关系）
      * @param catchphrase 口头禅
      */
-    public Persona(String name, int avatarDrawableId, String bio, String backgroundStory, 
+    public Persona(String name, int avatarDrawableId, String avatarUri, String bio, String backgroundStory, 
                    String gender, int age, String personality, String relationship, String catchphrase) {
         this.name = name;
         this.avatarDrawableId = avatarDrawableId;
+        this.avatarUri = avatarUri;
         this.bio = bio;
         this.backgroundStory = backgroundStory;
         this.gender = gender;
@@ -59,6 +63,8 @@ public class Persona implements Parcelable {
     public void setName(String name) { this.name = name; }
     public int getAvatarDrawableId() { return avatarDrawableId; }
     public void setAvatarDrawableId(int avatarDrawableId) { this.avatarDrawableId = avatarDrawableId; }
+    public String getAvatarUri() { return avatarUri; }
+    public void setAvatarUri(String avatarUri) { this.avatarUri = avatarUri; }
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
     public String getBackgroundStory() { return backgroundStory; }
@@ -93,6 +99,7 @@ public class Persona implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
         dest.writeInt(this.avatarDrawableId);
+        dest.writeString(this.avatarUri);
         dest.writeString(this.bio);
         dest.writeString(this.backgroundStory);
         dest.writeString(this.gender);
@@ -109,6 +116,7 @@ public class Persona implements Parcelable {
     protected Persona(Parcel in) {
         this.name = in.readString();
         this.avatarDrawableId = in.readInt();
+        this.avatarUri = in.readString();
         this.bio = in.readString();
         this.backgroundStory = in.readString();
         this.gender = in.readString();

@@ -190,7 +190,7 @@ public class UserPersonaRepository {
                             String bio = "AI生成的 Persona";
                             int avatarId = R.drawable.avatar_zero;
                             Persona generatedPersona = new Persona(
-                                    name, avatarId, bio, story,
+                                    name, avatarId, null, bio, story,
                                     gender, age, personality, relationship, catchphrase
                             );
 

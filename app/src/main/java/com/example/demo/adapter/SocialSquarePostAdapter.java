@@ -2,6 +2,7 @@ package com.example.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -190,12 +191,20 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             // 使用Markwon将帖子的内容渲染成Markdown
             markwon.setMarkdown(itemPersonaPostBinding.tvContentText, post.getContentText());
             
-            // 使用Glide加载头像
-            Glide.with(context)
-                    .load(author.getAvatarDrawableId())
-                    .placeholder(R.drawable.ic_launcher_background) // 占位图
-                    .circleCrop() // 圆形裁剪
-                    .into(itemPersonaPostBinding.ivAvatar);
+            // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
+            if (author.getAvatarUri() != null) {
+                Glide.with(context)
+                        .load(Uri.parse(author.getAvatarUri()))
+                        .placeholder(R.drawable.ic_launcher_background) // 占位图
+                        .circleCrop() // 圆形裁剪
+                        .into(itemPersonaPostBinding.ivAvatar);
+            } else {
+                Glide.with(context)
+                        .load(author.getAvatarDrawableId())
+                        .placeholder(R.drawable.ic_launcher_background) // 占位图
+                        .circleCrop() // 圆形裁剪
+                        .into(itemPersonaPostBinding.ivAvatar);
+            }
             
             // 如果帖子有图片，则显示并加载图片
             if (post.getImageDrawableId() != null) {

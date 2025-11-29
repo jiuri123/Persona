@@ -1,5 +1,6 @@
 package com.example.demo.fragment;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +120,12 @@ public class UserPersonaFragment extends Fragment {
 
             // 设置Persona信息
             fragmentMyPersonaBinding.tvPersonaName.setText(currentUserPersona.getName());
-            fragmentMyPersonaBinding.ivPersonaAvatar.setImageResource(currentUserPersona.getAvatarDrawableId());
+            // 优先使用avatarUri加载头像，如果没有则使用默认的avatarDrawableId
+            if (currentUserPersona.getAvatarUri() != null) {
+                fragmentMyPersonaBinding.ivPersonaAvatar.setImageURI(Uri.parse(currentUserPersona.getAvatarUri()));
+            } else {
+                fragmentMyPersonaBinding.ivPersonaAvatar.setImageResource(currentUserPersona.getAvatarDrawableId());
+            }
 
             // 初始化聊天界面
             initChatWithMVVM();

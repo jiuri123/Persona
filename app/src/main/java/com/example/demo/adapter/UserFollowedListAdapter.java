@@ -2,6 +2,7 @@ package com.example.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -124,12 +125,20 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
             binding.tvPersonaName.setText(persona.getName());
             binding.tvPersonaBio.setText(persona.getBio());
 
-            // 使用Glide加载头像
-            Glide.with(context)
-                    .load(persona.getAvatarDrawableId())
-                    .placeholder(R.drawable.ic_launcher_background) // 占位图
-                    .circleCrop() // 圆形裁剪
-                    .into(binding.ivPersonaAvatar);
+            // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
+            if (persona.getAvatarUri() != null) {
+                Glide.with(context)
+                        .load(Uri.parse(persona.getAvatarUri()))
+                        .placeholder(R.drawable.ic_launcher_background) // 占位图
+                        .circleCrop() // 圆形裁剪
+                        .into(binding.ivPersonaAvatar);
+            } else {
+                Glide.with(context)
+                        .load(persona.getAvatarDrawableId())
+                        .placeholder(R.drawable.ic_launcher_background) // 占位图
+                        .circleCrop() // 圆形裁剪
+                        .into(binding.ivPersonaAvatar);
+            }
 
             // 设置整个项的点击事件，点击后跳转到聊天界面
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
