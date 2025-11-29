@@ -12,7 +12,9 @@ import com.example.demo.network.ChatRequest;
 import com.example.demo.network.ChatResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.demo.BuildConfig;
 import retrofit2.Call;
@@ -38,11 +40,14 @@ public class UserPersonaChatRepository {
     // Retrofit API服务接口
     private final ApiService apiService;
 
-    // 聊天历史记录的LiveData，用于UI观察
+    // 聊天历史记录的LiveData，用于UI观察当前Persona的聊天记录
     private final MutableLiveData<List<ChatMessage>> chatHistoryLiveData;
     
-    // API请求历史记录，用于维护上下文
-    private final List<ChatRequestMessage> apiHistory;
+    // 存储所有Persona的聊天历史记录，以Persona名称为key
+    private final Map<String, List<ChatMessage>> chatHistoryMap;
+    
+    // 存储所有Persona的API请求历史记录，以Persona名称为key
+    private final Map<String, List<ChatRequestMessage>> apiHistoryMap;
 
     // 当前聊天的Persona
     private Persona currentPersona;
@@ -53,8 +58,8 @@ public class UserPersonaChatRepository {
     private UserPersonaChatRepository() {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
-        this.apiHistory = new ArrayList<>();
-        this.chatHistoryLiveData.setValue(new ArrayList<>());
+        this.chatHistoryMap = new HashMap<>();
+        this.apiHistoryMap = new HashMap<>();
     }
 
     /**
@@ -74,8 +79,11 @@ public class UserPersonaChatRepository {
      */
     public void setCurrentPersona(Persona persona) {
         this.currentPersona = persona;
-        // 重置聊天历史
-        resetChatHistory();
+        
+        // 获取或创建该Persona的聊天历史
+        List<ChatMessage> personaChatHistory = chatHistoryMap.computeIfAbsent(persona.getName(), k -> new ArrayList<>());
+        // 更新LiveData，UI将显示该Persona的聊天历史
+        chatHistoryLiveData.setValue(personaChatHistory);
         
         // 构建系统提示，设置AI的角色和行为
         String name = persona.getName() != null ? persona.getName() : "未知角色";
@@ -87,16 +95,43 @@ public class UserPersonaChatRepository {
                 "你的个性签名是：" + signature + "。" +
                 "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
 
-        // 添加系统消息到API历史
-        this.apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+        // 获取或创建该Persona的API历史，如果是新创建的则添加系统提示
+        apiHistoryMap.computeIfAbsent(persona.getName(), k -> {
+            List<ChatRequestMessage> history = new ArrayList<>();
+            history.add(new ChatRequestMessage("system", systemPrompt));
+            return history;
+        });
     }
 
     /**
      * 重置聊天历史
      */
     public void resetChatHistory() {
-        apiHistory.clear();
-        chatHistoryLiveData.setValue(new ArrayList<>());
+        if (currentPersona != null) {
+            // 移除当前Persona的聊天历史和API历史
+            chatHistoryMap.remove(currentPersona.getName());
+            apiHistoryMap.remove(currentPersona.getName());
+            
+            // 创建新的空聊天历史
+            List<ChatMessage> newChatHistory = new ArrayList<>();
+            chatHistoryMap.put(currentPersona.getName(), newChatHistory);
+            // 更新LiveData
+            chatHistoryLiveData.setValue(newChatHistory);
+            
+            // 重新添加系统提示到API历史
+            String name = currentPersona.getName() != null ? currentPersona.getName() : "未知角色";
+            String backgroundStory = currentPersona.getBackgroundStory() != null ? currentPersona.getBackgroundStory() : "";
+            String signature = currentPersona.getSignature() != null ? currentPersona.getSignature() : "";
+            
+            String systemPrompt = "你现在扮演 " + name + "。" +
+                    "你的背景故事是：" + backgroundStory + "。" +
+                    "你的个性签名是：" + signature + "。" +
+                    "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
+            
+            List<ChatRequestMessage> newApiHistory = new ArrayList<>();
+            newApiHistory.add(new ChatRequestMessage("system", systemPrompt));
+            apiHistoryMap.put(currentPersona.getName(), newApiHistory);
+        }
     }
 
     /**
@@ -126,9 +161,15 @@ public class UserPersonaChatRepository {
         currentUiHistory.add(uiUserMessage);
         chatHistoryLiveData.setValue(currentUiHistory);
 
+        // 获取当前Persona的API历史
+        List<ChatRequestMessage> currentApiHistory = apiHistoryMap.get(currentPersona.getName());
+        if (currentApiHistory == null) {
+            currentApiHistory = new ArrayList<>();
+        }
+
         // 添加用户消息到API历史
-        apiHistory.add(new ChatRequestMessage("user", userMessageText));
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
+        currentApiHistory.add(new ChatRequestMessage("user", userMessageText));
+        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, currentApiHistory);
 
         // 异步调用API
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
@@ -141,7 +182,12 @@ public class UserPersonaChatRepository {
                     if (aiContent != null) {
                         // 创建AI消息并添加到UI和API历史
                         ChatMessage uiAiMessage = new ChatMessage(aiContent, false);
-                        apiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                        
+                        // 获取当前Persona的API历史
+                        List<ChatRequestMessage> updatedApiHistory = apiHistoryMap.get(currentPersona.getName());
+                        if (updatedApiHistory != null) {
+                            updatedApiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                        }
 
                         List<ChatMessage> updatedUiHistory = chatHistoryLiveData.getValue();
                         if (updatedUiHistory != null) {
