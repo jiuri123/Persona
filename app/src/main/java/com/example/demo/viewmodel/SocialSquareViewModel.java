@@ -35,13 +35,13 @@ public class SocialSquareViewModel extends ViewModel {
     private final UserPersonaPostRepository userPersonaPostRepository;
     
     // 合并后的帖子列表LiveData
-    private final MutableLiveData<List<Post>> mergedPostsLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MediatorLiveData<List<Post>> mergedPostsLiveData = new MediatorLiveData<>();
     
     // 加载状态LiveData
-    private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
+    private final MediatorLiveData<Boolean> isLoadingLiveData = new MediatorLiveData<>();
     
     // 错误信息LiveData
-    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
+    private final MediatorLiveData<String> errorLiveData = new MediatorLiveData<>();
     
     // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
     private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
@@ -59,41 +59,14 @@ public class SocialSquareViewModel extends ViewModel {
         this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
         
-        // 初始化合并帖子列表
-        mergePosts();
-        
-        // 设置仓库的观察器
-        setupRepositoryObservers();
-        
         // 设置MediatorLiveData观察Repository的LiveData
         setupMediatorLiveData();
+        
+        // 初始化合并帖子列表
+        mergePosts();
     }
 
-    /**
-     * 设置仓库的观察器
-     * 当各个仓库的数据发生变化时，更新合并后的帖子列表
-     */
-    private void setupRepositoryObservers() {
-        // 观察用户Persona帖子变化
-        userPersonaPostRepository.getMyPostsLiveData().observeForever(posts -> {
-            mergePosts();
-        });
-        
-        // 观察其他Persona帖子变化
-        otherPersonaPostRepository.getSocialPosts().observeForever(posts -> {
-            mergePosts();
-        });
-        
-        // 观察用户Persona帖子加载状态
-        userPersonaPostRepository.getIsLoading().observeForever(isLoading -> {
-            isLoadingLiveData.setValue(isLoading);
-        });
-        
-        // 观察用户Persona帖子错误信息
-        userPersonaPostRepository.getError().observeForever(error -> {
-            errorLiveData.setValue(error);
-        });
-    }
+
 
     /**
      * 合并帖子列表
@@ -184,6 +157,22 @@ public class SocialSquareViewModel extends ViewModel {
         
         // 观察用户Persona列表变化
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
+        
+        // 观察用户Persona帖子变化，用于合并帖子
+        mergedPostsLiveData.addSource(userPersonaPostRepository.getMyPostsLiveData(), posts -> {
+            mergePosts();
+        });
+        
+        // 观察其他Persona帖子变化，用于合并帖子
+        mergedPostsLiveData.addSource(otherPersonaPostRepository.getSocialPosts(), posts -> {
+            mergePosts();
+        });
+        
+        // 观察用户Persona帖子加载状态
+        isLoadingLiveData.addSource(userPersonaPostRepository.getIsLoading(), isLoadingLiveData::setValue);
+        
+        // 观察用户Persona帖子错误信息
+        errorLiveData.addSource(userPersonaPostRepository.getError(), errorLiveData::setValue);
     }
     
     /**
