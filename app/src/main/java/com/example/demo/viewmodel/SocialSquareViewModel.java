@@ -139,19 +139,7 @@ public class SocialSquareViewModel extends ViewModel {
         return errorLiveData;
     }
 
-    /**
-     * 生成新帖子
-     * 通过UserPersonaPostRepository生成新帖子
-     */
-    public void generateNewPost() {
-        if (!userPersonaRepository.hasCurrentUserPersona()) {
-            // 如果当前用户没有选择用户Persona，则无法生成新帖子
-            errorLiveData.setValue("请先去创建你的Persona~");
-            return;
-        }else{
-            userPersonaPostRepository.generateNewPost(userPersonaRepository.getCurrentUserPersona().getValue());
-        }
-    }
+
 
     /**
      * 处理关注/取消关注操作

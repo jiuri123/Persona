@@ -184,41 +184,7 @@ public class UserPersonaPostRepository {
         errorLiveData.setValue(error);
     }
 
-    /**
-     * 生成新动态
-     * 调用AI API生成基于用户角色的社交媒体动态
-     * @param currentUser 当前用户的Persona对象
-     */
-    public void generateNewPost(Persona currentUser) {
-        // 调用aiGenerateContent函数生成内容，然后在回调中处理结果
-        aiGenerateContent(currentUser, new ContentCallback() {
-            @Override
-            public void onSuccess(String generatedContent) {
-                // 创建新的Post对象
-                Post newPost = new Post(
-                        currentUser,
-                        generatedContent,
-                        null,
-                        "刚刚",
-                        true
-                );
 
-                // 将新帖子添加到历史帖子列表
-                List<Post> historyPosts = userPostsLiveData.getValue();
-                if (historyPosts == null) {
-                    historyPosts = new ArrayList<>();
-                }
-                historyPosts.add(0, newPost); // 添加到列表顶部
-                userPostsLiveData.postValue(historyPosts);
-            }
-
-            @Override
-            public void onError(String error) {
-                // 设置错误信息
-                errorLiveData.postValue(error);
-            }
-        });
-    }
 
     /**
      * AI扩展当前内容
