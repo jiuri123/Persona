@@ -80,7 +80,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 创建Persona并返回结果
-                createPersonaAndReturn();
+                createPersonaAndSave();
             }
         });
 
@@ -123,7 +123,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
     /**
      * 创建Persona对象并返回结果给调用者
      */
-    private void createPersonaAndReturn() {
+    private void createPersonaAndSave() {
         // 获取用户输入的所有属性
         String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
         String myPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
@@ -157,28 +157,23 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             }
         }
 
-        // 创建Persona对象
+        // 开始创建Persona对象
         int avatarId = R.drawable.avatar_zero;
         // 将Uri转换为字符串，保存到Persona对象中
         String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
-        Persona myPersona = new Persona(
-                myPersonaName, 
-                avatarId, 
-                avatarUriString, // avatarUri，从相册选择的图片URI
-                myPersonaCatchphrase, // 使用catchphrase作为signature
+
+        // 调用ViewModel的方法创建并保存Persona对象
+        userPersonaCreatingViewModel.createPersonaAndSave(
+                myPersonaName,
+                avatarId,
+                avatarUriString,
+                myPersonaCatchphrase,
                 myPersonaStory,
                 myPersonaGender,
                 myPersonaAge,
                 myPersonaPersonality,
                 myPersonaRelationship
         );
-
-        // 创建Intent并放入Persona对象
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra(EXTRA_PERSONA_RESULT, myPersona);
-
-        // 设置结果并关闭Activity
-        setResult(AppCompatActivity.RESULT_OK, resultIntent);
         finish();
     }
 

@@ -1,5 +1,6 @@
 package com.example.demo.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.demo.activity.UserPersonaCreatingActivity;
+import com.example.demo.activity.UserPostCreateActivity;
 import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
@@ -86,16 +89,14 @@ public class UserPersonaFragment extends Fragment {
 
         // 设置创建Persona按钮的点击事件
         fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).launchCreatePersonaActivity();
-            }
+            Intent intent = new Intent(getContext(), UserPersonaCreatingActivity.class);
+            startActivity(intent);
         });
 
         // 设置底部创建按钮的点击事件
         fragmentMyPersonaBinding.fabCreatePersona.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).launchCreatePersonaActivity();
-            }
+            Intent intent = new Intent(getContext(), UserPersonaCreatingActivity.class);
+            startActivity(intent);
         });
 
         // 设置初始UI

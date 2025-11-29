@@ -39,12 +39,12 @@ public class SocialSquareFragment extends Fragment {
 
     // ViewModel，用于管理社交广场的所有数据和业务逻辑
     private SocialSquareViewModel socialSquareViewModel;
-    
-    // 帖子数据列表，包括用户的帖子和其他persona的帖子
-    private List<Post> postList;
-    
+
     // 适配器，用于绘制社交广场的帖子列表
     private SocialSquarePostAdapter socialSquarePostAdapter;
+
+    // 用户是否有Persona
+    private boolean mHasUserPersona = false;
 
     /**
      * 构造函数
@@ -107,7 +107,8 @@ public class SocialSquareFragment extends Fragment {
         fragmentSocialSquareBinding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
         
         // 初始化为空列表，后续由ViewModel更新
-        postList = new java.util.ArrayList<>();
+       // 帖子数据列表，包括用户的帖子和其他persona的帖子
+       List<Post> postList = new java.util.ArrayList<>();
 
         // 创建适配器并设置回调接口
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
@@ -127,7 +128,7 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 检查用户是否有Persona
-                if (socialSquareViewModel.hasUserPersonas()) {
+                if (mHasUserPersona) {
                     // 如果有Persona，跳转到发布动态编辑页面
                     Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
                     startActivity(intent);
@@ -178,6 +179,15 @@ public class SocialSquareFragment extends Fragment {
                     socialSquarePostAdapter.updateFollowedList(followedPersonas);
                 }
             }
+        });
+
+        // 5. (响应式) 观察“是否已创建Persona”的 *状态*
+        socialSquareViewModel.getHasUserPersonaState().observe(getViewLifecycleOwner(), hasPersona -> {
+            // 6. 持续更新 Fragment 中保存的本地状态
+            this.mHasUserPersona = hasPersona;
+
+            // 7. (可选) 也可以根据这个状态来启用/禁用按钮
+            // fragmentSocialSquareBinding.fabAddPost.setEnabled(hasPersona);
         });
     }
 

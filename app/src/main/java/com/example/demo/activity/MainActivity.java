@@ -4,10 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -16,7 +12,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.demo.fragment.UserFollowedListFragment;
 import com.example.demo.fragment.UserPersonaFragment;
-import com.example.demo.model.Persona;
 import com.example.demo.fragment.UserProfileFragment;
 import com.example.demo.R;
 import com.example.demo.fragment.SocialSquareFragment;
@@ -39,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
     // 视图绑定，用于替代findViewById，提高性能和类型安全
     private ActivityMainBinding activityMainBinding;
     
-    // Activity结果启动器，用于处理从CreateMyPersonaActivity返回的结果
-    // 这是AndroidX推荐的替代startActivityForResult的方式
-    private ActivityResultLauncher<Intent> createMyPersonaLauncher;
-    
     // Fragment标签，用于标识不同的Fragment
     private static final String TAG_SOCIAL = "SOCIAL_SQUARE";
     private static final String TAG_FOLLOWED = "FOLLOWED_LIST";
@@ -59,27 +50,6 @@ public class MainActivity extends AppCompatActivity {
         // 使用视图绑定初始化布局，避免findViewById的性能开销和类型转换错误
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
-        
-        // 注册Activity结果启动器，用于处理从CreateMyPersonaActivity返回的数据
-        // 使用registerForActivityResult替代已废弃的startActivityForResult方法
-        createMyPersonaLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        // 检查结果是否成功
-                        if (result.getResultCode() == AppCompatActivity.RESULT_OK) {
-                            Intent data = result.getData();
-                            if (data != null) {
-                                // 获取从CreateMyPersonaActivity返回的Persona对象
-                                Persona myPersona = data.getParcelableExtra(UserPersonaCreatingActivity.EXTRA_PERSONA_RESULT);
-                                if (myPersona != null) {
-                                    handleNewPersona(myPersona);
-                                }
-                            }
-                        }
-                    }
-                });
         
         // 初始化所有Fragment实例
         socialSquareFragment = new SocialSquareFragment();
@@ -110,40 +80,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
                 return false;
-            }
-        });
-    }
-    
-    /**
-     * 启动创建Persona的Activity
-     * 使用ActivityResultLauncher而不是传统的startActivityForResult
-     * 这是AndroidX推荐的现代方式，提供类型安全和更清晰的API
-     */
-    public void launchCreatePersonaActivity() {
-        Intent intent = new Intent(this, UserPersonaCreatingActivity.class);
-        createMyPersonaLauncher.launch(intent);
-    }
-    
-    /**
-     * 处理新创建的Persona对象
-     * @param myPersona 新创建的Persona对象
-     */
-    private void handleNewPersona(Persona myPersona) {
-        // 切换到我的Persona页面
-        activityMainBinding.bottomNavView.setSelectedItemId(R.id.nav_my_persona);
-        
-        // 使用post方法确保在UI线程中执行，并且等待Fragment完全加载后再调用
-        // 这是一种处理Fragment生命周期和UI更新的安全方式
-        activityMainBinding.getRoot().post(new Runnable() {
-            @Override
-            public void run() {
-                // 获取当前显示的Fragment
-                Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(TAG_PERSONA);
-                
-                // 如果当前显示的是MyPersonaFragment，则调用其onPersonaCreated方法
-                if (currentFragment instanceof UserPersonaFragment) {
-                    ((UserPersonaFragment) currentFragment).onPersonaCreated(myPersona);
-                }
             }
         });
     }

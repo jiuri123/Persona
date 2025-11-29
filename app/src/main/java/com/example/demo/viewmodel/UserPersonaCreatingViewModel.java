@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.repository.UserPersonaRepository;
 
+import java.util.List;
+
 /**
  * 创建角色ViewModel类
  * 管理角色创建相关的数据和操作
@@ -36,7 +38,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * 设置MediatorLiveData观察Repository的LiveData
      */
     private void setupMediatorLiveData() {
-        // 观察生成的Persona对象
+        // 观察AI生成的临时Persona对象
         generatedPersonaLiveData.addSource(userPersonaRepository.getGeneratedPersona(), generatedPersonaLiveData::setValue);
         
         // 观察加载状态
@@ -105,7 +107,7 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @param relationship 关系（和我的关系）
      * @return 创建的Persona对象
      */
-    public Persona createPersona(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
+    public Persona createPersonaAndSave(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
                                  String gender, int age, String personality, String relationship) {
         Persona newPersona = new Persona(name, avatarDrawableId, avatarUri, signature, backgroundStory, 
                                          gender, age, personality, relationship);

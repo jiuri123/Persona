@@ -3,6 +3,7 @@ package com.example.demo.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
@@ -33,6 +34,9 @@ public class SocialSquareViewModel extends ViewModel {
     
     // 用户Persona帖子仓库
     private final UserPersonaPostRepository userPersonaPostRepository;
+
+    // 检查用户是否创建了Persona
+    private final LiveData<Boolean> hasUserPersona;
     
     // 合并后的帖子列表LiveData
     private final MediatorLiveData<List<Post>> mergedPostsLiveData = new MediatorLiveData<>();
@@ -58,7 +62,15 @@ public class SocialSquareViewModel extends ViewModel {
         this.userPersonaRepository = UserPersonaRepository.getInstance();
         this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
-        
+
+        // 3. “加工” userPersonasLiveData
+        // Transformations.map 会自动观察 userPersonasLiveData
+        // 每当 List<Persona> 变化时，它会自动执行 -> 后的代码
+        hasUserPersona = Transformations.map(userPersonasLiveData, personas -> {
+            // 这就是“加工”逻辑
+            return personas != null && !personas.isEmpty();
+        });
+
         // 设置MediatorLiveData观察Repository的LiveData
         setupMediatorLiveData();
         
@@ -183,17 +195,6 @@ public class SocialSquareViewModel extends ViewModel {
     }
     
     /**
-     * 检查用户是否有Persona
-     * @return 如果用户有至少一个Persona返回true，否则返回false
-     */
-    public boolean hasUserPersonas() {
-        // 直接从userPersonaRepository获取用户Persona列表
-        LiveData<List<Persona>> userPersonasLiveData = userPersonaRepository.getUserPersonas();
-        List<Persona> personas = userPersonasLiveData.getValue();
-        return personas != null && !personas.isEmpty();
-    }
-    
-    /**
      * 获取用户Persona列表LiveData
      * @return 用户Persona列表LiveData
      */
@@ -202,4 +203,11 @@ public class SocialSquareViewModel extends ViewModel {
     }
 
 
+    /**
+     * 6. 暴露这个新的、加工后的 "状态" LiveData 给 View
+     * @return 一个 LiveData，如果用户有 Persona 则为 true
+     */
+    public LiveData<Boolean> getHasUserPersonaState() {
+        return hasUserPersona;
+    }
 }

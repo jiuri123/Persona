@@ -225,9 +225,6 @@ public class UserPersonaRepository {
      * @return 如果成功添加返回true，如果名称已存在则返回false
      */
     public boolean addUserPersona(Persona persona) {
-        if (persona == null || persona.getName() == null || persona.getName().trim().isEmpty()) {
-            return false;
-        }
         
         String personaName = persona.getName();
         
