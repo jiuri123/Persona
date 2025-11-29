@@ -63,7 +63,16 @@ public class UserPersonaFragment extends Fragment {
         // 初始化ViewModel
         userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
 
-        // 设置UI
+        // 观察当前用户Persona的变化，自动更新UI
+        userPersonaCreateAndChatViewModel.getCurrentUserPersona().observe(getViewLifecycleOwner(), new Observer<Persona>() {
+            @Override
+            public void onChanged(Persona persona) {
+                // 当当前用户Persona变化时，更新UI
+                setupUI();
+            }
+        });
+
+        // 设置初始UI
         setupUI();
     }
 
@@ -77,10 +86,7 @@ public class UserPersonaFragment extends Fragment {
         // 设置当前聊天的Persona
         userPersonaCreateAndChatViewModel.setCurrentUserPersona(persona);
 
-        // 如果视图已创建，则更新UI
-        if (fragmentMyPersonaBinding != null) {
-            setupUI();
-        }
+        // 不再直接调用setupUI()，而是由LiveData的观察者自动处理UI更新
     }
 
     /**
