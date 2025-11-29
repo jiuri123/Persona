@@ -86,7 +86,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/etPersonaPersonality"
         app:layout_constraintTop_toBottomOf="@id/ivAvatarPreview"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintHorizontal_weight="1" />
 
     <EditText
         android:id="@+id/etPersonaPersonality"
@@ -102,7 +102,7 @@
         app:layout_constraintStart_toEndOf="@id/etPersonaGender"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivAvatarPreview"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintHorizontal_weight="1" />
 
     <!-- 年龄和关系编辑框，水平排列，各占50%宽度 -->
     <EditText
@@ -119,7 +119,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/etPersonaRelationship"
         app:layout_constraintTop_toBottomOf="@id/etPersonaGender"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintHorizontal_weight="1" />
 
     <EditText
         android:id="@+id/etPersonaRelationship"
@@ -135,7 +135,7 @@
         app:layout_constraintStart_toEndOf="@id/etPersonaAge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etPersonaGender"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintHorizontal_weight="1" />
 
     <!-- 口头禅编辑框，单独一行 -->
     <EditText

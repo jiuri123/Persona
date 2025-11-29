@@ -48,6 +48,9 @@ public class UserPersonaRepository {
             "赛博朋克", "奇幻", "科幻", "蒸汽朋克", "神秘", "历史", "艺术家", "探险家", "AI", "时间旅行者"
     };
 
+    // 系统提示词，在构造函数中初始化
+    private final String systemPrompt;
+
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
@@ -62,10 +65,16 @@ public class UserPersonaRepository {
 
     /**
      * 私有构造函数，防止外部实例化
-     * 初始化API服务实例
+     * 初始化API服务实例和系统提示词
      */
     private UserPersonaRepository() {
         this.apiService = ApiClient.getApiService();
+        
+        // 初始化系统提示词，只在构造函数中初始化一次
+        this.systemPrompt = "你是一个富有创造力的人设生成器。" +
+                "请你只返回一个 JSON 对象，格式如下：" +
+                "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
+                "不要在 JSON 之外添加任何解释性文字。";
     }
 
     /**
@@ -135,12 +144,6 @@ public class UserPersonaRepository {
         // 设置加载状态为true
         isLoadingLiveData.setValue(true);
 
-        // 系统提示，要求AI返回特定格式的JSON
-        String systemPrompt = "你是一个富有创造力的人设生成器。" +
-                "请你只返回一个 JSON 对象，格式如下：" +
-                "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的关系]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
-                "不要在 JSON 之外添加任何解释性文字。";
-
         // 生成随机数和随机主题
         int randomNumber = random.nextInt(10000);
         String randomTheme = THEMES[random.nextInt(THEMES.length)];
@@ -151,9 +154,9 @@ public class UserPersonaRepository {
                 " (这是一个新的请求, 编号: " + randomNumber + ")" +
                 "确保每次生成的人设名称和背景故事都是唯一的，而且每次生成的名字的第一个字都不同。";
 
-        // 构建API请求历史
+        // 构建API请求历史，使用预定义的systemPrompt变量
         List<ChatRequestMessage> apiHistory = new ArrayList<>();
-        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+        apiHistory.add(new ChatRequestMessage("system", this.systemPrompt));
         apiHistory.add(new ChatRequestMessage("user", userPrompt));
 
         // 创建聊天请求
