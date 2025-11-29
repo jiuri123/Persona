@@ -30,7 +30,6 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     private final MediatorLiveData<Boolean> personaIsLoadingLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<String> personaErrorLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<Persona> currentUserPersonaLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<ChatMessage>> chatHistoryLiveData = new MediatorLiveData<>();
 
     /**
@@ -52,7 +51,6 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
         personaIsLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), personaIsLoadingLiveData::setValue);
         personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
-        currentUserPersonaLiveData.addSource(userPersonaRepository.getCurrentUserPersona(), currentUserPersonaLiveData::setValue);
         
         // 聊天相关LiveData
         chatHistoryLiveData.addSource(userPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
@@ -100,14 +98,6 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     }
     
     /**
-     * 获取当前用户正在使用的Persona LiveData
-     * @return 当前用户正在使用的Persona的LiveData对象
-     */
-    public LiveData<Persona> getCurrentUserPersona() {
-        return currentUserPersonaLiveData;
-    }
-    
-    /**
      * 生成角色详情
      * 调用PersonaRepository生成角色名称和背景故事
      */
@@ -134,41 +124,12 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     }
     
     /**
-     * 设置当前选中的Persona
-     * @param persona 要设为当前的Persona
-     * @return 如果成功设置返回true，如果Persona不存在于用户列表中则返回false
-     */
-    public boolean setCurrentUserPersona(Persona persona) {
-        boolean result = userPersonaRepository.setCurrentUserPersona(persona);
-        if (result) {
-            // 设置当前聊天的Persona
-            userPersonaChatRepository.setCurrentPersona(persona);
-        }
-        return result;
-    }
-    
-    /**
      * 根据名称获取用户Persona
      * @param name Persona的名称
      * @return 匹配的Persona对象，如果未找到则返回null
      */
     public Persona getUserPersonaByName(String name) {
         return userPersonaRepository.getUserPersonaByName(name);
-    }
-    
-    /**
-     * 检查是否有当前用户Persona
-     * @return 如果有当前用户Persona返回true，否则返回false
-     */
-    public boolean hasCurrentUserPersona() {
-        return userPersonaRepository.hasCurrentUserPersona();
-    }
-    
-    /**
-     * 清除当前用户Persona
-     */
-    public void clearCurrentUserPersona() {
-        userPersonaRepository.clearCurrentUserPersona();
     }
     
     // ========== 聊天相关方法 ==========

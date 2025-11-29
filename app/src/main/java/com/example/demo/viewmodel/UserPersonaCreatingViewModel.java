@@ -76,6 +76,13 @@ public class UserPersonaCreatingViewModel extends ViewModel {
     public void clearError() {
         userPersonaRepository.clearError();
     }
+    
+    /**
+     * 清除生成的Persona对象
+     */
+    public void clearGeneratedPersona() {
+        userPersonaRepository.clearGeneratedPersona();
+    }
 
     /**
      * 生成角色详情

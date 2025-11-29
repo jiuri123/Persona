@@ -40,6 +40,47 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Persona选择区域 -->
+    <LinearLayout
+        android:id="@+id/persona_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:background="@drawable/rounded_corner_bg"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_selected_persona_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avatar_zero"
+            android:background="@drawable/rounded_corner_bg"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:id="@+id/tv_selected_persona_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="选择Persona"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <ImageView
+            android:id="@+id/iv_dropdown_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_down"
+            android:contentDescription="展开选择" />
+    </LinearLayout>
+
     <!-- 编辑框 -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
@@ -50,7 +91,7 @@
         app:layout_constraintBottom_toTopOf="@+id/button_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/persona_selector">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_post_content"

@@ -7,89 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".fragment.UserPersonaFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/personaHeaderLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:padding="16dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:id="@+id/ivPersonaAvatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/avatar_zero"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/tvPersonaName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="Persona Name"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/ivPersonaAvatar"
-            app:layout_constraintTop_toTopOf="@id/ivPersonaAvatar"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <!-- Persona列表 -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChatMessages"
+        android:id="@+id/rvPersonaList"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/personaHeaderLayout"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/inputLayout"
-        tools:listitem="@layout/item_chat_sent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/inputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#F5F5F5"
-        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        tools:listitem="@layout/item_followed_persona" />
 
-        <EditText
-            android:id="@+id/etChatMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="和你的 Persona 对话..."
-            android:inputType="textShortMessage"
-            android:layout_marginEnd="8dp"
-            android:background="@android:drawable/edit_text"
-            android:padding="12dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnSend" />
-
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="发送"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <!-- 空状态提示 -->
     <TextView
         android:id="@+id/tvEmptyState"
         android:layout_width="wrap_content"
@@ -100,6 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- 立即创建按钮 -->
     <Button
         android:id="@+id/btnGoToCreate"
         android:layout_width="wrap_content"
@@ -112,11 +45,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- 空状态组 -->
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupEmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         app:constraint_referenced_ids="tvEmptyState, btnGoToCreate" />
+
+    <!-- 底部中间的FloatingActionButton，用于创建新的Persona -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreatePersona"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="创建新的Persona"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

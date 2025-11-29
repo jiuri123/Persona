@@ -125,12 +125,6 @@ public class SocialSquareFragment extends Fragment {
         fragmentSocialSquareBinding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 检查是否有当前用户Persona
-                if (!socialSquareViewModel.hasCurrentUserPersona()) {
-                    // 如果没有，显示提示信息
-                    Toast.makeText(getContext(), "请先去创建你的Persona~", Toast.LENGTH_LONG).show();
-                    return;
-                }
                 // 跳转到发布动态编辑页面
                 Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
                 startActivity(intent);

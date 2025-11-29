@@ -187,11 +187,5 @@ public class SocialSquareViewModel extends ViewModel {
         userPersonaPostRepository.clearError();
     }
 
-    /**
-     * 检查是否有当前用户Persona
-     * @return 如果有当前用户Persona返回true，否则返回false
-     */
-    public boolean hasCurrentUserPersona() {
-        return userPersonaRepository.hasCurrentUserPersona();
-    }
+
 }

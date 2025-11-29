@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.repository.UserPersonaPostRepository;
 import com.example.demo.repository.UserPersonaRepository;
@@ -77,17 +78,23 @@ public class UserPostCreateViewModel extends ViewModel {
 
     /**
      * AI扩展当前内容
-     * 根据当前用户的Persona设定扩展已有内容
+     * 根据指定的Persona设定扩展已有内容
+     * @param persona 指定的Persona
      * @param currentContent 当前编辑框中的内容
      */
-    public void aiExpandContent(String currentContent) {
+    public void aiExpandContent(Persona persona, String currentContent) {
+        // 检查Persona是否为空
+        if (persona == null) {
+            errorLiveData.setValue("请先选择一个Persona~");
+            return;
+        }
 
         // 设置加载状态为true
         isLoadingLiveData.setValue(true);
 
         // 调用仓库的AI扩展方法
         userPersonaPostRepository.aiExpandContent(
-                userPersonaRepository.getCurrentUserPersona().getValue(),
+                persona,
                 currentContent,
                 new UserPersonaPostRepository.ContentCallback() {
                     @Override
@@ -109,12 +116,13 @@ public class UserPostCreateViewModel extends ViewModel {
 
     /**
      * AI生成新内容
-     * 根据当前用户的Persona设定生成新内容
+     * 根据指定的Persona设定生成新内容
+     * @param persona 指定的Persona
      */
-    public void aiGenerateContent() {
-        // 检查是否有当前用户Persona
-        if (!userPersonaRepository.hasCurrentUserPersona()) {
-            errorLiveData.setValue("请先去创建你的Persona~");
+    public void aiGenerateContent(Persona persona) {
+        // 检查Persona是否为空
+        if (persona == null) {
+            errorLiveData.setValue("请先选择一个Persona~");
             return;
         }
 
@@ -123,7 +131,7 @@ public class UserPostCreateViewModel extends ViewModel {
 
         // 调用仓库的AI生成方法
         userPersonaPostRepository.aiGenerateContent(
-                userPersonaRepository.getCurrentUserPersona().getValue(),
+                persona,
                 new UserPersonaPostRepository.ContentCallback() {
                     @Override
                     public void onSuccess(String content) {
@@ -146,11 +154,12 @@ public class UserPostCreateViewModel extends ViewModel {
      * 发布动态
      * 将编辑框中的内容发布为新帖子
      * @param content 要发布的动态内容
+     * @param persona 发布动态的Persona
      */
-    public void publishPost(String content) {
-        // 检查是否有当前用户Persona
-        if (!userPersonaRepository.hasCurrentUserPersona()) {
-            errorLiveData.setValue("请先去创建你的Persona~");
+    public void publishPost(String content, Persona persona) {
+        // 检查Persona是否为空
+        if (persona == null) {
+            errorLiveData.setValue("请先选择一个Persona~");
             return;
         }
 
@@ -159,7 +168,7 @@ public class UserPostCreateViewModel extends ViewModel {
 
         // 调用仓库的发布帖子方法
         userPersonaPostRepository.publishPost(
-                userPersonaRepository.getCurrentUserPersona().getValue(),
+                persona,
                 content,
                 new UserPersonaPostRepository.PublishCallback() {
                     @Override
@@ -177,5 +186,28 @@ public class UserPostCreateViewModel extends ViewModel {
                     }
                 }
         );
+    }
+    
+    /**
+     * AI扩展当前内容（兼容旧版本，使用第一个Persona）
+     * @param currentContent 当前编辑框中的内容
+     */
+    public void aiExpandContent(String currentContent) {
+        // 获取第一个Persona
+        Persona persona = userPersonaRepository.getUserPersonas().getValue() != null && !userPersonaRepository.getUserPersonas().getValue().isEmpty() 
+                ? userPersonaRepository.getUserPersonas().getValue().get(0) 
+                : null;
+        aiExpandContent(persona, currentContent);
+    }
+    
+    /**
+     * AI生成新内容（兼容旧版本，使用第一个Persona）
+     */
+    public void aiGenerateContent() {
+        // 获取第一个Persona
+        Persona persona = userPersonaRepository.getUserPersonas().getValue() != null && !userPersonaRepository.getUserPersonas().getValue().isEmpty() 
+                ? userPersonaRepository.getUserPersonas().getValue().get(0) 
+                : null;
+        aiGenerateContent(persona);
     }
 }

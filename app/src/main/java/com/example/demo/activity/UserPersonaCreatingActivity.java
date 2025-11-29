@@ -23,6 +23,7 @@ import android.Manifest;
 
 import com.example.demo.viewmodel.UserPersonaCreatingViewModel;
 import com.example.demo.model.Persona;
+import com.example.demo.repository.UserPersonaRepository;
 import com.example.demo.R;
 import com.example.demo.databinding.ActivityCreatePersonaBinding;
 
@@ -56,8 +57,14 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         // 获取ViewModel实例，ViewModel在配置变更时不会被销毁
         userPersonaCreatingViewModel = new ViewModelProvider(this).get(UserPersonaCreatingViewModel.class);
 
+        // 清除上一次生成的Persona对象
+        userPersonaCreatingViewModel.clearGeneratedPersona();
+        
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
+        
+        // 清空所有编辑框和重置头像，必须在setupObservers之后调用，否则会被观察者填充的数据覆盖
+        clearAllFields();
 
         // 返回按钮点击事件
         activityCreatePersonaBinding.btnBack.setOnClickListener(new View.OnClickListener() {
@@ -94,6 +101,24 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             }
         });
     }
+    
+    /**
+     * 清空所有编辑框和重置头像
+     */
+    private void clearAllFields() {
+        // 清空所有编辑框
+        activityCreatePersonaBinding.etPersonaName.setText("");
+        activityCreatePersonaBinding.etPersonaGender.setText("");
+        activityCreatePersonaBinding.etPersonaPersonality.setText("");
+        activityCreatePersonaBinding.etPersonaAge.setText("");
+        activityCreatePersonaBinding.etPersonaRelationship.setText("");
+        activityCreatePersonaBinding.etPersonaCatchphrase.setText("");
+        activityCreatePersonaBinding.etPersonaStory.setText("");
+        
+        // 重置头像
+        selectedAvatarUri = null;
+        activityCreatePersonaBinding.ivAvatarPreview.setImageResource(R.drawable.avatar_zero);
+    }
 
     /**
      * 创建Persona对象并返回结果给调用者
@@ -111,6 +136,13 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         // 验证输入是否为空
         if (myPersonaName.isEmpty() || myPersonaStory.isEmpty()) {
             Toast.makeText(this, "名称和背景故事不能为空", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // 检查角色名称是否已存在
+        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance();
+        if (userPersonaRepository.getUserPersonaByName(myPersonaName) != null) {
+            Toast.makeText(this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
             return;
         }
 

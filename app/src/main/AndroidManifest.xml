@@ -21,6 +21,9 @@
             android:name=".activity.OtherPersonaChatActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.UserPersonaChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.UserPersonaCreatingActivity"
             android:exported="false" />
         <activity

@@ -1,6 +1,5 @@
 package com.example.demo.fragment;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,28 +10,26 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.demo.model.ChatMessage;
 import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
 import com.example.demo.activity.MainActivity;
-import com.example.demo.adapter.PersonaChatAdapter;
+import com.example.demo.adapter.UserPersonaListAdapter;
 
 import java.util.List;
 
 /**
  * 我的Persona Fragment
- * 显示用户的Persona和与它的聊天界面
+ * 显示用户创建的所有Persona列表
  * 如果用户没有创建Persona，则显示创建Persona的引导界面
  */
 public class UserPersonaFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentMyPersonaBinding fragmentMyPersonaBinding;
-    // 聊天适配器，用于显示聊天消息
-    private PersonaChatAdapter personaChatAdapter;
+    // Persona列表适配器，用于显示Persona列表
+    private UserPersonaListAdapter userPersonaListAdapter;
     // 我的Persona和聊天ViewModel
     private UserPersonaCreateAndChatViewModel userPersonaCreateAndChatViewModel;
 
@@ -64,17 +61,45 @@ public class UserPersonaFragment extends Fragment {
         // 初始化ViewModel
         userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
 
-        // 观察当前用户Persona的变化，自动更新UI
-        userPersonaCreateAndChatViewModel.getCurrentUserPersona().observe(getViewLifecycleOwner(), new Observer<Persona>() {
+        // 初始化Persona列表适配器
+        userPersonaListAdapter = new UserPersonaListAdapter(requireContext(), userPersonaCreateAndChatViewModel.getUserPersonas().getValue());
+        // 设置删除Persona的回调接口
+        userPersonaListAdapter.setOnPersonaDeleteListener(new UserPersonaListAdapter.OnPersonaDeleteListener() {
             @Override
-            public void onChanged(Persona persona) {
-                // 当当前用户Persona变化时，更新UI
-                setupUI();
+            public void onPersonaDelete(Persona persona) {
+                // 删除Persona
+                userPersonaCreateAndChatViewModel.removeUserPersona(persona);
+            }
+        });
+        fragmentMyPersonaBinding.rvPersonaList.setAdapter(userPersonaListAdapter);
+
+        // 观察用户Persona列表的变化，自动更新UI
+        userPersonaCreateAndChatViewModel.getUserPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
+            @Override
+            public void onChanged(List<Persona> personas) {
+                // 更新适配器数据
+                userPersonaListAdapter.updateData(personas);
+                // 更新UI显示
+                setupUI(personas);
+            }
+        });
+
+        // 设置创建Persona按钮的点击事件
+        fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).launchCreatePersonaActivity();
+            }
+        });
+
+        // 设置底部创建按钮的点击事件
+        fragmentMyPersonaBinding.fabCreatePersona.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).launchCreatePersonaActivity();
             }
         });
 
         // 设置初始UI
-        setupUI();
+        setupUI(userPersonaCreateAndChatViewModel.getUserPersonas().getValue());
     }
 
     /**
@@ -84,86 +109,25 @@ public class UserPersonaFragment extends Fragment {
     public void onPersonaCreated(Persona persona) {
         // 通过UserPersonaViewModel将Persona添加到Repository
         userPersonaCreateAndChatViewModel.addUserPersona(persona);
-        // 设置当前聊天的Persona
-        userPersonaCreateAndChatViewModel.setCurrentUserPersona(persona);
-
-        // 不再直接调用setupUI()，而是由LiveData的观察者自动处理UI更新
     }
 
     /**
      * 设置UI界面
      * 根据是否有Persona显示不同的界面
+     * @param personas 用户的Persona列表
      */
-    private void setupUI() {
-        // 从UserPersonaViewModel获取当前用户Persona
-        Persona currentUserPersona = userPersonaCreateAndChatViewModel.getCurrentUserPersona().getValue();
-        
-        if (currentUserPersona == null) {
+    private void setupUI(List<Persona> personas) {
+        if (personas == null || personas.isEmpty()) {
             // 没有Persona时显示空状态界面
             fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.VISIBLE);
-            fragmentMyPersonaBinding.personaHeaderLayout.setVisibility(View.GONE);
-            fragmentMyPersonaBinding.rvChatMessages.setVisibility(View.GONE);
-            fragmentMyPersonaBinding.inputLayout.setVisibility(View.GONE);
-
-            // 设置创建Persona按钮的点击事件
-            fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).launchCreatePersonaActivity();
-                }
-            });
+            fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.GONE);
+            fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.GONE);
         } else {
-            // 有Persona时显示聊天界面
+            // 有Persona时显示Persona列表
             fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.GONE);
-            fragmentMyPersonaBinding.personaHeaderLayout.setVisibility(View.VISIBLE);
-            fragmentMyPersonaBinding.rvChatMessages.setVisibility(View.VISIBLE);
-            fragmentMyPersonaBinding.inputLayout.setVisibility(View.VISIBLE);
-
-            // 设置Persona信息
-            fragmentMyPersonaBinding.tvPersonaName.setText(currentUserPersona.getName());
-            // 优先使用avatarUri加载头像，如果没有则使用默认的avatarDrawableId
-            if (currentUserPersona.getAvatarUri() != null) {
-                fragmentMyPersonaBinding.ivPersonaAvatar.setImageURI(Uri.parse(currentUserPersona.getAvatarUri()));
-            } else {
-                fragmentMyPersonaBinding.ivPersonaAvatar.setImageResource(currentUserPersona.getAvatarDrawableId());
-            }
-
-            // 初始化聊天界面
-            initChatWithMVVM();
+            fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.VISIBLE);
+            fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.VISIBLE);
         }
-    }
-
-    /**
-     * 使用MVVM架构初始化聊天界面
-     */
-    private void initChatWithMVVM() {
-        // 创建聊天适配器
-        personaChatAdapter = new PersonaChatAdapter(requireContext());
-        // 设置线性布局管理器，并从底部开始显示
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true); // 从底部开始显示消息
-        fragmentMyPersonaBinding.rvChatMessages.setLayoutManager(layoutManager);
-        fragmentMyPersonaBinding.rvChatMessages.setAdapter(personaChatAdapter);
-
-        // 设置发送按钮的点击事件
-        fragmentMyPersonaBinding.btnSend.setOnClickListener(v -> {
-            String messageText = fragmentMyPersonaBinding.etChatMessage.getText().toString().trim();
-            if (!messageText.isEmpty()) {
-                userPersonaCreateAndChatViewModel.sendMessage(messageText); // 通过ViewModel发送消息
-                fragmentMyPersonaBinding.etChatMessage.setText(""); // 清空输入框
-            }
-        });
-
-        // 观察聊天历史变化，更新UI
-        userPersonaCreateAndChatViewModel.getChatHistory().observe(getViewLifecycleOwner(), new Observer<List<ChatMessage>>() {
-            @Override
-            public void onChanged(List<ChatMessage> newMessages) {
-                personaChatAdapter.setData(newMessages); // 更新适配器数据
-                if (personaChatAdapter.getItemCount() > 0) {
-                    // 滚动到最新消息
-                    fragmentMyPersonaBinding.rvChatMessages.scrollToPosition(personaChatAdapter.getItemCount() - 1);
-                }
-            }
-        });
     }
 
     /**
