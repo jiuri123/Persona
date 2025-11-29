@@ -2,7 +2,6 @@ package com.example.demo.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Bundle;
 import android.view.View;
@@ -16,7 +15,7 @@ import com.example.demo.databinding.ActivityPostEditorBinding;
 import com.example.demo.databinding.PersonaDropdownMenuBinding;
 import com.example.demo.model.Persona;
 import com.example.demo.viewmodel.UserPostCreateViewModel;
-import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
     // ViewModel，用于管理编辑页面的业务逻辑
     private UserPostCreateViewModel userPostCreateViewModel;
     // Persona ViewModel，用于获取用户创建的Persona列表
-    private UserPersonaCreateAndChatViewModel userPersonaCreateAndChatViewModel;
+    private UserPersonaViewModel userPersonaViewModel;
     // 当前选择的Persona
     private Persona selectedPersona;
 
@@ -54,7 +53,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
 
         // 获取ViewModel实例
         userPostCreateViewModel = new ViewModelProvider(this).get(UserPostCreateViewModel.class);
-        userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
 
         // 初始化Persona选择功能
         initPersonaSelector();
@@ -87,7 +86,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
         personaPopupWindow.setAnimationStyle(android.R.style.Animation_Dialog);
 
         // 初始化适配器
-        List<Persona> userPersonas = userPersonaCreateAndChatViewModel.getUserPersonas().getValue();
+        List<Persona> userPersonas = userPersonaViewModel.getUserPersonas().getValue();
         personaDropdownAdapter = new PersonaDropdownAdapter(this, userPersonas);
         personaDropdownMenuBinding.rvPersonaList.setAdapter(personaDropdownAdapter);
 
@@ -170,7 +169,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
         });
 
         // 观察用户Persona列表变化
-        userPersonaCreateAndChatViewModel.getUserPersonas().observe(this, personas -> {
+        userPersonaViewModel.getUserPersonas().observe(this, personas -> {
             // 更新适配器数据
             personaDropdownAdapter.updateData(personas);
             // 如果还没有选择Persona，默认选择第一个

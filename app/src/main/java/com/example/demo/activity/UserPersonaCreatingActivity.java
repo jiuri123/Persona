@@ -40,9 +40,6 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
     private ActivityCreatePersonaBinding activityCreatePersonaBinding;
     // ViewModel，处理AI生成Persona的业务逻辑
     private UserPersonaCreatingViewModel userPersonaCreatingViewModel;
-
-    // 用于返回结果的Intent键名常量
-    public static final String EXTRA_PERSONA_RESULT = "com.example.demo.PERSONA_RESULT";
     
     // 选中的头像URI
     private Uri selectedAvatarUri;

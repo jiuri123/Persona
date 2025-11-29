@@ -17,7 +17,7 @@ import java.util.List;
  * 作为UserPersonaRepository的统一入口，符合MVVM架构原则
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class UserPersonaCreateAndChatViewModel extends ViewModel {
+public class UserPersonaViewModel extends ViewModel {
 
     // Persona数据仓库
     private final UserPersonaRepository userPersonaRepository;
@@ -36,7 +36,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      * 构造函数
      * 初始化PersonaRepository实例
      */
-    public UserPersonaCreateAndChatViewModel() {
+    public UserPersonaViewModel() {
         this.userPersonaRepository = UserPersonaRepository.getInstance();
         this.userPersonaChatRepository = UserPersonaChatRepository.getInstance();
         setupMediatorLiveData();

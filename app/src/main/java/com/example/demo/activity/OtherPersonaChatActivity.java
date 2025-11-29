@@ -32,8 +32,6 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
     private PersonaChatAdapter personaChatAdapter;
     // ViewModel，处理聊天相关的业务逻辑
     private OtherPersonaChatViewModel otherPersonaChatViewModel;
-    // 当前聊天的Persona对象
-    private Persona currentOtherPersona;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,32 +42,26 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
         setContentView(activityChatBinding.getRoot());
 
         // 从Intent中获取传递的Persona对象
-        currentOtherPersona = getIntent().getParcelableExtra(EXTRA_PERSONA);
+        // 当前聊天的Persona对象
+        Persona personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
 
         // 如果没有传递Persona对象，则关闭Activity
-        if (currentOtherPersona == null) {
+        if (personaToChat == null) {
             finish();
             return;
         }
 
-        // 设置工具栏
-        setupToolbar();
-
-        // 初始化聊天界面和MVVM架构
-        initChatWithMVVM(currentOtherPersona);
-    }
-
-    /**
-     * 设置工具栏，显示返回按钮和Persona名称
-     */
-    private void setupToolbar() {
+        // 设置工具栏，显示返回按钮和Persona名称
         setSupportActionBar(activityChatBinding.toolbar);
         if (getSupportActionBar() != null) {
             // 显示返回按钮
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             // 设置标题为Persona的名称
-            getSupportActionBar().setTitle(currentOtherPersona.getName());
+            getSupportActionBar().setTitle(personaToChat.getName());
         }
+
+        // 初始化聊天界面和MVVM架构
+        initChatWithMVVM(personaToChat);
     }
 
     /**
@@ -77,17 +69,16 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
      * @param personaToChat 要聊天的Persona对象
      */
     private void initChatWithMVVM(Persona personaToChat) {
-        // 使用工厂模式创建ViewModel，传入Persona对象
-        OtherPersonaChatViewModel.Factory factory = new OtherPersonaChatViewModel.Factory(personaToChat);
-        otherPersonaChatViewModel = new ViewModelProvider(this, factory).get(OtherPersonaChatViewModel.class);
+        otherPersonaChatViewModel = new ViewModelProvider(this).get(OtherPersonaChatViewModel.class);
+        otherPersonaChatViewModel.setCurrentPersona(personaToChat);
 
         // 初始化聊天消息适配器
         personaChatAdapter = new PersonaChatAdapter(this);
+        activityChatBinding.rvChatMessages.setAdapter(personaChatAdapter);
         // 设置RecyclerView的布局管理器，从底部开始显示消息
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
         activityChatBinding.rvChatMessages.setLayoutManager(layoutManager);
-        activityChatBinding.rvChatMessages.setAdapter(personaChatAdapter);
 
         // 发送按钮点击事件
         activityChatBinding.btnSend.setOnClickListener(v -> {

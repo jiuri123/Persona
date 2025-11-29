@@ -1,6 +1,5 @@
 package com.example.demo.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -30,10 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private UserPersonaFragment userPersonaFragment;
     private UserProfileFragment userProfileFragment;
     private UserFollowedListFragment userFollowedListFragment;
-    
-    // 视图绑定，用于替代findViewById，提高性能和类型安全
-    private ActivityMainBinding activityMainBinding;
-    
+
     // Fragment标签，用于标识不同的Fragment
     private static final String TAG_SOCIAL = "SOCIAL_SQUARE";
     private static final String TAG_FOLLOWED = "FOLLOWED_LIST";
@@ -48,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 使用视图绑定初始化布局，避免findViewById的性能开销和类型转换错误
-        activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         
         // 初始化所有Fragment实例

@@ -5,17 +5,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import com.example.demo.adapter.PersonaChatAdapter;
 import com.example.demo.databinding.ActivityChatBinding;
-import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
 import com.example.demo.repository.UserPersonaChatRepository;
-import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
-
-import java.util.List;
+import com.example.demo.viewmodel.UserPersonaViewModel;
 
 /**
  * 用户自己创建的Persona聊天界面
@@ -34,7 +30,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
     private Persona currentPersona;
     
     // 我的Persona和聊天ViewModel
-    private UserPersonaCreateAndChatViewModel userPersonaCreateAndChatViewModel;
+    private UserPersonaViewModel userPersonaViewModel;
     
     // 用户自己创建的Persona聊天仓库
     private UserPersonaChatRepository userPersonaChatRepository;
@@ -64,7 +60,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         setupToolbar();
         
         // 初始化ViewModel
-        userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
         
         // 初始化聊天仓库
         userPersonaChatRepository = UserPersonaChatRepository.getInstance();

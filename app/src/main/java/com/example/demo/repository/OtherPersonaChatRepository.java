@@ -42,22 +42,21 @@ public class OtherPersonaChatRepository {
     private final List<ChatRequestMessage> apiHistory;
 
     // 当前聊天的Persona
-    private final Persona currentPersona;
+    private Persona currentPersona;
 
     /**
      * 构造函数
      * @param persona 当前聊天的人格角色
      */
-    public OtherPersonaChatRepository(Persona persona) {
-        this.currentPersona = persona;
+    public OtherPersonaChatRepository() {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
         this.apiHistory = new ArrayList<>();
 
         // 构建系统提示，设置AI的角色和行为
-        String systemPrompt = "你现在扮演 " + persona.getName() + "。" +
-                "你的背景故事是：" + persona.getBackgroundStory() + "。" +
-                "你的个性签名是：" + persona.getSignature() + "。" +
+        String systemPrompt = "你现在扮演 " + currentPersona.getName() + "。" +
+                "你的背景故事是：" + currentPersona.getBackgroundStory() + "。" +
+                "你的个性签名是：" + currentPersona.getSignature() + "。" +
                 "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
 
         // 添加系统消息到API历史
@@ -140,5 +139,13 @@ public class OtherPersonaChatRepository {
             updatedUiHistory.add(errorReply);
             chatHistoryLiveData.postValue(updatedUiHistory);
         }
+    }
+
+     /**
+      * 设置当前聊天的Persona
+      * @param persona 要设置的Persona对象
+      */
+    public void setCurrentPersona(Persona persona) {
+        this.currentPersona = persona;
     }
 }

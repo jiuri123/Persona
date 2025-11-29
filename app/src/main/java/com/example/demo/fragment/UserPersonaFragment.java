@@ -13,11 +13,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.demo.activity.UserPersonaCreatingActivity;
-import com.example.demo.activity.UserPostCreateActivity;
-import com.example.demo.viewmodel.UserPersonaCreateAndChatViewModel;
+import com.example.demo.viewmodel.UserPersonaViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
-import com.example.demo.activity.MainActivity;
 import com.example.demo.adapter.UserPersonaListAdapter;
 
 import java.util.List;
@@ -34,7 +32,7 @@ public class UserPersonaFragment extends Fragment {
     // Persona列表适配器，用于显示Persona列表
     private UserPersonaListAdapter userPersonaListAdapter;
     // 我的Persona和聊天ViewModel
-    private UserPersonaCreateAndChatViewModel userPersonaCreateAndChatViewModel;
+    private UserPersonaViewModel userPersonaViewModel;
 
     /**
      * 创建Fragment的视图
@@ -62,22 +60,22 @@ public class UserPersonaFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         // 初始化ViewModel
-        userPersonaCreateAndChatViewModel = new ViewModelProvider(this).get(UserPersonaCreateAndChatViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
 
         // 初始化Persona列表适配器
-        userPersonaListAdapter = new UserPersonaListAdapter(requireContext(), userPersonaCreateAndChatViewModel.getUserPersonas().getValue());
+        userPersonaListAdapter = new UserPersonaListAdapter(requireContext(), userPersonaViewModel.getUserPersonas().getValue());
         // 设置删除Persona的回调接口
         userPersonaListAdapter.setOnPersonaDeleteListener(new UserPersonaListAdapter.OnPersonaDeleteListener() {
             @Override
             public void onPersonaDelete(Persona persona) {
                 // 删除Persona
-                userPersonaCreateAndChatViewModel.removeUserPersona(persona);
+                userPersonaViewModel.removeUserPersona(persona);
             }
         });
         fragmentMyPersonaBinding.rvPersonaList.setAdapter(userPersonaListAdapter);
 
         // 观察用户Persona列表的变化，自动更新UI
-        userPersonaCreateAndChatViewModel.getUserPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
+        userPersonaViewModel.getUserPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
             @Override
             public void onChanged(List<Persona> personas) {
                 // 更新适配器数据
@@ -100,7 +98,7 @@ public class UserPersonaFragment extends Fragment {
         });
 
         // 设置初始UI
-        setupUI(userPersonaCreateAndChatViewModel.getUserPersonas().getValue());
+        setupUI(userPersonaViewModel.getUserPersonas().getValue());
     }
 
     /**
@@ -109,7 +107,7 @@ public class UserPersonaFragment extends Fragment {
      */
     public void onPersonaCreated(Persona persona) {
         // 通过UserPersonaViewModel将Persona添加到Repository
-        userPersonaCreateAndChatViewModel.addUserPersona(persona);
+        userPersonaViewModel.addUserPersona(persona);
     }
 
     /**
