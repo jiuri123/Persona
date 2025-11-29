@@ -26,8 +26,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     private final UserPersonaChatRepository userPersonaChatRepository;
     
     // 使用MediatorLiveData包装所有Repository的LiveData
-    private final MediatorLiveData<String> generatedNameLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<String> generatedStoryLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<Persona> generatedPersonaLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<Boolean> personaIsLoadingLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<String> personaErrorLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
@@ -49,8 +48,7 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
      */
     private void setupMediatorLiveData() {
         // Persona相关LiveData
-        generatedNameLiveData.addSource(userPersonaRepository.getGeneratedName(), generatedNameLiveData::setValue);
-        generatedStoryLiveData.addSource(userPersonaRepository.getGeneratedStory(), generatedStoryLiveData::setValue);
+        generatedPersonaLiveData.addSource(userPersonaRepository.getGeneratedPersona(), generatedPersonaLiveData::setValue);
         personaIsLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), personaIsLoadingLiveData::setValue);
         personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
@@ -63,19 +61,11 @@ public class UserPersonaCreateAndChatViewModel extends ViewModel {
     // ========== Persona相关方法 ==========
     
     /**
-     * 获取生成的角色名称LiveData
-     * @return 角色名称的LiveData对象
+     * 获取生成的角色LiveData
+     * @return 角色的LiveData对象
      */
-    public LiveData<String> getGeneratedName() {
-        return generatedNameLiveData;
-    }
-
-    /**
-     * 获取生成的角色故事LiveData
-     * @return 角色故事的LiveData对象
-     */
-    public LiveData<String> getGeneratedStory() {
-        return generatedStoryLiveData;
+    public LiveData<Persona> getGeneratedPersona() {
+        return generatedPersonaLiveData;
     }
 
     /**

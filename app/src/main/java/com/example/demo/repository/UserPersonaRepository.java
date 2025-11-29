@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.Set;
 
 import com.example.demo.BuildConfig;
+import com.example.demo.R;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,8 +49,7 @@ public class UserPersonaRepository {
     };
 
     // LiveData对象，用于观察数据变化
-    private final MutableLiveData<String> generatedNameLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> generatedStoryLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
     
@@ -80,19 +80,11 @@ public class UserPersonaRepository {
     }
 
     /**
-     * 获取生成的角色名称LiveData
-     * @return 角色名称的LiveData对象
+     * 获取生成的角色LiveData
+     * @return 角色的LiveData对象
      */
-    public LiveData<String> getGeneratedName() {
-        return generatedNameLiveData;
-    }
-
-    /**
-     * 获取生成的角色故事LiveData
-     * @return 角色故事的LiveData对象
-     */
-    public LiveData<String> getGeneratedStory() {
-        return generatedStoryLiveData;
+    public LiveData<Persona> getGeneratedPersona() {
+        return generatedPersonaLiveData;
     }
 
     /**
@@ -146,7 +138,7 @@ public class UserPersonaRepository {
         // 系统提示，要求AI返回特定格式的JSON
         String systemPrompt = "你是一个富有创造力的人设生成器。" +
                 "请你只返回一个 JSON 对象，格式如下：" +
-                "{\"name\": \"[生成的人设名称]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
+                "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的关系]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
 
         // 生成随机数和随机主题
@@ -184,11 +176,23 @@ public class UserPersonaRepository {
                             JSONObject jsonResponse = new JSONObject(aiContent);
 
                             String name = jsonResponse.getString("name");
+                            String gender = jsonResponse.getString("gender");
+                            String personality = jsonResponse.getString("personality");
+                            int age = jsonResponse.getInt("age");
+                            String relationship = jsonResponse.getString("relationship");
+                            String catchphrase = jsonResponse.getString("catchphrase");
                             String story = jsonResponse.getString("story");
 
+                            // 创建Persona对象（使用默认头像和简介）
+                            String bio = "AI生成的 Persona";
+                            int avatarId = R.drawable.avatar_zero;
+                            Persona generatedPersona = new Persona(
+                                    name, avatarId, bio, story,
+                                    gender, age, personality, relationship, catchphrase
+                            );
+
                             // 更新LiveData，通知UI更新
-                            generatedNameLiveData.postValue(name);
-                            generatedStoryLiveData.postValue(story);
+                            generatedPersonaLiveData.postValue(generatedPersona);
 
                         } catch (JSONException e) {
                             // JSON解析错误

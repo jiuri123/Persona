@@ -74,20 +74,46 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
      * 创建Persona对象并返回结果给调用者
      */
     private void createPersonaAndReturn() {
-        // 获取用户输入的名称和背景故事
+        // 获取用户输入的所有属性
         String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
-        String myPersonaStore = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
+        String myPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
+        String myPersonaPersonality = activityCreatePersonaBinding.etPersonaPersonality.getText().toString().trim();
+        String ageStr = activityCreatePersonaBinding.etPersonaAge.getText().toString().trim();
+        String myPersonaRelationship = activityCreatePersonaBinding.etPersonaRelationship.getText().toString().trim();
+        String myPersonaCatchphrase = activityCreatePersonaBinding.etPersonaCatchphrase.getText().toString().trim();
+        String myPersonaStory = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
 
         // 验证输入是否为空
-        if (myPersonaName.isEmpty() || myPersonaStore.isEmpty()) {
+        if (myPersonaName.isEmpty() || myPersonaStory.isEmpty()) {
             Toast.makeText(this, "名称和背景故事不能为空", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        // 解析年龄，默认为0
+        int myPersonaAge = 0;
+        if (!ageStr.isEmpty()) {
+            try {
+                myPersonaAge = Integer.parseInt(ageStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "请输入有效的年龄数字", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         // 创建Persona对象
         String myPersonaBio = "你创建的 Persona";
         int avatarId = R.drawable.avatar_zero;
-        Persona myPersona = new Persona(myPersonaName, avatarId, myPersonaBio, myPersonaStore);
+        Persona myPersona = new Persona(
+                myPersonaName, 
+                avatarId, 
+                myPersonaBio, 
+                myPersonaStory,
+                myPersonaGender,
+                myPersonaAge,
+                myPersonaPersonality,
+                myPersonaRelationship,
+                myPersonaCatchphrase
+        );
 
         // 创建Intent并放入Persona对象
         Intent resultIntent = new Intent();
@@ -118,22 +144,19 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             }
         });
 
-        // 监听生成的名称，更新UI
-        userPersonaCreatingViewModel.getGeneratedName().observe(this, new Observer<String>() {
+        // 监听生成的Persona对象，更新所有编辑框
+        userPersonaCreatingViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
             @Override
-            public void onChanged(String myPersonaName) {
-                if (myPersonaName != null) {
-                    activityCreatePersonaBinding.etPersonaName.setText(myPersonaName);
-                }
-            }
-        });
-
-        // 监听生成的背景故事，更新UI
-        userPersonaCreatingViewModel.getGeneratedStory().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String myPersonaStore) {
-                if (myPersonaStore != null) {
-                    activityCreatePersonaBinding.etPersonaStory.setText(myPersonaStore);
+            public void onChanged(Persona generatedPersona) {
+                if (generatedPersona != null) {
+                    // 将Persona对象的各个属性填充到对应的编辑框中
+                    activityCreatePersonaBinding.etPersonaName.setText(generatedPersona.getName());
+                    activityCreatePersonaBinding.etPersonaGender.setText(generatedPersona.getGender());
+                    activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
+                    activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
+                    activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
+                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getCatchphrase());
+                    activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
                 }
             }
         });

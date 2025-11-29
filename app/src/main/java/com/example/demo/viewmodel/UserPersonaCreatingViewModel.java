@@ -16,8 +16,7 @@ import com.example.demo.repository.UserPersonaRepository;
 public class UserPersonaCreatingViewModel extends ViewModel {
 
     // 使用MediatorLiveData作为数据中转
-    private final MediatorLiveData<String> generatedNameLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<String> generatedStoryLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<Persona> generatedPersonaLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<Boolean> isLoadingLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<String> errorLiveData = new MediatorLiveData<>();
     
@@ -37,11 +36,8 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * 设置MediatorLiveData观察Repository的LiveData
      */
     private void setupMediatorLiveData() {
-        // 观察生成的名称
-        generatedNameLiveData.addSource(userPersonaRepository.getGeneratedName(), generatedNameLiveData::setValue);
-        
-        // 观察生成的故事
-        generatedStoryLiveData.addSource(userPersonaRepository.getGeneratedStory(), generatedStoryLiveData::setValue);
+        // 观察生成的Persona对象
+        generatedPersonaLiveData.addSource(userPersonaRepository.getGeneratedPersona(), generatedPersonaLiveData::setValue);
         
         // 观察加载状态
         isLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), isLoadingLiveData::setValue);
@@ -51,19 +47,11 @@ public class UserPersonaCreatingViewModel extends ViewModel {
     }
 
     /**
-     * 获取生成的角色名称LiveData
-     * @return 角色名称的LiveData对象
+     * 获取生成的角色LiveData
+     * @return 角色的LiveData对象
      */
-    public LiveData<String> getGeneratedName() {
-        return generatedNameLiveData;
-    }
-
-    /**
-     * 获取生成的角色故事LiveData
-     * @return 角色故事的LiveData对象
-     */
-    public LiveData<String> getGeneratedStory() {
-        return generatedStoryLiveData;
+    public LiveData<Persona> getGeneratedPersona() {
+        return generatedPersonaLiveData;
     }
 
     /**
@@ -103,10 +91,17 @@ public class UserPersonaCreatingViewModel extends ViewModel {
      * @param avatarDrawableId 头像资源ID
      * @param bio 个人简介
      * @param backgroundStory 背景故事
+     * @param gender 性别
+     * @param age 年龄
+     * @param personality 性格
+     * @param relationship 关系（和我的关系）
+     * @param catchphrase 口头禅
      * @return 创建的Persona对象
      */
-    public Persona createPersona(String name, int avatarDrawableId, String bio, String backgroundStory) {
-        Persona newPersona = new Persona(name, avatarDrawableId, bio, backgroundStory);
+    public Persona createPersona(String name, int avatarDrawableId, String bio, String backgroundStory,
+                                 String gender, int age, String personality, String relationship, String catchphrase) {
+        Persona newPersona = new Persona(name, avatarDrawableId, bio, backgroundStory, 
+                                         gender, age, personality, relationship, catchphrase);
         
         // 直接通过UserPersonaRepository将创建的Persona添加到仓库
         userPersonaRepository.addUserPersona(newPersona);

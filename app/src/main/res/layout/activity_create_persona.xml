@@ -71,21 +71,102 @@
         app:layout_constraintStart_toStartOf="@id/etPersonaName"
         app:layout_constraintEnd_toEndOf="@id/etPersonaName" />
 
+    <!-- 性别和性格编辑框，水平排列，各占50%宽度 -->
+    <EditText
+        android:id="@+id/etPersonaGender"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/edittext_bg_gray"
+        android:padding="12dp"
+        android:hint="性别"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/etPersonaPersonality"
+        app:layout_constraintTop_toBottomOf="@id/ivAvatarPreview"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <EditText
+        android:id="@+id/etPersonaPersonality"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/edittext_bg_gray"
+        android:padding="12dp"
+        android:hint="性格"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintStart_toEndOf="@id/etPersonaGender"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivAvatarPreview"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- 年龄和关系编辑框，水平排列，各占50%宽度 -->
+    <EditText
+        android:id="@+id/etPersonaAge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/edittext_bg_gray"
+        android:padding="12dp"
+        android:hint="年龄"
+        android:inputType="number"
+        android:maxLines="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/etPersonaRelationship"
+        app:layout_constraintTop_toBottomOf="@id/etPersonaGender"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <EditText
+        android:id="@+id/etPersonaRelationship"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/edittext_bg_gray"
+        android:padding="12dp"
+        android:hint="和我的关系"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintStart_toEndOf="@id/etPersonaAge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etPersonaGender"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- 口头禅编辑框，单独一行 -->
+    <EditText
+        android:id="@+id/etPersonaCatchphrase"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/edittext_bg_gray"
+        android:padding="12dp"
+        android:hint="口头禅"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etPersonaAge" />
+
     <EditText
         android:id="@+id/etPersonaStory"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="24dp"
         android:background="@drawable/edittext_bg_gray"
         android:gravity="top|start"
-        android:hint="输入 TA 的背景故事、性格、口头禅... \n人设越丰富，AI 扮演得越好。"
+        android:hint="输入 TA 的背景故事...\n人设越丰富，AI 扮演得越好。"
         android:inputType="textMultiLine"
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@id/btnCreate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivAvatarPreview" />
+        app:layout_constraintTop_toBottomOf="@id/etPersonaCatchphrase" />
 
     <Button
         android:id="@+id/btnCreate"
