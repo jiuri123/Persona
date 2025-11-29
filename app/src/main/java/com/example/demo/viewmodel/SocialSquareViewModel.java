@@ -45,6 +45,9 @@ public class SocialSquareViewModel extends ViewModel {
     
     // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
     private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
+    
+    // 用户Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
+    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -178,6 +181,9 @@ public class SocialSquareViewModel extends ViewModel {
     private void setupMediatorLiveData() {
         // 观察已关注Persona列表变化
         followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
+        
+        // 观察用户Persona列表变化
+        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
     }
     
     /**
@@ -185,6 +191,25 @@ public class SocialSquareViewModel extends ViewModel {
      */
     public void clearError() {
         userPersonaPostRepository.clearError();
+    }
+    
+    /**
+     * 检查用户是否有Persona
+     * @return 如果用户有至少一个Persona返回true，否则返回false
+     */
+    public boolean hasUserPersonas() {
+        // 直接从userPersonaRepository获取用户Persona列表
+        LiveData<List<Persona>> userPersonasLiveData = userPersonaRepository.getUserPersonas();
+        List<Persona> personas = userPersonasLiveData.getValue();
+        return personas != null && !personas.isEmpty();
+    }
+    
+    /**
+     * 获取用户Persona列表LiveData
+     * @return 用户Persona列表LiveData
+     */
+    public LiveData<List<Persona>> getUserPersonasLiveData() {
+        return userPersonasLiveData;
     }
 
 

@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer;
 
 
 import com.example.demo.activity.UserPostCreateActivity;
+import com.example.demo.activity.UserPersonaCreatingActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
@@ -125,9 +126,15 @@ public class SocialSquareFragment extends Fragment {
         fragmentSocialSquareBinding.fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 跳转到发布动态编辑页面
-                Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
-                startActivity(intent);
+                // 检查用户是否有Persona
+                if (socialSquareViewModel.hasUserPersonas()) {
+                    // 如果有Persona，跳转到发布动态编辑页面
+                    Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
+                    startActivity(intent);
+                } else {
+                    // 如果没有Persona，只提示用户先创建Persona，不再跳转到创建页面
+                    Toast.makeText(getContext(), "请先创建Persona", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
