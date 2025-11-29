@@ -186,7 +186,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             Persona author = post.getAuthor();
             // 设置作者名称和简介
             itemPersonaPostBinding.tvAuthorName.setText(author.getName());
-            itemPersonaPostBinding.tvAuthorBioOrTime.setText(author.getBio());
+            itemPersonaPostBinding.tvAuthorBioOrTime.setText(author.getSignature());
 
             // 使用Markwon将帖子的内容渲染成Markdown
             markwon.setMarkdown(itemPersonaPostBinding.tvContentText, post.getContentText());

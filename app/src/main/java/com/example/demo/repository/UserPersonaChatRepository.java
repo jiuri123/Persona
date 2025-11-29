@@ -80,11 +80,11 @@ public class UserPersonaChatRepository {
         // 构建系统提示，设置AI的角色和行为
         String name = persona.getName() != null ? persona.getName() : "未知角色";
         String backgroundStory = persona.getBackgroundStory() != null ? persona.getBackgroundStory() : "";
-        String bio = persona.getBio() != null ? persona.getBio() : "";
+        String signature = persona.getSignature() != null ? persona.getSignature() : "";
         
         String systemPrompt = "你现在扮演 " + name + "。" +
                 "你的背景故事是：" + backgroundStory + "。" +
-                "你的简介是：" + bio + "。" +
+                "你的个性签名是：" + signature + "。" +
                 "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
 
         // 添加系统消息到API历史

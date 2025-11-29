@@ -158,7 +158,6 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         }
 
         // 创建Persona对象
-        String myPersonaBio = "你创建的 Persona";
         int avatarId = R.drawable.avatar_zero;
         // 将Uri转换为字符串，保存到Persona对象中
         String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
@@ -166,13 +165,12 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
                 myPersonaName, 
                 avatarId, 
                 avatarUriString, // avatarUri，从相册选择的图片URI
-                myPersonaBio, 
+                myPersonaCatchphrase, // 使用catchphrase作为signature
                 myPersonaStory,
                 myPersonaGender,
                 myPersonaAge,
                 myPersonaPersonality,
-                myPersonaRelationship,
-                myPersonaCatchphrase
+                myPersonaRelationship
         );
 
         // 创建Intent并放入Persona对象
@@ -321,7 +319,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
                     activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
                     activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
                     activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
-                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getCatchphrase());
+                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
                     activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
                 }
             }

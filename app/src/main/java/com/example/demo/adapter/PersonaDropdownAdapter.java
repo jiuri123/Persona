@@ -126,7 +126,7 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
         public void bind(Persona persona) {
             // 设置Persona名称和简介
             binding.tvPersonaName.setText(persona.getName());
-            binding.tvPersonaBio.setText(persona.getBio());
+            binding.tvPersonaBio.setText(persona.getSignature());
 
             // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
             if (persona.getAvatarUri() != null) {

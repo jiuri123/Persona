@@ -213,7 +213,7 @@ public class UserPersonaPostRepository {
         // 用户提示，包含角色信息和扩展要求
         String userPrompt = "请你扮演以下角色：" +
                 "名称: " + currentUser.getName() + "\n" +
-                "简介: " + currentUser.getBio() + "\n" +
+                "简介: " + currentUser.getSignature() + "\n" +
                 "背景故事: " + currentUser.getBackgroundStory() + "\n" +
                 "请用这个角色的口吻，扩展以下内容：" +
                 "原始内容: " + currentContent + "\n" +
@@ -299,7 +299,7 @@ public class UserPersonaPostRepository {
         // 用户提示，包含角色信息和生成要求
         String userPrompt = "请你扮演以下角色：" +
                 "名称: " + currentUser.getName() + "\n" +
-                "简介: " + currentUser.getBio() + "\n" +
+                "简介: " + currentUser.getSignature() + "\n" +
                 "背景故事: " + currentUser.getBackgroundStory() + "\n" +
                 "请用这个角色的口吻，写一条全新的、有趣的社交媒体动态。" +
                 languageInstruction +

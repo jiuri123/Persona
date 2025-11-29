@@ -16,8 +16,6 @@ public class Persona implements Parcelable {
     private int avatarDrawableId;
     // 头像URI（用于从相册选择的图片）
     private String avatarUri;
-    // 个人简介
-    private String bio;
     // 背景故事
     private String backgroundStory;
     // 性别
@@ -28,34 +26,32 @@ public class Persona implements Parcelable {
     private String personality;
     // 关系（和我的关系）
     private String relationship;
-    // 口头禅
-    private String catchphrase;
+    // 个性签名
+    private String signature;
 
     /**
      * 构造函数
      * @param name Persona名称
      * @param avatarDrawableId 头像资源ID
      * @param avatarUri 头像URI（用于从相册选择的图片）
-     * @param bio 个人简介
+     * @param signature 个性签名
      * @param backgroundStory 背景故事
      * @param gender 性别
      * @param age 年龄
      * @param personality 性格
      * @param relationship 关系（和我的关系）
-     * @param catchphrase 口头禅
      */
-    public Persona(String name, int avatarDrawableId, String avatarUri, String bio, String backgroundStory, 
-                   String gender, int age, String personality, String relationship, String catchphrase) {
+    public Persona(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory, 
+                   String gender, int age, String personality, String relationship) {
         this.name = name;
         this.avatarDrawableId = avatarDrawableId;
         this.avatarUri = avatarUri;
-        this.bio = bio;
         this.backgroundStory = backgroundStory;
         this.gender = gender;
         this.age = age;
         this.personality = personality;
         this.relationship = relationship;
-        this.catchphrase = catchphrase;
+        this.signature = signature;
     }
 
     // Getter和Setter方法
@@ -65,8 +61,6 @@ public class Persona implements Parcelable {
     public void setAvatarDrawableId(int avatarDrawableId) { this.avatarDrawableId = avatarDrawableId; }
     public String getAvatarUri() { return avatarUri; }
     public void setAvatarUri(String avatarUri) { this.avatarUri = avatarUri; }
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
     public String getBackgroundStory() { return backgroundStory; }
     public void setBackgroundStory(String backgroundStory) { this.backgroundStory = backgroundStory; }
     public String getGender() { return gender; }
@@ -77,8 +71,8 @@ public class Persona implements Parcelable {
     public void setPersonality(String personality) { this.personality = personality; }
     public String getRelationship() { return relationship; }
     public void setRelationship(String relationship) { this.relationship = relationship; }
-    public String getCatchphrase() { return catchphrase; }
-    public void setCatchphrase(String catchphrase) { this.catchphrase = catchphrase; }
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 
     /**
      * 描述内容类型，通常返回0
@@ -100,13 +94,12 @@ public class Persona implements Parcelable {
         dest.writeString(this.name);
         dest.writeInt(this.avatarDrawableId);
         dest.writeString(this.avatarUri);
-        dest.writeString(this.bio);
         dest.writeString(this.backgroundStory);
         dest.writeString(this.gender);
         dest.writeInt(this.age);
         dest.writeString(this.personality);
         dest.writeString(this.relationship);
-        dest.writeString(this.catchphrase);
+        dest.writeString(this.signature);
     }
 
     /**
@@ -117,13 +110,12 @@ public class Persona implements Parcelable {
         this.name = in.readString();
         this.avatarDrawableId = in.readInt();
         this.avatarUri = in.readString();
-        this.bio = in.readString();
         this.backgroundStory = in.readString();
         this.gender = in.readString();
         this.age = in.readInt();
         this.personality = in.readString();
         this.relationship = in.readString();
-        this.catchphrase = in.readString();
+        this.signature = in.readString();
     }
 
     /**

@@ -185,12 +185,11 @@ public class UserPersonaRepository {
                             String catchphrase = jsonResponse.getString("catchphrase");
                             String story = jsonResponse.getString("story");
 
-                            // 创建Persona对象（使用默认头像和简介）
-                            String bio = "AI生成的 Persona";
+                            // 创建Persona对象（使用默认头像，将catchphrase作为signature）
                             int avatarId = R.drawable.avatar_zero;
                             Persona generatedPersona = new Persona(
-                                    name, avatarId, null, bio, story,
-                                    gender, age, personality, relationship, catchphrase
+                                    name, avatarId, null, catchphrase, story,
+                                    gender, age, personality, relationship
                             );
 
                             // 更新LiveData，通知UI更新

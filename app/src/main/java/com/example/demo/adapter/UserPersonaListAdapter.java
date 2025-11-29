@@ -133,7 +133,7 @@ public class UserPersonaListAdapter extends RecyclerView.Adapter<UserPersonaList
         public void bind(Persona persona) {
             // 设置Persona名称和简介
             binding.tvPersonaName.setText(persona.getName());
-            binding.tvPersonaBio.setText(persona.getBio());
+            binding.tvPersonaBio.setText(persona.getSignature());
 
             // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
             if (persona.getAvatarUri() != null) {
@@ -167,7 +167,7 @@ public class UserPersonaListAdapter extends RecyclerView.Adapter<UserPersonaList
                 public boolean onLongClick(View v) {
                     // 创建PopupMenu，显示删除选项
                     PopupMenu popupMenu = new PopupMenu(context, v);
-                    popupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "删除");
+                    popupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "删除角色");
                     
                     // 设置菜单点击事件
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {

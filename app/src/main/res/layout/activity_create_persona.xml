@@ -145,7 +145,7 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/edittext_bg_gray"
         android:padding="12dp"
-        android:hint="口头禅"
+        android:hint="个性签名"
         android:inputType="text"
         android:maxLines="1"
         app:layout_constraintStart_toStartOf="parent"
