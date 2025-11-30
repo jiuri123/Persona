@@ -113,7 +113,7 @@ public class UserPersonaCreatingViewModel extends AndroidViewModel {
      */
     public Persona createPersonaAndSave(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
                                  String gender, int age, String personality, String relationship) {
-        Persona newPersona = new Persona(name, avatarDrawableId, avatarUri, signature, backgroundStory, 
+        Persona newPersona = new Persona(0, name, avatarDrawableId, avatarUri, signature, backgroundStory, 
                                          gender, age, personality, relationship);
         
         // 直接通过UserPersonaRepository将创建的Persona添加到仓库

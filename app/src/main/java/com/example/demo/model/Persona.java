@@ -15,8 +15,11 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "personas")
 public class Persona implements Parcelable {
 
+    // Persona的唯一标识符
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+    
     // Persona的名称
-    @PrimaryKey
     @NonNull
     private String name;
     // 头像资源ID
@@ -38,6 +41,7 @@ public class Persona implements Parcelable {
 
     /**
      * 构造函数
+     * @param id Persona唯一标识符（0表示由系统自动生成）
      * @param name Persona名称
      * @param avatarDrawableId 头像资源ID
      * @param avatarUri 头像URI（用于从相册选择的图片）
@@ -48,8 +52,9 @@ public class Persona implements Parcelable {
      * @param personality 性格
      * @param relationship 关系（和我的关系）
      */
-    public Persona(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory, 
+    public Persona(long id, String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory, 
                    String gender, int age, String personality, String relationship) {
+        this.id = id;
         this.name = name;
         this.avatarDrawableId = avatarDrawableId;
         this.avatarUri = avatarUri;
@@ -62,24 +67,85 @@ public class Persona implements Parcelable {
     }
 
     // Getter和Setter方法
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public int getAvatarDrawableId() { return avatarDrawableId; }
-    public void setAvatarDrawableId(int avatarDrawableId) { this.avatarDrawableId = avatarDrawableId; }
-    public String getAvatarUri() { return avatarUri; }
-    public void setAvatarUri(String avatarUri) { this.avatarUri = avatarUri; }
-    public String getBackgroundStory() { return backgroundStory; }
-    public void setBackgroundStory(String backgroundStory) { this.backgroundStory = backgroundStory; }
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
-    public int getAge() { return age; }
-    public void setAge(int age) { this.age = age; }
-    public String getPersonality() { return personality; }
-    public void setPersonality(String personality) { this.personality = personality; }
-    public String getRelationship() { return relationship; }
-    public void setRelationship(String relationship) { this.relationship = relationship; }
-    public String getSignature() { return signature; }
-    public void setSignature(String signature) { this.signature = signature; }
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAvatarDrawableId() {
+        return avatarDrawableId;
+    }
+
+    public void setAvatarDrawableId(int avatarDrawableId) {
+        this.avatarDrawableId = avatarDrawableId;
+    }
+
+    public String getAvatarUri() {
+        return avatarUri;
+    }
+
+    public void setAvatarUri(String avatarUri) {
+        this.avatarUri = avatarUri;
+    }
+
+    public String getBackgroundStory() {
+        return backgroundStory;
+    }
+
+    public void setBackgroundStory(String backgroundStory) {
+        this.backgroundStory = backgroundStory;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public void setPersonality(String personality) {
+        this.personality = personality;
+    }
+
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 
     /**
      * 描述内容类型，通常返回0
@@ -98,6 +164,7 @@ public class Persona implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
         dest.writeString(this.name);
         dest.writeInt(this.avatarDrawableId);
         dest.writeString(this.avatarUri);
@@ -114,6 +181,7 @@ public class Persona implements Parcelable {
      * @param in 源Parcel
      */
     protected Persona(Parcel in) {
+        this.id = in.readLong();
         this.name = in.readString();
         this.avatarDrawableId = in.readInt();
         this.avatarUri = in.readString();

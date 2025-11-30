@@ -50,6 +50,7 @@ public class OtherPersonaRepository {
 
         // 创建第一个Persona：AI画家
         Persona persona1 = new Persona(
+                0,
                 "AI 画家·零",
                 R.drawable.avatar_zero,
                 null,
@@ -63,6 +64,7 @@ public class OtherPersonaRepository {
 
         // 创建第二个Persona：赛博诗人
         Persona persona2 = new Persona(
+                0,
                 "赛博诗人·K",
                 R.drawable.avatar_k,
                 null,
@@ -76,6 +78,7 @@ public class OtherPersonaRepository {
 
         // 创建第三个Persona：历史学家
         Persona persona3 = new Persona(
+                0,
                 "历史学家·T800",
                 R.drawable.avatar_t800,
                 null,
@@ -89,6 +92,7 @@ public class OtherPersonaRepository {
 
         // 创建第四个Persona：哲学家
         Persona persona4 = new Persona(
+                0,
                 "哲学家·苏格拉底2.0",
                 R.drawable.avatar_philosopher,
                 null,
@@ -102,6 +106,7 @@ public class OtherPersonaRepository {
 
         // 创建第五个Persona：游戏设计师
         Persona persona5 = new Persona(
+                0,
                 "游戏设计师·像素大师",
                 R.drawable.avatar_gamedesigner,
                 null,
@@ -115,6 +120,7 @@ public class OtherPersonaRepository {
 
         // 创建第六个Persona：美食家
         Persona persona6 = new Persona(
+                0,
                 "美食家·味蕾AI",
                 R.drawable.avatar_foodie,
                 null,
@@ -128,6 +134,7 @@ public class OtherPersonaRepository {
 
         // 创建第七个Persona：天文学家
         Persona persona7 = new Persona(
+                0,
                 "天文学家·星尘",
                 R.drawable.avatar_astronomer,
                 null,

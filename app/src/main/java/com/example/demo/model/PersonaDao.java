@@ -51,4 +51,12 @@ public interface PersonaDao {
      */
     @Query("SELECT * FROM personas WHERE name = :name")
     Persona getPersonaByName(String name);
+    
+    /**
+     * 根据ID获取Persona
+     * @param id Persona的唯一标识符
+     * @return 匹配的Persona对象
+     */
+    @Query("SELECT * FROM personas WHERE id = :id")
+    Persona getPersonaById(long id);
 }

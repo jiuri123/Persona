@@ -223,10 +223,10 @@ public class UserPersonaRepository {
                             String catchphrase = jsonResponse.getString("catchphrase");
                             String story = jsonResponse.getString("story");
 
-                            // 创建Persona对象（使用默认头像，将catchphrase作为signature）
+                            // 创建Persona对象（使用默认头像，将catchphrase作为signature，id设为0由系统自动生成）
                             int avatarId = R.drawable.avatar_zero;
                             Persona generatedPersona = new Persona(
-                                    name, avatarId, null, catchphrase, story,
+                                    0, name, avatarId, null, catchphrase, story,
                                     gender, age, personality, relationship
                             );
 
