@@ -77,8 +77,8 @@ public class UserPersonaRepository {
     private UserPersonaRepository(Context context) {
         this.apiService = ApiClient.getApiService();
         
-        // 初始化本地数据源
-        this.localDataSource = new LocalDataSource(context);
+        // 初始化本地数据源（使用单例实例）
+        this.localDataSource = LocalDataSource.getInstance(context);
         
         // 初始化系统提示词，只在构造函数中初始化一次
         this.systemPrompt = "你是一个富有创造力的人设生成器。" +
@@ -313,16 +313,37 @@ public class UserPersonaRepository {
     }
     
     /**
+     * 获取Persona的回调接口
+     */
+    public interface GetPersonaCallback {
+        /**
+         * 当Persona加载完成时调用
+         * @param persona 加载的Persona对象，可能为null
+         */
+        void onPersonaLoaded(Persona persona);
+    }
+    
+    /**
      * 根据名称获取用户Persona
      * @param name Persona的名称
-     * @return 匹配的Persona对象，如果未找到则返回null
+     * @param callback 回调接口，用于返回查询结果
      */
-    public Persona getUserPersonaByName(String name) {
+    public void getUserPersonaByName(String name, GetPersonaCallback callback) {
         if (name == null) {
-            return null;
+            if (callback != null) {
+                callback.onPersonaLoaded(null);
+            }
+            return;
         }
         
         // 从本地数据源获取Persona
-        return localDataSource.getPersonaByName(name);
+        localDataSource.getPersonaByName(name, new LocalDataSource.GetPersonaCallback() {
+            @Override
+            public void onPersonaLoaded(Persona persona) {
+                if (callback != null) {
+                    callback.onPersonaLoaded(persona);
+                }
+            }
+        });
     }
 }

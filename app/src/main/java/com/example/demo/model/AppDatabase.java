@@ -31,7 +31,6 @@ public abstract class AppDatabase extends RoomDatabase {
                     AppDatabase.class,
                     DATABASE_NAME
             )
-                    .allowMainThreadQueries() // 允许在主线程执行查询（仅用于开发，生产环境应避免）
                     .build();
         }
         return instance;

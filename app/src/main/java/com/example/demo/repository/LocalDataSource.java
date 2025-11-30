@@ -9,25 +9,48 @@ import com.example.demo.model.Persona;
 import com.example.demo.model.PersonaDao;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 本地数据源类
  * 封装了对本地数据库的访问，提供了增删改查方法
+ * 使用单例模式确保全局只有一个实例
  */
 public class LocalDataSource {
 
+    // 单例实例
+    private static volatile LocalDataSource instance;
+    
+    // 线程池，用于执行后台数据库操作
+    private final ExecutorService executorService;
+    
     // Persona数据访问对象
     private final PersonaDao personaDao;
 
     /**
-     * 构造函数
+     * 私有构造函数，防止外部实例化
      * @param context 上下文
      */
-    public LocalDataSource(Context context) {
+    private LocalDataSource(Context context) {
         // 获取数据库实例
         AppDatabase database = AppDatabase.getInstance(context);
         // 获取PersonaDao实例
         this.personaDao = database.personaDao();
+        // 创建单线程线程池，确保数据库操作顺序执行
+        this.executorService = Executors.newSingleThreadExecutor();
+    }
+    
+    /**
+     * 获取单例实例
+     * @param context 上下文
+     * @return LocalDataSource的单例实例
+     */
+    public static synchronized LocalDataSource getInstance(Context context) {
+        if (instance == null) {
+            instance = new LocalDataSource(context.getApplicationContext());
+        }
+        return instance;
     }
 
     /**
@@ -35,7 +58,7 @@ public class LocalDataSource {
      * @param persona 要插入的Persona对象
      */
     public void insertPersona(Persona persona) {
-        personaDao.insertPersona(persona);
+        executorService.execute(() -> personaDao.insertPersona(persona));
     }
 
     /**
@@ -43,7 +66,7 @@ public class LocalDataSource {
      * @param persona 要删除的Persona对象
      */
     public void deletePersona(Persona persona) {
-        personaDao.deletePersona(persona);
+        executorService.execute(() -> personaDao.deletePersona(persona));
     }
 
     /**
@@ -51,7 +74,7 @@ public class LocalDataSource {
      * @param persona 要更新的Persona对象
      */
     public void updatePersona(Persona persona) {
-        personaDao.updatePersona(persona);
+        executorService.execute(() -> personaDao.updatePersona(persona));
     }
 
     /**
@@ -65,9 +88,23 @@ public class LocalDataSource {
     /**
      * 根据名称获取Persona
      * @param name Persona的名称
-     * @return 匹配的Persona对象
+     * @param callback 回调接口，用于返回查询结果
      */
-    public Persona getPersonaByName(String name) {
-        return personaDao.getPersonaByName(name);
+    public void getPersonaByName(String name, GetPersonaCallback callback) {
+        executorService.execute(() -> {
+            Persona persona = personaDao.getPersonaByName(name);
+            callback.onPersonaLoaded(persona);
+        });
+    }
+    
+    /**
+     * 获取Persona的回调接口
+     */
+    public interface GetPersonaCallback {
+        /**
+         * 当Persona加载完成时调用
+         * @param persona 加载的Persona对象，可能为null
+         */
+        void onPersonaLoaded(Persona persona);
     }
 }

@@ -130,10 +130,10 @@ public class UserPersonaViewModel extends AndroidViewModel {
     /**
      * 根据名称获取用户Persona
      * @param name Persona的名称
-     * @return 匹配的Persona对象，如果未找到则返回null
+     * @param callback 回调接口，用于返回查询结果
      */
-    public Persona getUserPersonaByName(String name) {
-        return userPersonaRepository.getUserPersonaByName(name);
+    public void getUserPersonaByName(String name, UserPersonaRepository.GetPersonaCallback callback) {
+        userPersonaRepository.getUserPersonaByName(name, callback);
     }
     
     // ========== 聊天相关方法 ==========

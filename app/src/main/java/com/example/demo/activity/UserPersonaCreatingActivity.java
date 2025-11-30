@@ -122,13 +122,13 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
      */
     private void createPersonaAndSave() {
         // 获取用户输入的所有属性
-        String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
-        String myPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
-        String myPersonaPersonality = activityCreatePersonaBinding.etPersonaPersonality.getText().toString().trim();
+        final String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
+        final String myPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
+        final String myPersonaPersonality = activityCreatePersonaBinding.etPersonaPersonality.getText().toString().trim();
         String ageStr = activityCreatePersonaBinding.etPersonaAge.getText().toString().trim();
-        String myPersonaRelationship = activityCreatePersonaBinding.etPersonaRelationship.getText().toString().trim();
-        String myPersonaCatchphrase = activityCreatePersonaBinding.etPersonaCatchphrase.getText().toString().trim();
-        String myPersonaStory = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
+        final String myPersonaRelationship = activityCreatePersonaBinding.etPersonaRelationship.getText().toString().trim();
+        final String myPersonaCatchphrase = activityCreatePersonaBinding.etPersonaCatchphrase.getText().toString().trim();
+        final String myPersonaStory = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
 
         // 验证输入是否为空
         if (myPersonaName.isEmpty() || myPersonaStory.isEmpty()) {
@@ -136,15 +136,8 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             return;
         }
         
-        // 检查角色名称是否已存在
-        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance(this);
-        if (userPersonaRepository.getUserPersonaByName(myPersonaName) != null) {
-            Toast.makeText(this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // 解析年龄，默认为0
-        int myPersonaAge = 0;
+        final int myPersonaAge;
         if (!ageStr.isEmpty()) {
             try {
                 myPersonaAge = Integer.parseInt(ageStr);
@@ -152,26 +145,41 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
                 Toast.makeText(this, "请输入有效的年龄数字", Toast.LENGTH_SHORT).show();
                 return;
             }
+        } else {
+            myPersonaAge = 0;
         }
-
+        
         // 开始创建Persona对象
-        int avatarId = R.drawable.avatar_zero;
+        final int avatarId = R.drawable.avatar_zero;
         // 将Uri转换为字符串，保存到Persona对象中
-        String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
-
-        // 调用ViewModel的方法创建并保存Persona对象
-        userPersonaCreatingViewModel.createPersonaAndSave(
-                myPersonaName,
-                avatarId,
-                avatarUriString,
-                myPersonaCatchphrase,
-                myPersonaStory,
-                myPersonaGender,
-                myPersonaAge,
-                myPersonaPersonality,
-                myPersonaRelationship
-        );
-        finish();
+        final String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
+        
+        // 检查角色名称是否已存在（异步方式）
+        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance(this);
+        userPersonaRepository.getUserPersonaByName(myPersonaName, new UserPersonaRepository.GetPersonaCallback() {
+            @Override
+            public void onPersonaLoaded(Persona persona) {
+                runOnUiThread(() -> {
+                    if (persona != null) {
+                        Toast.makeText(UserPersonaCreatingActivity.this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // 调用ViewModel的方法创建并保存Persona对象
+                        userPersonaCreatingViewModel.createPersonaAndSave(
+                                myPersonaName,
+                                avatarId,
+                                avatarUriString,
+                                myPersonaCatchphrase,
+                                myPersonaStory,
+                                myPersonaGender,
+                                myPersonaAge,
+                                myPersonaPersonality,
+                                myPersonaRelationship
+                        );
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
     /**
