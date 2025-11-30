@@ -1,10 +1,12 @@
 package com.example.demo.viewmodel;
 
+import android.app.Application;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
@@ -21,7 +23,7 @@ import java.util.List;
  * 负责管理社交广场的所有数据和业务逻辑
  * 聚合所需的数据源，处理帖子合并、关注/取消关注、生成新帖子等逻辑
  */
-public class SocialSquareViewModel extends ViewModel {
+public class SocialSquareViewModel extends AndroidViewModel {
 
     // 关注列表仓库
     private final UserFollowedListRepository userFollowedListRepository;
@@ -56,10 +58,12 @@ public class SocialSquareViewModel extends ViewModel {
     /**
      * 构造函数
      * 初始化所有仓库实例
+     * @param application Application实例
      */
-    public SocialSquareViewModel() {
+    public SocialSquareViewModel(Application application) {
+        super(application);
         this.userFollowedListRepository = UserFollowedListRepository.getInstance();
-        this.userPersonaRepository = UserPersonaRepository.getInstance();
+        this.userPersonaRepository = UserPersonaRepository.getInstance(application);
         this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
 

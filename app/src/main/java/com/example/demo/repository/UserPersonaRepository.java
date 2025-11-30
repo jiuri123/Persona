@@ -1,5 +1,7 @@
 package com.example.demo.repository;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -36,12 +38,18 @@ public class UserPersonaRepository {
     // 单例实例
     private static UserPersonaRepository instance;
 
+    // 上下文
+    private static Context appContext;
+
     // API密钥和模型名称从BuildConfig获取
     // BuildConfig中的值从gradle.properties注入
 
     // 网络服务和随机数生成器
     private final ApiService apiService;
     private final Random random = new Random();
+    
+    // 本地数据源
+    private final LocalDataSource localDataSource;
 
     // 角色主题数组
     private static final String[] THEMES = {
@@ -64,24 +72,34 @@ public class UserPersonaRepository {
     /**
      * 私有构造函数，防止外部实例化
      * 初始化API服务实例和系统提示词
+     * @param context 上下文
      */
-    private UserPersonaRepository() {
+    private UserPersonaRepository(Context context) {
         this.apiService = ApiClient.getApiService();
+        
+        // 初始化本地数据源
+        this.localDataSource = new LocalDataSource(context);
         
         // 初始化系统提示词，只在构造函数中初始化一次
         this.systemPrompt = "你是一个富有创造力的人设生成器。" +
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
+        
+        // 从本地数据源加载所有Persona
+        loadPersonasFromLocal();
     }
 
     /**
      * 获取单例实例
-     * @return MyPersonaRepository的单例实例
+     * @param context 上下文
+     * @return UserPersonaRepository的单例实例
      */
-    public static synchronized UserPersonaRepository getInstance() {
+    public static synchronized UserPersonaRepository getInstance(Context context) {
         if (instance == null) {
-            instance = new UserPersonaRepository();
+            // 保存上下文
+            appContext = context.getApplicationContext();
+            instance = new UserPersonaRepository(appContext);
         }
         return instance;
     }
@@ -132,6 +150,26 @@ public class UserPersonaRepository {
      */
     public void clearGeneratedPersona() {
         generatedPersonaLiveData.setValue(null);
+    }
+    
+    /**
+     * 从本地数据源加载所有Persona
+     */
+    private void loadPersonasFromLocal() {
+        // 获取所有Persona的LiveData
+        LiveData<List<Persona>> personasLiveData = localDataSource.getAllPersonas();
+        // 观察数据变化
+        personasLiveData.observeForever(personas -> {
+            if (personas != null) {
+                // 更新LiveData
+                userPersonasLiveData.setValue(personas);
+                // 更新名称集合
+                personaNameSet.clear();
+                for (Persona persona : personas) {
+                    personaNameSet.add(persona.getName());
+                }
+            }
+        });
     }
 
     /**
@@ -233,6 +271,9 @@ public class UserPersonaRepository {
             return false;
         }
         
+        // 添加到本地数据库
+        localDataSource.insertPersona(persona);
+        
         // 添加到集合和列表
         personaNameSet.add(personaName);
         List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
@@ -259,6 +300,9 @@ public class UserPersonaRepository {
             return false;
         }
         
+        // 从本地数据库中删除
+        localDataSource.deletePersona(persona);
+        
         // 从集合和列表中移除
         personaNameSet.remove(personaName);
         List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
@@ -278,14 +322,7 @@ public class UserPersonaRepository {
             return null;
         }
         
-        List<Persona> personas = userPersonasLiveData.getValue();
-        if (personas != null) {
-            for (Persona persona : personas) {
-                if (persona.getName().equals(name)) {
-                    return persona;
-                }
-            }
-        }
-        return null;
+        // 从本地数据源获取Persona
+        return localDataSource.getPersonaByName(name);
     }
 }

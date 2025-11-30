@@ -137,7 +137,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         }
         
         // 检查角色名称是否已存在
-        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance();
+        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance(this);
         if (userPersonaRepository.getUserPersonaByName(myPersonaName) != null) {
             Toast.makeText(this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
             return;

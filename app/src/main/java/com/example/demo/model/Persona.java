@@ -3,14 +3,21 @@ package com.example.demo.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 /**
  * Persona数据模型类
  * 表示应用中的虚拟角色/人格
  * 实现了Parcelable接口，以便在Intent和Bundle中传递对象
  */
+@Entity(tableName = "personas")
 public class Persona implements Parcelable {
 
     // Persona的名称
+    @PrimaryKey
+    @NonNull
     private String name;
     // 头像资源ID
     private int avatarDrawableId;

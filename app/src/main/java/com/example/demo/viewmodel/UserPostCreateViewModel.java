@@ -1,8 +1,10 @@
 package com.example.demo.viewmodel;
 
+import android.app.Application;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
@@ -14,7 +16,7 @@ import com.example.demo.repository.UserPersonaRepository;
  * 负责管理编辑页面的业务逻辑
  * 包括AI扩展、AI生成和发布动态功能
  */
-public class UserPostCreateViewModel extends ViewModel {
+public class UserPostCreateViewModel extends AndroidViewModel {
 
     // 用户Persona仓库，用于获取当前用户的Persona
     private final UserPersonaRepository userPersonaRepository;
@@ -31,9 +33,11 @@ public class UserPostCreateViewModel extends ViewModel {
     /**
      * 构造函数
      * 初始化所有仓库实例
+     * @param application Application实例
      */
-    public UserPostCreateViewModel() {
-        this.userPersonaRepository = UserPersonaRepository.getInstance();
+    public UserPostCreateViewModel(Application application) {
+        super(application);
+        this.userPersonaRepository = UserPersonaRepository.getInstance(application);
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
     }
 

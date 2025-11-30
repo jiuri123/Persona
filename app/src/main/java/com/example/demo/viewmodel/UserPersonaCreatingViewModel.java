@@ -1,8 +1,10 @@
 package com.example.demo.viewmodel;
 
+import android.app.Application;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
 import com.example.demo.repository.UserPersonaRepository;
@@ -15,7 +17,7 @@ import java.util.List;
  * 直接使用UserPersonaRepository处理API调用和数据管理
  * 使用LiveData观察数据变化，通知UI更新
  */
-public class UserPersonaCreatingViewModel extends ViewModel {
+public class UserPersonaCreatingViewModel extends AndroidViewModel {
 
     // 使用MediatorLiveData作为数据中转
     private final MediatorLiveData<Persona> generatedPersonaLiveData = new MediatorLiveData<>();
@@ -28,9 +30,11 @@ public class UserPersonaCreatingViewModel extends ViewModel {
     /**
      * 构造函数
      * 初始化UserPersonaRepository实例
+     * @param application Application实例
      */
-    public UserPersonaCreatingViewModel() {
-        this.userPersonaRepository = UserPersonaRepository.getInstance();
+    public UserPersonaCreatingViewModel(Application application) {
+        super(application);
+        this.userPersonaRepository = UserPersonaRepository.getInstance(application);
         setupMediatorLiveData();
     }
     
