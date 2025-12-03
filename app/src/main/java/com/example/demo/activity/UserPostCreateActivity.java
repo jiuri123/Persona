@@ -117,12 +117,12 @@ public class UserPostCreateActivity extends AppCompatActivity {
                 Toast.makeText(this, "请先输入一些内容", Toast.LENGTH_SHORT).show();
                 return;
             }
-            userPostCreateViewModel.aiExpandContent(currentContent);
+            userPostCreateViewModel.aiExpandContent(selectedPersona, currentContent);
         });
 
         // AI生成按钮点击事件
         binding.btnAiGenerate.setOnClickListener(v -> {
-            userPostCreateViewModel.aiGenerateContent();
+            userPostCreateViewModel.aiGenerateContent(selectedPersona);
         });
 
         // 发布动态按钮点击事件

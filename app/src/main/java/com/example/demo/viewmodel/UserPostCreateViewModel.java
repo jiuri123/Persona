@@ -191,27 +191,4 @@ public class UserPostCreateViewModel extends AndroidViewModel {
                 }
         );
     }
-    
-    /**
-     * AI扩展当前内容（兼容旧版本，使用第一个Persona）
-     * @param currentContent 当前编辑框中的内容
-     */
-    public void aiExpandContent(String currentContent) {
-        // 获取第一个Persona
-        Persona persona = userPersonaRepository.getUserPersonas().getValue() != null && !userPersonaRepository.getUserPersonas().getValue().isEmpty() 
-                ? userPersonaRepository.getUserPersonas().getValue().get(0) 
-                : null;
-        aiExpandContent(persona, currentContent);
-    }
-    
-    /**
-     * AI生成新内容（兼容旧版本，使用第一个Persona）
-     */
-    public void aiGenerateContent() {
-        // 获取第一个Persona
-        Persona persona = userPersonaRepository.getUserPersonas().getValue() != null && !userPersonaRepository.getUserPersonas().getValue().isEmpty() 
-                ? userPersonaRepository.getUserPersonas().getValue().get(0) 
-                : null;
-        aiGenerateContent(persona);
-    }
 }

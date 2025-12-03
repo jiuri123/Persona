@@ -54,8 +54,12 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
     }
 
     /**
-     * 创建ViewHolder
+     * 创建ViewHolder实例
      * RecyclerView会调用此方法创建新的ViewHolder实例
+     * 但RecyclerView 不会为所有数据项都创建 ViewHolder，而是只为当前可见的项创建
+     * 当列表项滚动出屏幕时，它的 ViewHolder 会被回收并放入缓存池
+     * 当新的列表项需要显示时，RecyclerView 会优先从缓存池中获取可复用的 ViewHolder
+     * 只有当缓存池中没有可用的 ViewHolder 时，才会调用 onCreateViewHolder 创建新的
      * @param parent 父视图组
      * @param viewType 视图类型
      * @return 新创建的PersonaDropdownViewHolder
@@ -72,6 +76,7 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
     /**
      * 绑定数据到ViewHolder
      * RecyclerView会调用此方法将数据绑定到指定位置的ViewHolder
+     * 但只有当前可见的项才会调用此方法进行绑定
      * @param holder 要绑定数据的ViewHolder
      * @param position 数据在列表中的位置
      */
@@ -142,6 +147,8 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
             }
 
             // 设置整个项的点击事件，点击后选择该Persona
+            // 每个 ViewHolder 都有自己的点击监听器
+            // 当你点击某个列表项时，只有该项对应的 ViewHolder 的点击监听器会被触发
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

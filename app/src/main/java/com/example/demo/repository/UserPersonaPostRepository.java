@@ -184,8 +184,6 @@ public class UserPersonaPostRepository {
         errorLiveData.setValue(error);
     }
 
-
-
     /**
      * AI扩展当前内容
      * 根据当前用户的Persona设定扩展已有内容
