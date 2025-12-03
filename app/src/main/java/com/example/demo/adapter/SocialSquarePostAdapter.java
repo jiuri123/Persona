@@ -41,7 +41,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     private Set<String> followedPersonaNames = new HashSet<>();
     // 上下文，用于启动Activity和加载资源
     private Context context;
-    // 关注操作回调接口
+    // 用户关注其他persona操作的回调接口
     private OnFollowClickListener onFollowClickListener;
 
     /**

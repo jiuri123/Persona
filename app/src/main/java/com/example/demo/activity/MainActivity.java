@@ -24,16 +24,19 @@ import com.google.android.material.navigation.NavigationBarView;
  * 使用ActivityResultLauncher处理Activity间的结果传递，替代已废弃的startActivityForResult
  */
 public class MainActivity extends AppCompatActivity {
-    // Fragment实例，用于管理不同的页面
+    // 社交广场Fragment
     private SocialSquareFragment socialSquareFragment;
+    // 用户Persona创建和聊天的Fragment
     private UserPersonaFragment userPersonaFragment;
+    // 用户个人资料Fragment
     private UserProfileFragment userProfileFragment;
+    // 用户关注列表Fragment
     private UserFollowedListFragment userFollowedListFragment;
 
     // Fragment标签，用于标识不同的Fragment
     private static final String TAG_SOCIAL = "SOCIAL_SQUARE";
     private static final String TAG_FOLLOWED = "FOLLOWED_LIST";
-    private static final String TAG_PERSONA = "MY_PERSONA";
+    private static final String TAG_PERSONA = "USER_PERSONA";
     private static final String TAG_PROFILE = "PROFILE";
 
     /**

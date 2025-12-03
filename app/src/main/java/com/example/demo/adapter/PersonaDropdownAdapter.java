@@ -40,11 +40,9 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
     /**
      * 构造函数
      * @param context 上下文
-     * @param personaList 可用的Persona数据列表
      */
-    public PersonaDropdownAdapter(Context context, List<Persona> personaList) {
+    public PersonaDropdownAdapter(Context context) {
         this.context = context;
-        this.personaList = personaList;
     }
 
     /**

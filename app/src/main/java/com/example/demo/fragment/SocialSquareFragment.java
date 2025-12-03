@@ -109,8 +109,9 @@ public class SocialSquareFragment extends Fragment {
         // 初始化帖子数据列表，后续由ViewModel更新
         List<Post> postList = new java.util.ArrayList<>();
 
-        // 创建适配器并设置社交广场的关注按钮回调接口
+        // 创建社交广场展示帖子的适配器
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
+        // 设置社交广场的关注按钮回调接口
         socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
             @Override
             public void onFollowClick(Persona persona) {
@@ -132,7 +133,7 @@ public class SocialSquareFragment extends Fragment {
                     Intent intent = new Intent(getContext(), UserPostCreateActivity.class);
                     startActivity(intent);
                 } else {
-                    // 如果没有Persona，只提示用户先创建Persona，不再跳转到创建页面
+                    // 如果没有Persona，提示用户先创建Persona，不再跳转到创建页面
                     Toast.makeText(getContext(), "请先创建Persona", Toast.LENGTH_SHORT).show();
                 }
             }
