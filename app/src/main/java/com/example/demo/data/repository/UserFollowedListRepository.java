@@ -23,8 +23,8 @@ public class UserFollowedListRepository {
     // 关注的Persona列表LiveData，用于观察数据变化
     private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
     
-    // 关注的Persona名称集合，用于快速查找是否已关注
-    private final Set<String> followedPersonaNames = new HashSet<>();
+    // 关注的Persona ID集合，用于快速查找是否已关注
+    private final Set<Long> followedPersonaIds = new HashSet<>();
     
     /**
      * 私有构造函数，实现单例模式
@@ -58,19 +58,19 @@ public class UserFollowedListRepository {
      * @return 如果成功添加返回true，如果已关注则返回false
      */
     public boolean addFollowedPersona(Persona persona) {
-        if (persona == null || persona.getName() == null) {
+        if (persona == null) {
             return false;
         }
         
-        String personaName = persona.getName();
+        long personaId = persona.getId();
         
         // 检查是否已经关注
-        if (followedPersonaNames.contains(personaName)) {
+        if (followedPersonaIds.contains(personaId)) {
             return false;
         }
         
         // 添加到集合和列表
-        followedPersonaNames.add(personaName);
+        followedPersonaIds.add(personaId);
         List<Persona> currentList = followedPersonasLiveData.getValue();
         // 创建新列表，复制当前列表内容
         List<Persona> newList = new ArrayList<>();
@@ -89,19 +89,19 @@ public class UserFollowedListRepository {
      * @return 如果成功移除返回true，如果未关注则返回false
      */
     public boolean removeFollowedPersona(Persona persona) {
-        if (persona == null || persona.getName() == null) {
+        if (persona == null) {
             return false;
         }
         
-        String personaName = persona.getName();
+        long personaId = persona.getId();
         
         // 检查是否已关注
-        if (!followedPersonaNames.contains(personaName)) {
+        if (!followedPersonaIds.contains(personaId)) {
             return false;
         }
         
         // 从集合和列表中移除
-        followedPersonaNames.remove(personaName);
+        followedPersonaIds.remove(personaId);
         List<Persona> currentList = followedPersonasLiveData.getValue();
         // 创建新列表，复制当前列表内容
         List<Persona> newList = new ArrayList<>();
@@ -109,7 +109,7 @@ public class UserFollowedListRepository {
             newList.addAll(currentList);
             // 遍历新列表，移除对应的Persona
             for (int i = 0; i < newList.size(); i++) {
-                if (newList.get(i).getName().equals(personaName)) {
+                if (newList.get(i).getId() == personaId) {
                     newList.remove(i);
                     break;
                 }

@@ -151,6 +151,7 @@ public class Persona implements Parcelable {
 
     /**
      * 重写equals方法，比较两个Persona对象是否相等
+     * 只比较id字段，因为id是唯一标识符
      * @param o 要比较的对象
      * @return 如果相等返回true，否则返回false
      */
@@ -159,25 +160,17 @@ public class Persona implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Persona persona = (Persona) o;
-        return id == persona.id &&
-                avatarDrawableId == persona.avatarDrawableId &&
-                age == persona.age &&
-                name.equals(persona.name) &&
-                gender.equals(persona.gender) &&
-                Objects.equals(avatarUri, persona.avatarUri) &&
-                Objects.equals(backgroundStory, persona.backgroundStory) &&
-                Objects.equals(personality, persona.personality) &&
-                Objects.equals(relationship, persona.relationship) &&
-                Objects.equals(signature, persona.signature);
+        return id == persona.id;
     }
 
     /**
      * 重写hashCode方法，生成对象的哈希值
+     * 只使用id字段，因为id是唯一标识符
      * @return 对象的哈希值
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, avatarDrawableId, avatarUri, backgroundStory, gender, age, personality, relationship, signature);
+        return Objects.hash(id);
     }
 
     /**

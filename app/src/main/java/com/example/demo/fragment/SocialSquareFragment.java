@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.example.demo.activity.UserPostCreateActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
+import com.example.demo.model.PostUiItem;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
 import com.example.demo.viewmodel.SocialSquareViewModel;
@@ -97,6 +99,16 @@ public class SocialSquareFragment extends Fragment {
 
         // 创建社交广场展示帖子的适配器
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext());
+        socialSquarePostAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+               // 核心判断：只有当插入位置是 0 (顶部) 时，才滚动
+               // 加载更多时，positionStart 会是 10, 20 等，就不会触发这里
+               if (positionStart == 0) {
+                   fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
+               }
+            }
+        });
         // 设置社交广场的关注按钮回调接口
         socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
             @Override
@@ -131,32 +143,18 @@ public class SocialSquareFragment extends Fragment {
      * 观察SocialSquareViewModel中的LiveData变化
      */
     private void setupViewObservers() {
-        // 观察合并后的帖子列表变化
-        socialSquareViewModel.getMergedPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Post>>() {
+        // 观察合并后的帖子UI列表变化
+        socialSquareViewModel.getMergedPostsLiveData().observe(getViewLifecycleOwner(), new Observer<List<PostUiItem>>() {
             @Override
-            public void onChanged(List<Post> posts) {
-                if (posts != null && socialSquarePostAdapter != null) {
+            public void onChanged(List<PostUiItem> postUiItems) {
+                if (postUiItems != null && socialSquarePostAdapter != null) {
+                    // 获取当前列表大小
+                    int currentItemCount = socialSquarePostAdapter.getCurrentList().size();
+                    // 获取新列表大小
+                    int newItemCount = postUiItems.size();
+                    
                     // 更新适配器的数据，使用带回调的重载方法
-                    socialSquarePostAdapter.submitList(posts, new Runnable() {
-                        @Override
-                        public void run() {
-                            // 在列表更新完成后，滚动到顶部
-                            if (!posts.isEmpty()) {
-                                fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-        
-        // 观察已关注persona列表的变化
-        socialSquareViewModel.getFollowedPersonasLiveData().observe(getViewLifecycleOwner(), new Observer<List<com.example.demo.model.Persona>>() {
-            @Override
-            public void onChanged(List<com.example.demo.model.Persona> followedPersonas) {
-                // 当关注列表发生变化时，通知适配器更新所有项目的关注状态
-                if (socialSquarePostAdapter != null) {
-                    socialSquarePostAdapter.updateFollowedList(followedPersonas);
+                    socialSquarePostAdapter.submitList(postUiItems);
                 }
             }
         });

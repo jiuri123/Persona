@@ -9,6 +9,7 @@ import androidx.lifecycle.Transformations;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
+import com.example.demo.model.PostUiItem;
 import com.example.demo.data.repository.OtherPersonaPostRepository;
 import com.example.demo.data.repository.UserFollowedListRepository;
 import com.example.demo.data.repository.UserPersonaPostRepository;
@@ -43,8 +44,10 @@ public class SocialSquareViewModel extends AndroidViewModel {
     List<Post> userPersonaPosts;
     // 其他Persona帖子列表
     List<Post> otherPersonaPosts;
-    // 合并后的帖子列表LiveData
-    private final MediatorLiveData<List<Post>> mergedPostsLiveData = new MediatorLiveData<>();
+    // 已关注的Persona列表
+    List<Persona> followedPersonas;
+    // 合并后的帖子UI列表LiveData
+    private final MediatorLiveData<List<PostUiItem>> mergedPostsLiveData = new MediatorLiveData<>();
     
     // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
     private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
@@ -84,7 +87,11 @@ public class SocialSquareViewModel extends AndroidViewModel {
      */
     private void setupMediatorLiveData() {
         // 观察已关注Persona列表变化
-        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
+        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), personas -> {
+            followedPersonasLiveData.setValue(personas);
+            followedPersonas = personas;
+            mergePosts();
+        });
 
         // 观察用户Persona列表变化
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
@@ -100,34 +107,72 @@ public class SocialSquareViewModel extends AndroidViewModel {
             otherPersonaPosts = posts;
             mergePosts();
         });
+        
+        // 观察已关注Persona列表变化，确保关注状态变化时能更新UI
+        mergedPostsLiveData.addSource(followedPersonasLiveData, personas -> {
+            mergePosts();
+        });
     }
 
     /**
-     * 合并帖子列表
+     * 合并帖子列表并生成PostUiItem
      * 将用户的帖子和其他Persona的帖子合并，用户的帖子显示在前面
+     * 同时检查每个帖子的作者是否已被关注
      */
     private void mergePosts() {
-        List<Post> mergedPosts = new ArrayList<>();
+        List<PostUiItem> mergedPostUiItems = new ArrayList<>();
 
         // 先添加用户的帖子（用户的帖子显示在前面）
         if (userPersonaPosts != null) {
-            mergedPosts.addAll(userPersonaPosts);
+            for (Post post : userPersonaPosts) {
+                // 用户自己的帖子，不需要关注
+                PostUiItem postUiItem = new PostUiItem(post, false);
+                mergedPostUiItems.add(postUiItem);
+            }
         }
 
         // 再添加其他Persona的帖子
         if (otherPersonaPosts != null) {
-            mergedPosts.addAll(otherPersonaPosts);
+            for (Post post : otherPersonaPosts) {
+                // 检查作者是否已被关注
+                boolean isFollowed = isFollowedPersona(post.getAuthor());
+                PostUiItem postUiItem = new PostUiItem(post, isFollowed);
+                mergedPostUiItems.add(postUiItem);
+            }
         }
 
-        // 更新合并后的帖子列表
-        mergedPostsLiveData.setValue(mergedPosts);
+        // 更新合并后的帖子UI列表
+        mergedPostsLiveData.setValue(mergedPostUiItems);
     }
 
     /**
-     * 获取合并后的帖子列表LiveData
-     * @return 合并后的帖子列表LiveData
+     * 检查指定Persona是否已被关注
+     * @param persona 要检查的Persona
+     * @return 是否已关注
      */
-    public LiveData<List<Post>> getMergedPostsLiveData() {
+    public boolean isFollowedPersona(Persona persona) {
+        if (followedPersonas == null || persona == null) {
+            return false;
+        }
+        for (Persona followedPersona : followedPersonas) {
+            // 先比较id字段，如果id不为0且相等，则返回true
+            if (followedPersona.getId() != 0 && persona.getId() != 0 && followedPersona.getId() == persona.getId()) {
+                return true;
+            }
+            // 如果id为0或不相等，则比较name字段
+            if (followedPersona.getName() != null && persona.getName() != null && 
+                followedPersona.getName().equals(persona.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取合并后的帖子UI列表LiveData
+     * @return 合并后的帖子UI列表LiveData
+     */
+    public LiveData<List<PostUiItem>> getMergedPostsLiveData() {
         return mergedPostsLiveData;
     }
 
@@ -136,7 +181,7 @@ public class SocialSquareViewModel extends AndroidViewModel {
      * @param persona 要关注/取消关注的Persona
      */
     public void onFollowClick(Persona persona) {
-        if (isFollowingPersona(persona)) {
+        if (isFollowedPersona(persona)) {
             // 如果已关注，则取消关注
             userFollowedListRepository.removeFollowedPersona(persona);
         } else {
@@ -145,25 +190,7 @@ public class SocialSquareViewModel extends AndroidViewModel {
         }
     }
 
-    /**
-     * 检查是否已关注指定Persona
-     * @param persona 要检查的Persona
-     * @return 如果已关注返回true，否则返回false
-     */
-    public boolean isFollowingPersona(Persona persona) {
-        if (persona == null || persona.getName() == null) {
-            return false;
-        }
-        return followedPersonasLiveData.getValue() != null && followedPersonasLiveData.getValue().contains(persona);
-    }
 
-    /**
-     * 获取已关注Persona列表LiveData
-     * @return 已关注Persona列表LiveData
-     */
-    public LiveData<List<Persona>> getFollowedPersonasLiveData() {
-        return followedPersonasLiveData;
-    }
 
     /**
      * 6. 暴露这个新的、加工后的 "状态" LiveData 给 View

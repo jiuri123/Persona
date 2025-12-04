@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
@@ -17,6 +18,7 @@ import com.example.demo.activity.OtherPersonaChatActivity;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
+import com.example.demo.model.PostUiItem;
 import com.example.demo.databinding.ItemPersonaPostBinding;
 
 // Markwon库用于在Android中渲染Markdown文本
@@ -26,40 +28,36 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 社交广场帖子适配器
  * 用于在RecyclerView中显示Persona发布的帖子
  * 实现了点击头像/名称跳转聊天界面、关注/取消关注功能
  */
-public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostAdapter.PostViewHolder> {
-    // 已关注的Persona的名称集合
-    private Set<String> followedPersonaNames = new HashSet<>();
+public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquarePostAdapter.PostViewHolder> {
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 用户关注其他persona操作的回调接口
     private OnFollowClickListener onFollowClickListener;
 
     /**
-     * DiffUtil.ItemCallback实现，用于比较Post对象
+     * DiffUtil.ItemCallback实现，用于比较PostUiItem对象
      */
-    private static class PostDiffCallback extends DiffUtil.ItemCallback<Post> {
+    private static class PostUiItemDiffCallback extends DiffUtil.ItemCallback<PostUiItem> {
         @Override
-        public boolean areItemsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
+        public boolean areItemsTheSame(@NonNull PostUiItem oldItem, @NonNull PostUiItem newItem) {
             // 使用帖子的内容和作者作为唯一标识
-            return Objects.equals(oldItem.getAuthor(), newItem.getAuthor()) &&
-                    Objects.equals(oldItem.getContentText(), newItem.getContentText()) &&
-                    Objects.equals(oldItem.getTimestamp(), newItem.getTimestamp());
+            Post oldPost = oldItem.getPost();
+            Post newPost = newItem.getPost();
+            return Objects.equals(oldPost.getAuthor(), newPost.getAuthor()) &&
+                    Objects.equals(oldPost.getContentText(), newPost.getContentText()) &&
+                    Objects.equals(oldPost.getTimestamp(), newPost.getTimestamp());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
+        public boolean areContentsTheSame(@NonNull PostUiItem oldItem, @NonNull PostUiItem newItem) {
             // 使用Objects.equals比较所有内容是否一致
             return Objects.equals(oldItem, newItem);
         }
@@ -82,22 +80,8 @@ public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostA
      * @param context 上下文
      */
     public SocialSquarePostAdapter(Context context) {
-        super(new PostDiffCallback());
+        super(new PostUiItemDiffCallback());
         this.context = context;
-    }
-
-    /**
-     * 更新已关注的Persona列表
-     * 用于在适配器中显示已关注的Persona的帖子
-     * @param followedPersonas 已关注的Persona列表
-     */
-    public void updateFollowedList(List<Persona> followedPersonas) {
-        followedPersonaNames.clear();
-        for (Persona p : followedPersonas) {
-            followedPersonaNames.add(p.getName());
-        }
-        // 通知适配器数据已更新，触发重新绑定
-        notifyDataSetChanged();
     }
     
     /**
@@ -126,19 +110,17 @@ public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostA
     }
 
     /**
-     * 绑定数据到ViewHolder，列表首次加载（启动软件）、列表滚动、
-     * 特定项被通知更新或调用 notifyDataSetChanged() 时调用
-     * 该函数的调用与"视图即将变得可见"这一事件强相关
+     * 绑定数据到ViewHolder
      * RecyclerView会调用此方法将数据绑定到指定位置的ViewHolder
      * @param holder 要绑定数据的ViewHolder
      * @param position 数据在列表中的位置
      */
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        // 使用getItem获取当前位置的数据
-        Post post = getItem(position);
-        // 将该帖子绑定到视图，更新视图上的显示内容
-        holder.bind(post);
+        // 使用getItem获取当前位置的PostUiItem
+        PostUiItem postUiItem = getItem(position);
+        // 将该PostUiItem绑定到视图
+        holder.bind(postUiItem);
     }
 
     /**
@@ -162,19 +144,20 @@ public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostA
             this.itemPersonaPostBinding = itemPersonaPostBinding;
             
             // 初始化Markwon，配置各种插件支持Markdown特性
-            markwon = Markwon.builder(itemView.getContext())
+            markwon = Markwon.builder(itemPersonaPostBinding.getRoot().getContext())
                     .usePlugin(StrikethroughPlugin.create()) // 支持删除线
-                    .usePlugin(TablePlugin.create(itemView.getContext())) // 支持表格
-                    .usePlugin(TaskListPlugin.create(itemView.getContext())) // 支持任务列表
+                    .usePlugin(TablePlugin.create(itemPersonaPostBinding.getRoot().getContext())) // 支持表格
+                    .usePlugin(TaskListPlugin.create(itemPersonaPostBinding.getRoot().getContext())) // 支持任务列表
                     .usePlugin(LinkifyPlugin.create()) // 支持自动链接识别
                     .build();
         }
 
         /**
-         * 绑定帖子数据到视图
-         * @param post 要显示的帖子对象
+         * 绑定帖子UI数据到视图
+         * @param postUiItem 要显示的PostUiItem对象
          */
-        public void bind(Post post) {
+        public void bind(PostUiItem postUiItem) {
+            Post post = postUiItem.getPost();
             Persona author = post.getAuthor();
             // 设置作者名称和简介
             itemPersonaPostBinding.tvAuthorName.setText(author.getName());
@@ -217,8 +200,8 @@ public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostA
                 // 则显示关注按钮
                 itemPersonaPostBinding.btnFollow.setVisibility(View.VISIBLE);
                 
-                // 检查是否已关注该作者
-                boolean isFollowed = followedPersonaNames.contains(author.getName());
+                // 直接使用PostUiItem中的isFollowed状态，不再进行任何逻辑判断
+                boolean isFollowed = postUiItem.isFollowed();
                 updateButtonState(isFollowed);
 
                 // 设置关注按钮的点击事件
