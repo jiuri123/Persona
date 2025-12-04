@@ -30,6 +30,8 @@ import com.example.demo.databinding.ActivityCreatePersonaBinding;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.List;
+
 /**
  * 创建Persona的活动界面
  * 允许用户手动输入或使用AI生成Persona的名称和背景故事
@@ -148,38 +150,30 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         } else {
             myPersonaAge = 0;
         }
-        
-        // 开始创建Persona对象
+
         final int avatarId = R.drawable.avatar_zero;
         // 将Uri转换为字符串，保存到Persona对象中
         final String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
-        
-        // 检查角色名称是否已存在（异步方式）
-        UserPersonaRepository userPersonaRepository = UserPersonaRepository.getInstance(this);
-        userPersonaRepository.getUserPersonaByName(myPersonaName, new UserPersonaRepository.GetPersonaCallback() {
-            @Override
-            public void onPersonaLoaded(Persona persona) {
-                runOnUiThread(() -> {
-                    if (persona != null) {
-                        Toast.makeText(UserPersonaCreateActivity.this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // 调用ViewModel的方法创建并保存Persona对象
-                        userPersonaCreateViewModel.createPersonaAndSave(
-                                myPersonaName,
-                                avatarId,
-                                avatarUriString,
-                                myPersonaCatchphrase,
-                                myPersonaStory,
-                                myPersonaGender,
-                                myPersonaAge,
-                                myPersonaPersonality,
-                                myPersonaRelationship
-                        );
-                        finish();
-                    }
-                });
-            }
-        });
+
+        if(userPersonaCreateViewModel.isPersonaNameExists(myPersonaName)) {
+            Toast.makeText(this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 调用ViewModel的方法创建并保存Persona对象
+        boolean isCreated = userPersonaCreateViewModel.createPersonaAndSave(
+                myPersonaName,
+                avatarId,
+                avatarUriString,
+                myPersonaCatchphrase,
+                myPersonaStory,
+                myPersonaGender,
+                myPersonaAge,
+                myPersonaPersonality,
+                myPersonaRelationship
+        );
+        if (isCreated) {
+            finish();
+        }
     }
 
     /**
@@ -322,6 +316,17 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
                     activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
                     activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
                 }
+            }
+        });
+
+        // 【新增】观察用户列表，目的是为了激活 ViewModel 中的 MediatorLiveData
+        // 从而触发 userPersonaNames 集合的更新逻辑
+        // 这里不需要做任何 UI 更新，因为我们只需要 ViewModel 里的 Set 被填满
+        userPersonaCreateViewModel.getUserPersonas().observe(this, new Observer<List<Persona>>() {
+            @Override
+            public void onChanged(List<Persona> personas) {
+                // 这里什么都不用做，或者可以打印个日志看看数据到了没
+                // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
             }
         });
 

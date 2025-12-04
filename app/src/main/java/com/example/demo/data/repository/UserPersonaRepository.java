@@ -41,9 +41,6 @@ public class UserPersonaRepository {
     // 单例实例
     private static UserPersonaRepository instance;
 
-    // API密钥和模型名称从BuildConfig获取
-    // BuildConfig中的值从gradle.properties注入
-
     // 网络服务和随机数生成器
     private final ApiService apiService;
     private final Random random = new Random();
@@ -63,11 +60,6 @@ public class UserPersonaRepository {
     private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
-    
-    // 用户创建的Persona列表
-    private final MutableLiveData<List<Persona>> userPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
-    // 用于快速查找Persona的名称集合
-    private final Set<String> personaNameSet = new HashSet<>();
 
     /**
      * 私有构造函数，防止外部实例化
@@ -85,9 +77,6 @@ public class UserPersonaRepository {
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
-        
-        // 从本地数据源加载所有Persona
-        loadPersonasFromLocal();
     }
 
     /**
@@ -134,10 +123,8 @@ public class UserPersonaRepository {
      * @return 用户Persona列表的LiveData对象
      */
     public LiveData<List<Persona>> getUserPersonas() {
-        return userPersonasLiveData;
+        return localDataSource.getAllPersonas();
     }
-    
-    
 
     /**
      * 清除错误信息
@@ -151,26 +138,6 @@ public class UserPersonaRepository {
      */
     public void clearGeneratedPersona() {
         generatedPersonaLiveData.setValue(null);
-    }
-    
-    /**
-     * 从本地数据源加载所有Persona
-     */
-    private void loadPersonasFromLocal() {
-        // 获取所有Persona的LiveData
-        LiveData<List<Persona>> personasLiveData = localDataSource.getAllPersonas();
-        // 观察数据变化
-        personasLiveData.observeForever(personas -> {
-            if (personas != null) {
-                // 更新LiveData
-                userPersonasLiveData.setValue(personas);
-                // 更新名称集合
-                personaNameSet.clear();
-                for (Persona persona : personas) {
-                    personaNameSet.add(persona.getName());
-                }
-            }
-        });
     }
 
     /**
@@ -264,23 +231,8 @@ public class UserPersonaRepository {
      * @return 如果成功添加返回true，如果名称已存在则返回false
      */
     public boolean addUserPersona(Persona persona) {
-        
-        String personaName = persona.getName();
-        
-        // 检查是否已经存在同名Persona
-        if (personaNameSet.contains(personaName)) {
-            return false;
-        }
-        
         // 添加到本地数据库
         localDataSource.insertPersona(persona);
-        
-        // 添加到集合和列表
-        personaNameSet.add(personaName);
-        List<Persona> currentList = new ArrayList<>(Objects.requireNonNull(userPersonasLiveData.getValue()));
-        currentList.add(persona);
-        userPersonasLiveData.setValue(currentList);
-        
         return true;
     }
     
@@ -293,58 +245,8 @@ public class UserPersonaRepository {
         if (persona == null || persona.getName() == null) {
             return false;
         }
-        
-        String personaName = persona.getName();
-        
-        // 检查是否存在
-        if (!personaNameSet.contains(personaName)) {
-            return false;
-        }
-        
-        // 从本地数据库中删除
         localDataSource.deletePersona(persona);
-        
-        // 从集合和列表中移除
-        personaNameSet.remove(personaName);
-        List<Persona> currentList = new ArrayList<>(Objects.requireNonNull(userPersonasLiveData.getValue()));
-        currentList.removeIf(p -> p.getName().equals(personaName));
-        userPersonasLiveData.setValue(currentList);
-        
+
         return true;
-    }
-    
-    /**
-     * 获取Persona的回调接口
-     */
-    public interface GetPersonaCallback {
-        /**
-         * 当Persona加载完成时调用
-         * @param persona 加载的Persona对象，可能为null
-         */
-        void onPersonaLoaded(Persona persona);
-    }
-    
-    /**
-     * 根据名称获取用户Persona
-     * @param name Persona的名称
-     * @param callback 回调接口，用于返回查询结果
-     */
-    public void getUserPersonaByName(String name, GetPersonaCallback callback) {
-        if (name == null) {
-            if (callback != null) {
-                callback.onPersonaLoaded(null);
-            }
-            return;
-        }
-        
-        // 从本地数据源获取Persona
-        localDataSource.getPersonaByName(name, new LocalDataSource.GetPersonaCallback() {
-            @Override
-            public void onPersonaLoaded(Persona persona) {
-                if (callback != null) {
-                    callback.onPersonaLoaded(persona);
-                }
-            }
-        });
     }
 }

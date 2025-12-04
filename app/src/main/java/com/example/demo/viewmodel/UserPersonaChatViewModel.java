@@ -45,8 +45,6 @@ public class UserPersonaChatViewModel extends AndroidViewModel {
         chatHistoryLiveData.addSource(userPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
     }
     
-    // ========== 聊天相关方法 ==========
-    
     /**
      * 获取聊天历史LiveData
      * @return 聊天历史消息的LiveData对象，UI组件可以观察此数据变化
