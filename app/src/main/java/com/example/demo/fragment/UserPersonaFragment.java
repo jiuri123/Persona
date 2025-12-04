@@ -102,15 +102,6 @@ public class UserPersonaFragment extends Fragment {
     }
 
     /**
-     * 当Persona创建完成时调用
-     * @param persona 新创建的Persona对象
-     */
-    public void onPersonaCreated(Persona persona) {
-        // 通过UserPersonaViewModel将Persona添加到Repository
-        userPersonaViewModel.addUserPersona(persona);
-    }
-
-    /**
      * 设置UI界面
      * 根据是否有Persona显示不同的界面
      * @param personas 用户的Persona列表

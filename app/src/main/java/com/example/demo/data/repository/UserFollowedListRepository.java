@@ -17,14 +17,14 @@ import java.util.Set;
  */
 public class UserFollowedListRepository {
 
+    // 单例实例
+    private static UserFollowedListRepository instance;
+
     // 关注的Persona列表LiveData，用于观察数据变化
     private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
     
-    // 关注的Persona名称集合，用于快速查找
+    // 关注的Persona名称集合，用于快速查找是否已关注
     private final Set<String> followedPersonaNames = new HashSet<>();
-    
-    // 单例实例
-    private static UserFollowedListRepository instance;
     
     /**
      * 私有构造函数，实现单例模式
@@ -112,37 +112,5 @@ public class UserFollowedListRepository {
         }
         
         return true;
-    }
-    
-    /**
-     * 检查是否已关注指定角色
-     * @param persona 要检查的角色
-     * @return 如果已关注返回true，否则返回false
-     */
-    public boolean isFollowingPersona(Persona persona) {
-        if (persona == null || persona.getName() == null) {
-            return false;
-        }
-        return followedPersonaNames.contains(persona.getName());
-    }
-    
-    /**
-     * 根据名称检查是否已关注
-     * @param personaName 要检查的角色名称
-     * @return 如果已关注返回true，否则返回false
-     */
-    public boolean isFollowingPersonaByName(String personaName) {
-        if (personaName == null) {
-            return false;
-        }
-        return followedPersonaNames.contains(personaName);
-    }
-    
-    /**
-     * 清空所有关注
-     */
-    public void clearAllFollows() {
-        followedPersonaNames.clear();
-        followedPersonasLiveData.setValue(new ArrayList<>());
     }
 }

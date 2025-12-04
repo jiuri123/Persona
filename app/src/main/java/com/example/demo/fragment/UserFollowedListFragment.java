@@ -36,8 +36,6 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
     private UserFollowedListAdapter userFollowedListAdapter;
     // ViewModel，用于管理关注列表
     private UserFollowedListViewModel userFollowedListViewModel;
-    // 已关注的Persona数据列表
-    private List<Persona> followedPersonaList;
 
     // 默认构造函数
     public UserFollowedListFragment() {
@@ -94,13 +92,11 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
         
         // 设置RecyclerView的布局管理器
         fragmentFollowedListBinding.rvFollowedList.setLayoutManager(new LinearLayoutManager(getContext()));
-        
-        // 初始化已关注Persona列表
-        followedPersonaList = new ArrayList<>();
+
         loadFollowedPersonas(); // 加载已关注的Persona数据
         
         // 创建并设置适配器
-        userFollowedListAdapter = new UserFollowedListAdapter(getContext(), followedPersonaList);
+        userFollowedListAdapter = new UserFollowedListAdapter(getContext());
         userFollowedListAdapter.setOnUnfollowClickListener(this);
         fragmentFollowedListBinding.rvFollowedList.setAdapter(userFollowedListAdapter);
         
@@ -109,10 +105,8 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
             @Override
             public void onChanged(List<Persona> personas) {
                 if (personas != null) {
-                    // 更新本地列表数据
-                    followedPersonaList.clear();
-                    followedPersonaList.addAll(personas);
-                    userFollowedListAdapter.notifyDataSetChanged(); // 通知适配器数据已变化
+                    // 更新适配器的数据
+                    userFollowedListAdapter.setFollowedPersonaList(personas);
                     
                     // 根据数据是否为空显示不同的UI状态
                     if (personas.isEmpty()) {

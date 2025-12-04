@@ -84,22 +84,4 @@ public class UserFollowedListViewModel extends ViewModel {
     public boolean removeFollowedPersona(Persona persona) {
         return userFollowedListRepository.removeFollowedPersona(persona);
     }
-
-    /**
-     * 检查是否已关注指定角色
-     * @param persona 要检查的角色
-     * @return 如果已关注返回true，否则返回false
-     */
-    public boolean isFollowingPersona(Persona persona) {
-        return userFollowedListRepository.isFollowingPersona(persona);
-    }
-    
-    /**
-     * 根据名称检查是否已关注
-     * @param personaName 要检查的角色名称
-     * @return 如果已关注返回true，否则返回false
-     */
-    public boolean isFollowingPersonaByName(String personaName) {
-        return userFollowedListRepository.isFollowingPersonaByName(personaName);
-    }
 }

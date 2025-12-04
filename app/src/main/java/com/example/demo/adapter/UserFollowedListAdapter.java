@@ -20,6 +20,7 @@ import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 import com.example.demo.activity.OtherPersonaChatActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,11 +31,21 @@ import java.util.List;
 public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedListAdapter.FollowedPersonaViewHolder> {
 
     // 已关注的Persona数据列表
-    private List<Persona> followedPersonaList;
+    private List<Persona> followedPersonaList = new ArrayList<>();
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 取消关注操作的回调接口
     private OnUnfollowClickListener onUnfollowClickListener;
+
+    /**
+     * 设置已关注的Persona数据列表
+     * @param personas 已关注的Persona数据列表
+     */
+    public void setFollowedPersonaList(List<Persona> personas) {
+        followedPersonaList.clear();
+        followedPersonaList.addAll(personas);
+        notifyDataSetChanged();
+    }
 
     /**
      * 取消关注点击事件的回调接口
@@ -46,11 +57,9 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
     /**
      * 构造函数
      * @param context 上下文
-     * @param followedPersonaList 已关注的Persona数据列表
      */
-    public UserFollowedListAdapter(Context context, List<Persona> followedPersonaList) {
+    public UserFollowedListAdapter(Context context) {
         this.context = context;
-        this.followedPersonaList = followedPersonaList;
     }
 
     /**

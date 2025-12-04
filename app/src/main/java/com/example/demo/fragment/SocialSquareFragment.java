@@ -23,6 +23,7 @@ import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
 import com.example.demo.viewmodel.SocialSquareViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,11 +95,8 @@ public class SocialSquareFragment extends Fragment {
         // 设置RecyclerView的布局管理器为线性布局
         fragmentSocialSquareBinding.rvSocialSquare.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 初始化帖子数据列表，后续由ViewModel更新
-        List<Post> postList = new java.util.ArrayList<>();
-
         // 创建社交广场展示帖子的适配器
-        socialSquarePostAdapter = new SocialSquarePostAdapter(getContext(), postList);
+        socialSquarePostAdapter = new SocialSquarePostAdapter(getContext());
         // 设置社交广场的关注按钮回调接口
         socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
             @Override

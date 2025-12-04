@@ -25,6 +25,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +37,7 @@ import java.util.Set;
  */
 public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePostAdapter.PostViewHolder> {
     // 帖子数据列表
-    private List<Post> postList;
+    private List<Post> postList = new ArrayList<>();
     // 已关注的Persona的名称集合
     private Set<String> followedPersonaNames = new HashSet<>();
     // 上下文，用于启动Activity和加载资源
@@ -59,11 +60,9 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
     /**
      * 构造函数
      * @param context 上下文
-     * @param postList 帖子数据列表
      */
-    public SocialSquarePostAdapter(Context context, List<Post> postList) {
+    public SocialSquarePostAdapter(Context context) {
         this.context = context;
-        this.postList = postList;
     }
 
     /**
@@ -86,17 +85,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
      */
     public void setOnFollowActionListener(OnFollowClickListener onFollowClickListener) {
         this.onFollowClickListener = onFollowClickListener;
-    }
-
-    /**
-     * 在列表顶部添加新帖子
-     * @param post 要添加的帖子
-     */
-    public void addPostAtTop(Post post) {
-        if (postList != null) {
-            postList.add(0, post); // 在索引0处添加，即列表顶部
-            notifyItemInserted(0); // 通知适配器在位置0插入了新项
-        }
     }
 
     /**
@@ -187,9 +175,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             // 设置作者名称和简介
             itemPersonaPostBinding.tvAuthorName.setText(author.getName());
             itemPersonaPostBinding.tvAuthorBioOrTime.setText(author.getSignature());
-
-            // 使用Markwon将帖子的内容渲染成Markdown
-            markwon.setMarkdown(itemPersonaPostBinding.tvContentText, post.getContentText());
             
             // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
             if (author.getAvatarUri() != null) {
@@ -205,6 +190,9 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
                         .circleCrop() // 圆形裁剪
                         .into(itemPersonaPostBinding.ivAvatar);
             }
+
+            // 使用Markwon将帖子的内容渲染成Markdown
+            markwon.setMarkdown(itemPersonaPostBinding.tvContentText, post.getContentText());
             
             // 如果帖子有图片，则显示并加载图片
             if (post.getImageDrawableId() != null) {
@@ -222,10 +210,10 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
             if (post.isUserPersonaPost()) {
                 itemPersonaPostBinding.btnFollow.setVisibility(View.GONE);
             } else { // 如果不是自己的帖子
-                // 显示关注按钮
+                // 则显示关注按钮
                 itemPersonaPostBinding.btnFollow.setVisibility(View.VISIBLE);
                 
-                // 通过回调接口检查是否已关注该作者
+                // 检查是否已关注该作者
                 boolean isFollowed = followedPersonaNames.contains(author.getName());
                 updateButtonState(isFollowed);
 

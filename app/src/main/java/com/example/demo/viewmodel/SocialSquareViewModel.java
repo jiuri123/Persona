@@ -80,6 +80,50 @@ public class SocialSquareViewModel extends AndroidViewModel {
     }
 
     /**
+     * 设置MediatorLiveData观察Repository的LiveData
+     */
+    private void setupMediatorLiveData() {
+        // 观察已关注Persona列表变化
+        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
+
+        // 观察用户Persona列表变化
+        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
+
+        // 观察用户Persona帖子变化，用于合并帖子
+        mergedPostsLiveData.addSource(userPersonaPostRepository.getUserPostsLiveData(), posts -> {
+            userPersonaPosts = posts;
+            mergePosts();
+        });
+
+        // 观察其他Persona帖子变化，用于合并帖子
+        mergedPostsLiveData.addSource(otherPersonaPostRepository.getSocialPosts(), posts -> {
+            otherPersonaPosts = posts;
+            mergePosts();
+        });
+    }
+
+    /**
+     * 合并帖子列表
+     * 将用户的帖子和其他Persona的帖子合并，用户的帖子显示在前面
+     */
+    private void mergePosts() {
+        List<Post> mergedPosts = new ArrayList<>();
+
+        // 先添加用户的帖子（用户的帖子显示在前面）
+        if (userPersonaPosts != null) {
+            mergedPosts.addAll(userPersonaPosts);
+        }
+
+        // 再添加其他Persona的帖子
+        if (otherPersonaPosts != null) {
+            mergedPosts.addAll(otherPersonaPosts);
+        }
+
+        // 更新合并后的帖子列表
+        mergedPostsLiveData.setValue(mergedPosts);
+    }
+
+    /**
      * 获取合并后的帖子列表LiveData
      * @return 合并后的帖子列表LiveData
      */
@@ -107,7 +151,10 @@ public class SocialSquareViewModel extends AndroidViewModel {
      * @return 如果已关注返回true，否则返回false
      */
     public boolean isFollowingPersona(Persona persona) {
-        return userFollowedListRepository.isFollowingPersona(persona);
+        if (persona == null || persona.getName() == null) {
+            return false;
+        }
+        return followedPersonasLiveData.getValue() != null && followedPersonasLiveData.getValue().contains(persona);
     }
 
     /**
@@ -116,48 +163,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
      */
     public LiveData<List<Persona>> getFollowedPersonasLiveData() {
         return followedPersonasLiveData;
-    }
-
-    /**
-     * 设置MediatorLiveData观察Repository的LiveData
-     */
-    private void setupMediatorLiveData() {
-        // 观察已关注Persona列表变化
-        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
-        
-        // 观察用户Persona列表变化
-        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
-        
-        // 观察用户Persona帖子变化，用于合并帖子
-        mergedPostsLiveData.addSource(userPersonaPostRepository.getUserPostsLiveData(), posts -> {
-            userPersonaPosts = posts;
-            mergePosts();
-        });
-        
-        // 观察其他Persona帖子变化，用于合并帖子
-        mergedPostsLiveData.addSource(otherPersonaPostRepository.getSocialPosts(), posts -> {
-            otherPersonaPosts = posts;
-            mergePosts();
-        });
-    }
-
-    /**
-     * 合并帖子列表
-     * 将用户的帖子和其他Persona的帖子合并，用户的帖子显示在前面
-     */
-    private void mergePosts() {
-        List<Post> mergedPosts = new ArrayList<>();
-
-        if (userPersonaPosts != null) {
-            mergedPosts.addAll(userPersonaPosts);
-        }
-
-        if (otherPersonaPosts != null) {
-            mergedPosts.addAll(otherPersonaPosts);
-        }
-
-        // 更新合并后的帖子列表
-        mergedPostsLiveData.setValue(mergedPosts);
     }
 
     /**
