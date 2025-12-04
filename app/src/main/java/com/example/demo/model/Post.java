@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.util.Objects;
+
 /**
  * 帖子数据模型类
  * 表示Persona在社交广场发布的帖子
@@ -71,5 +73,31 @@ public class Post {
 
     public void setUserPersonaPost(boolean userPersonaPost) {
         isUserPersonaPost = userPersonaPost;
+    }
+
+    /**
+     * 重写equals方法，比较两个Post对象是否相等
+     * @param o 要比较的对象
+     * @return 如果相等返回true，否则返回false
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return isUserPersonaPost == post.isUserPersonaPost &&
+                Objects.equals(author, post.author) &&
+                Objects.equals(contentText, post.contentText) &&
+                Objects.equals(imageDrawableId, post.imageDrawableId) &&
+                Objects.equals(timestamp, post.timestamp);
+    }
+
+    /**
+     * 重写hashCode方法，生成对象的哈希值
+     * @return 对象的哈希值
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(author, contentText, imageDrawableId, timestamp, isUserPersonaPost);
     }
 }

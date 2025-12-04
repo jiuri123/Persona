@@ -8,7 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 
 import com.bumptech.glide.Glide;
 import com.example.demo.R;
@@ -25,25 +26,44 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 社交广场帖子适配器
  * 用于在RecyclerView中显示Persona发布的帖子
  * 实现了点击头像/名称跳转聊天界面、关注/取消关注功能
  */
-public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePostAdapter.PostViewHolder> {
-    // 帖子数据列表
-    private List<Post> postList = new ArrayList<>();
+public class SocialSquarePostAdapter extends ListAdapter<Post, SocialSquarePostAdapter.PostViewHolder> {
     // 已关注的Persona的名称集合
     private Set<String> followedPersonaNames = new HashSet<>();
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 用户关注其他persona操作的回调接口
     private OnFollowClickListener onFollowClickListener;
+
+    /**
+     * DiffUtil.ItemCallback实现，用于比较Post对象
+     */
+    private static class PostDiffCallback extends DiffUtil.ItemCallback<Post> {
+        @Override
+        public boolean areItemsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
+            // 使用帖子的内容和作者作为唯一标识
+            return Objects.equals(oldItem.getAuthor(), newItem.getAuthor()) &&
+                    Objects.equals(oldItem.getContentText(), newItem.getContentText()) &&
+                    Objects.equals(oldItem.getTimestamp(), newItem.getTimestamp());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Post oldItem, @NonNull Post newItem) {
+            // 使用Objects.equals比较所有内容是否一致
+            return Objects.equals(oldItem, newItem);
+        }
+    }
 
     /**
      * 关注操作回调接口
@@ -62,6 +82,7 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
      * @param context 上下文
      */
     public SocialSquarePostAdapter(Context context) {
+        super(new PostDiffCallback());
         this.context = context;
     }
 
@@ -75,7 +96,8 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
         for (Persona p : followedPersonas) {
             followedPersonaNames.add(p.getName());
         }
-        notifyDataSetChanged(); // 触发刷新
+        // 通知适配器数据已更新，触发重新绑定
+        notifyDataSetChanged();
     }
     
     /**
@@ -85,15 +107,6 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
      */
     public void setOnFollowActionListener(OnFollowClickListener onFollowClickListener) {
         this.onFollowClickListener = onFollowClickListener;
-    }
-
-    /**
-     * 更新整个帖子列表
-     * @param newPosts 新的帖子列表
-     */
-    public void updatePosts(List<Post> newPosts) {
-        this.postList = newPosts;
-        notifyDataSetChanged(); // 通知适配器整个列表已更新
     }
 
     /**
@@ -122,19 +135,10 @@ public class SocialSquarePostAdapter extends RecyclerView.Adapter<SocialSquarePo
      */
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        // 获取刚刚进入用户视图的那条帖子
-        Post post = postList.get(position);
+        // 使用getItem获取当前位置的数据
+        Post post = getItem(position);
         // 将该帖子绑定到视图，更新视图上的显示内容
         holder.bind(post);
-    }
-
-    /**
-     * 获取列表项总数
-     * @return 列表项数量
-     */
-    @Override
-    public int getItemCount() {
-        return postList != null ? postList.size() : 0;
     }
 
     /**

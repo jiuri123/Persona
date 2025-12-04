@@ -136,13 +136,16 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onChanged(List<Post> posts) {
                 if (posts != null && socialSquarePostAdapter != null) {
-                    // 更新适配器的数据
-                    socialSquarePostAdapter.updatePosts(posts);
-                    
-                    // 如果是新添加的帖子（在列表顶部），滚动到顶部
-                    if (!posts.isEmpty()) {
-                        fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
-                    }
+                    // 更新适配器的数据，使用带回调的重载方法
+                    socialSquarePostAdapter.submitList(posts, new Runnable() {
+                        @Override
+                        public void run() {
+                            // 在列表更新完成后，滚动到顶部
+                            if (!posts.isEmpty()) {
+                                fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
+                            }
+                        }
+                    });
                 }
             }
         });

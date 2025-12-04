@@ -329,11 +329,13 @@ public class UserPersonaPostRepository {
 
         // 将新帖子添加到历史帖子列表
         List<Post> historyPosts = userPostsLiveData.getValue();
-        if (historyPosts == null) {
-            historyPosts = new ArrayList<>();
+        // 创建新的列表对象，避免直接修改原列表
+        List<Post> newPostsList = new ArrayList<>();
+        if (historyPosts != null) {
+            newPostsList.addAll(historyPosts);
         }
-        historyPosts.add(0, newPost); // 添加到列表顶部
-        userPostsLiveData.postValue(historyPosts);
+        newPostsList.add(0, newPost); // 添加到列表顶部
+        userPostsLiveData.postValue(newPostsList);
         callback.onSuccess(newPost);
     }
 }
