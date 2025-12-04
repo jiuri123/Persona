@@ -1,15 +1,15 @@
-package com.example.demo.repository;
+package com.example.demo.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
-import com.example.demo.network.ApiClient;
-import com.example.demo.network.ApiService;
-import com.example.demo.network.ChatRequestMessage;
-import com.example.demo.network.ChatRequest;
-import com.example.demo.network.ChatResponse;
+import com.example.demo.data.remote.ApiClient;
+import com.example.demo.data.remote.ApiService;
+import com.example.demo.data.remote.model.ChatRequestMessage;
+import com.example.demo.data.remote.model.ChatRequest;
+import com.example.demo.data.remote.model.ChatResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;

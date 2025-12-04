@@ -8,8 +8,8 @@ import androidx.lifecycle.MediatorLiveData;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
-import com.example.demo.repository.UserPersonaChatRepository;
-import com.example.demo.repository.UserPersonaRepository;
+import com.example.demo.data.repository.UserPersonaChatRepository;
+import com.example.demo.data.repository.UserPersonaRepository;
 
 import java.util.List;
 

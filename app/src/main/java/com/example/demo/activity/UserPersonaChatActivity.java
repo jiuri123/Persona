@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.example.demo.adapter.PersonaChatAdapter;
 import com.example.demo.databinding.ActivityChatBinding;
 import com.example.demo.model.Persona;
-import com.example.demo.repository.UserPersonaChatRepository;
 import com.example.demo.viewmodel.UserPersonaViewModel;
 
 /**

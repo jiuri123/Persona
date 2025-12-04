@@ -1,4 +1,7 @@
-package com.example.demo.network;
+package com.example.demo.data.remote;
+
+import com.example.demo.data.remote.model.ChatRequest;
+import com.example.demo.data.remote.model.ChatResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

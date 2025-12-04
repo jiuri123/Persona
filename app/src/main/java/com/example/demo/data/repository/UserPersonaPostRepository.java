@@ -1,15 +1,15 @@
-package com.example.demo.repository;
+package com.example.demo.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
-import com.example.demo.network.ApiClient;
-import com.example.demo.network.ApiService;
-import com.example.demo.network.ChatRequestMessage;
-import com.example.demo.network.ChatRequest;
-import com.example.demo.network.ChatResponse;
+import com.example.demo.data.remote.ApiClient;
+import com.example.demo.data.remote.ApiService;
+import com.example.demo.data.remote.model.ChatRequestMessage;
+import com.example.demo.data.remote.model.ChatRequest;
+import com.example.demo.data.remote.model.ChatResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,7 +83,6 @@ public class UserPersonaPostRepository {
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<List<Post>> userPostsLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
     /**
      * 私有构造函数
@@ -149,7 +148,7 @@ public class UserPersonaPostRepository {
      * 获取我的历史帖子LiveData
      * @return 我的帖子列表的LiveData对象
      */
-    public LiveData<List<Post>> getMyPostsLiveData() {
+    public LiveData<List<Post>> getUserPostsLiveData() {
         return userPostsLiveData;
     }
 

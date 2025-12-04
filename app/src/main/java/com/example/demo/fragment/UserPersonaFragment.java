@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.demo.activity.UserPersonaCreatingActivity;
+import com.example.demo.activity.UserPersonaCreateActivity;
 import com.example.demo.viewmodel.UserPersonaViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.FragmentMyPersonaBinding;
@@ -87,13 +87,13 @@ public class UserPersonaFragment extends Fragment {
 
         // 设置创建Persona按钮的点击事件
         fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), UserPersonaCreatingActivity.class);
+            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
             startActivity(intent);
         });
 
         // 设置底部创建按钮的点击事件
         fragmentMyPersonaBinding.fabCreatePersona.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), UserPersonaCreatingActivity.class);
+            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
             startActivity(intent);
         });
 

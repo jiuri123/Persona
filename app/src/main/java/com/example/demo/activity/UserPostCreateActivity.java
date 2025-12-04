@@ -17,8 +17,6 @@ import com.example.demo.model.Persona;
 import com.example.demo.viewmodel.UserPostCreateViewModel;
 import com.example.demo.viewmodel.UserPersonaViewModel;
 
-import java.util.List;
-
 /**
  * 发布动态编辑页面
  * 允许用户手动输入或使用AI生成/扩展动态内容
@@ -136,7 +134,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
                 Toast.makeText(this, "请先选择一个Persona", Toast.LENGTH_SHORT).show();
                 return;
             }
-            userPostCreateViewModel.publishPost(content, selectedPersona);
+            userPostCreateViewModel.publishPost(selectedPersona, content);
         });
     }
 

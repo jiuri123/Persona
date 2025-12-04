@@ -21,9 +21,9 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 
-import com.example.demo.viewmodel.UserPersonaCreatingViewModel;
+import com.example.demo.viewmodel.UserPersonaCreateViewModel;
 import com.example.demo.model.Persona;
-import com.example.demo.repository.UserPersonaRepository;
+import com.example.demo.data.repository.UserPersonaRepository;
 import com.example.demo.R;
 import com.example.demo.databinding.ActivityCreatePersonaBinding;
 
@@ -34,12 +34,12 @@ import androidx.lifecycle.ViewModelProvider;
  * 创建Persona的活动界面
  * 允许用户手动输入或使用AI生成Persona的名称和背景故事
  */
-public class UserPersonaCreatingActivity extends AppCompatActivity {
+public class UserPersonaCreateActivity extends AppCompatActivity {
 
     // 视图绑定，用于访问布局中的组件
     private ActivityCreatePersonaBinding activityCreatePersonaBinding;
     // ViewModel，处理AI生成Persona的业务逻辑
-    private UserPersonaCreatingViewModel userPersonaCreatingViewModel;
+    private UserPersonaCreateViewModel userPersonaCreateViewModel;
     
     // 选中的头像URI
     private Uri selectedAvatarUri;
@@ -52,10 +52,10 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         setContentView(activityCreatePersonaBinding.getRoot());
 
         // 获取ViewModel实例，ViewModel在配置变更时不会被销毁
-        userPersonaCreatingViewModel = new ViewModelProvider(this).get(UserPersonaCreatingViewModel.class);
+        userPersonaCreateViewModel = new ViewModelProvider(this).get(UserPersonaCreateViewModel.class);
 
         // 清除上一次生成的Persona对象
-        userPersonaCreatingViewModel.clearGeneratedPersona();
+        userPersonaCreateViewModel.clearGeneratedPersona();
         
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
@@ -86,7 +86,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 调用ViewModel的方法生成Persona详情
-                userPersonaCreatingViewModel.generatePersonaDetails();
+                userPersonaCreateViewModel.generatePersonaDetails();
             }
         });
         
@@ -161,10 +161,10 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
             public void onPersonaLoaded(Persona persona) {
                 runOnUiThread(() -> {
                     if (persona != null) {
-                        Toast.makeText(UserPersonaCreatingActivity.this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UserPersonaCreateActivity.this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
                     } else {
                         // 调用ViewModel的方法创建并保存Persona对象
-                        userPersonaCreatingViewModel.createPersonaAndSave(
+                        userPersonaCreateViewModel.createPersonaAndSave(
                                 myPersonaName,
                                 avatarId,
                                 avatarUriString,
@@ -293,7 +293,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
      */
     private void setupObservers() {
         // 监听加载状态，更新UI显示
-        userPersonaCreatingViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
+        userPersonaCreateViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean isLoading) {
                 if (isLoading) {
@@ -309,7 +309,7 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         });
 
         // 监听生成的Persona对象，更新所有编辑框
-        userPersonaCreatingViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
+        userPersonaCreateViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
             @Override
             public void onChanged(Persona generatedPersona) {
                 if (generatedPersona != null) {
@@ -326,11 +326,11 @@ public class UserPersonaCreatingActivity extends AppCompatActivity {
         });
 
         // 监听错误信息，显示Toast提示
-        userPersonaCreatingViewModel.getError().observe(this, new Observer<String>() {
+        userPersonaCreateViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
                 if (error != null && !error.isEmpty()) {
-                    Toast.makeText(UserPersonaCreatingActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserPersonaCreateActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
                 }
             }
         });

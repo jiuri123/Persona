@@ -1,4 +1,4 @@
-package com.example.demo.repository;
+package com.example.demo.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

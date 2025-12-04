@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.data.local;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -6,6 +6,8 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+
+import com.example.demo.model.Persona;
 
 import java.util.List;
 

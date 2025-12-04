@@ -1,12 +1,10 @@
-package com.example.demo.repository;
+package com.example.demo.data.local;
 
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.demo.model.AppDatabase;
 import com.example.demo.model.Persona;
-import com.example.demo.model.PersonaDao;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

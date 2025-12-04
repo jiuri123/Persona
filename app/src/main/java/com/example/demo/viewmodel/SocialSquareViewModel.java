@@ -5,15 +5,14 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
-import com.example.demo.repository.OtherPersonaPostRepository;
-import com.example.demo.repository.UserFollowedListRepository;
-import com.example.demo.repository.UserPersonaPostRepository;
-import com.example.demo.repository.UserPersonaRepository;
+import com.example.demo.data.repository.OtherPersonaPostRepository;
+import com.example.demo.data.repository.UserFollowedListRepository;
+import com.example.demo.data.repository.UserPersonaPostRepository;
+import com.example.demo.data.repository.UserPersonaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,11 @@ public class SocialSquareViewModel extends AndroidViewModel {
 
     // 检查用户是否创建了Persona
     private final LiveData<Boolean> hasUserPersona;
-    
+
+    // 用户Persona帖子列表
+    List<Post> userPersonaPosts;
+    // 其他Persona帖子列表
+    List<Post> otherPersonaPosts;
     // 合并后的帖子列表LiveData
     private final MediatorLiveData<List<Post>> mergedPostsLiveData = new MediatorLiveData<>();
     
@@ -74,31 +77,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
         
         // 初始化合并帖子列表
         mergePosts();
-    }
-
-
-
-    /**
-     * 合并帖子列表
-     * 将用户的帖子和其他Persona的帖子合并，用户的帖子显示在前面
-     */
-    private void mergePosts() {
-        List<Post> mergedPosts = new ArrayList<>();
-        
-        // 获取用户的帖子
-        List<Post> myPosts = userPersonaPostRepository.getMyPostsLiveData().getValue();
-        if (myPosts != null) {
-            mergedPosts.addAll(myPosts);
-        }
-        
-        // 获取其他Persona的帖子
-        List<Post> otherPosts = otherPersonaPostRepository.getSocialPosts().getValue();
-        if (otherPosts != null) {
-            mergedPosts.addAll(otherPosts);
-        }
-        
-        // 更新合并后的帖子列表
-        mergedPostsLiveData.setValue(mergedPosts);
     }
 
     /**
@@ -151,24 +129,36 @@ public class SocialSquareViewModel extends AndroidViewModel {
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
         
         // 观察用户Persona帖子变化，用于合并帖子
-        mergedPostsLiveData.addSource(userPersonaPostRepository.getMyPostsLiveData(), posts -> {
+        mergedPostsLiveData.addSource(userPersonaPostRepository.getUserPostsLiveData(), posts -> {
+            userPersonaPosts = posts;
             mergePosts();
         });
         
         // 观察其他Persona帖子变化，用于合并帖子
         mergedPostsLiveData.addSource(otherPersonaPostRepository.getSocialPosts(), posts -> {
+            otherPersonaPosts = posts;
             mergePosts();
         });
     }
-    
-    /**
-     * 获取用户Persona列表LiveData
-     * @return 用户Persona列表LiveData
-     */
-    public LiveData<List<Persona>> getUserPersonasLiveData() {
-        return userPersonasLiveData;
-    }
 
+    /**
+     * 合并帖子列表
+     * 将用户的帖子和其他Persona的帖子合并，用户的帖子显示在前面
+     */
+    private void mergePosts() {
+        List<Post> mergedPosts = new ArrayList<>();
+
+        if (userPersonaPosts != null) {
+            mergedPosts.addAll(userPersonaPosts);
+        }
+
+        if (otherPersonaPosts != null) {
+            mergedPosts.addAll(otherPersonaPosts);
+        }
+
+        // 更新合并后的帖子列表
+        mergedPostsLiveData.setValue(mergedPosts);
+    }
 
     /**
      * 6. 暴露这个新的、加工后的 "状态" LiveData 给 View

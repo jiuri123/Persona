@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    tools:context=".activity.UserPersonaCreatingActivity">
+    tools:context=".activity.UserPersonaCreateActivity">
 
     <Button
         android:id="@+id/btnBack"

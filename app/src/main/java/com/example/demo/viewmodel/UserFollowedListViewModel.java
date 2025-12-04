@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.Persona;
-import com.example.demo.repository.UserFollowedListRepository;
+import com.example.demo.data.repository.UserFollowedListRepository;
 
 import java.util.List;
 

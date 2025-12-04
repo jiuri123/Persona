@@ -1,4 +1,4 @@
-package com.example.demo.network;
+package com.example.demo.data.remote;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

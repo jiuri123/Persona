@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
-import com.example.demo.repository.UserPersonaPostRepository;
-import com.example.demo.repository.UserPersonaRepository;
+import com.example.demo.data.repository.UserPersonaPostRepository;
+import com.example.demo.data.repository.UserPersonaRepository;
 
 /**
  * 发布动态编辑页面的ViewModel
@@ -39,45 +39,6 @@ public class UserPostCreateViewModel extends AndroidViewModel {
         super(application);
         this.userPersonaRepository = UserPersonaRepository.getInstance(application);
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
-    }
-
-    /**
-     * 获取加载状态LiveData
-     * @return 加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsLoading() {
-        return isLoadingLiveData;
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息的LiveData对象
-     */
-    public LiveData<String> getError() {
-        return errorLiveData;
-    }
-
-    /**
-     * 获取AI生成/扩展的内容LiveData
-     * @return 生成内容的LiveData对象
-     */
-    public LiveData<String> getGeneratedContent() {
-        return generatedContentLiveData;
-    }
-
-    /**
-     * 获取发布状态LiveData
-     * @return 发布状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsPublished() {
-        return isPublishedLiveData;
-    }
-
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        errorLiveData.setValue(null);
     }
 
     /**
@@ -160,7 +121,7 @@ public class UserPostCreateViewModel extends AndroidViewModel {
      * @param content 要发布的动态内容
      * @param persona 发布动态的Persona
      */
-    public void publishPost(String content, Persona persona) {
+    public void publishPost(Persona persona, String content) {
         // 检查Persona是否为空
         if (persona == null) {
             errorLiveData.setValue("请先选择一个Persona~");
@@ -191,4 +152,45 @@ public class UserPostCreateViewModel extends AndroidViewModel {
                 }
         );
     }
+
+    /**
+     * 获取加载状态LiveData
+     * @return 加载状态的LiveData对象
+     */
+    public LiveData<Boolean> getIsLoading() {
+        return isLoadingLiveData;
+    }
+
+    /**
+     * 获取错误信息LiveData
+     * @return 错误信息的LiveData对象
+     */
+    public LiveData<String> getError() {
+        return errorLiveData;
+    }
+
+    /**
+     * 获取AI生成/扩展的内容LiveData
+     * @return 生成内容的LiveData对象
+     */
+    public LiveData<String> getGeneratedContent() {
+        return generatedContentLiveData;
+    }
+
+    /**
+     * 获取发布状态LiveData
+     * @return 发布状态的LiveData对象
+     */
+    public LiveData<Boolean> getIsPublished() {
+        return isPublishedLiveData;
+    }
+
+    /**
+     * 清除错误信息
+     */
+    public void clearError() {
+        errorLiveData.setValue(null);
+    }
+
+
 }

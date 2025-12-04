@@ -24,7 +24,7 @@
             android:name=".activity.UserPersonaChatActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.UserPersonaCreatingActivity"
+            android:name=".activity.UserPersonaCreateActivity"
             android:exported="false" />
         <activity
             android:name=".activity.UserPostCreateActivity"

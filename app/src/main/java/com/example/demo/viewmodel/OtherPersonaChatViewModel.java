@@ -6,9 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
-import com.example.demo.repository.OtherPersonaChatRepository;
-import com.example.demo.repository.UserPersonaChatRepository;
-import com.example.demo.repository.UserPersonaRepository;
+import com.example.demo.data.repository.OtherPersonaChatRepository;
 
 import java.util.List;
 

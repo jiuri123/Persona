@@ -17,7 +17,6 @@ import androidx.lifecycle.Observer;
 
 
 import com.example.demo.activity.UserPostCreateActivity;
-import com.example.demo.activity.UserPersonaCreatingActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.adapter.SocialSquarePostAdapter;
