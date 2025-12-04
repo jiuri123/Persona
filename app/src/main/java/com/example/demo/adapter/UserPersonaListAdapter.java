@@ -3,7 +3,6 @@ package com.example.demo.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +12,8 @@ import android.widget.PopupMenu;
 import android.app.AlertDialog;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -21,21 +22,36 @@ import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 import com.example.demo.activity.UserPersonaChatActivity;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
  * 用户Persona适配器
  * 用于在RecyclerView中显示用户创建的Persona列表
  * 实现了点击Persona项跳转到聊天界面的功能
  */
-public class UserPersonaListAdapter extends RecyclerView.Adapter<UserPersonaListAdapter.UserPersonaViewHolder> {
+public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaListAdapter.UserPersonaViewHolder> {
 
-    // 用户创建的Persona数据列表
-    private List<Persona> userPersonaList;
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 删除Persona的回调接口
     private OnPersonaDeleteListener onPersonaDeleteListener;
+
+    /**
+     * DiffUtil.ItemCallback实现，用于比较Persona对象
+     */
+    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+        @Override
+        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 使用id判断是否为同一对象
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 使用Objects.equals比较所有内容是否一致
+            return Objects.equals(oldItem, newItem);
+        }
+    }
 
     /**
      * 删除Persona的回调接口
@@ -47,11 +63,10 @@ public class UserPersonaListAdapter extends RecyclerView.Adapter<UserPersonaList
     /**
      * 构造函数
      * @param context 上下文
-     * @param userPersonaList 用户创建的Persona数据列表
      */
-    public UserPersonaListAdapter(Context context, List<Persona> userPersonaList) {
+    public UserPersonaListAdapter(Context context) {
+        super(new PersonaDiffCallback());
         this.context = context;
-        this.userPersonaList = userPersonaList;
     }
 
     /**
@@ -86,26 +101,9 @@ public class UserPersonaListAdapter extends RecyclerView.Adapter<UserPersonaList
      */
     @Override
     public void onBindViewHolder(@NonNull UserPersonaViewHolder holder, int position) {
-        Persona persona = userPersonaList.get(position);
+        // 使用getItem获取当前位置的数据
+        Persona persona = getItem(position);
         holder.bind(persona);
-    }
-
-    /**
-     * 获取列表项总数
-     * @return 列表项数量
-     */
-    @Override
-    public int getItemCount() {
-        return userPersonaList != null ? userPersonaList.size() : 0;
-    }
-
-    /**
-     * 更新数据列表
-     * @param newPersonaList 新的Persona列表
-     */
-    public void updateData(List<Persona> newPersonaList) {
-        this.userPersonaList = newPersonaList;
-        notifyDataSetChanged();
     }
 
     /**

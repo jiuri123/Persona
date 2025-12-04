@@ -63,7 +63,7 @@ public class UserPersonaFragment extends Fragment {
         userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
 
         // 初始化Persona列表适配器
-        userPersonaListAdapter = new UserPersonaListAdapter(requireContext(), userPersonaViewModel.getUserPersonas().getValue());
+        userPersonaListAdapter = new UserPersonaListAdapter(requireContext());
         // 设置删除Persona的回调接口
         userPersonaListAdapter.setOnPersonaDeleteListener(new UserPersonaListAdapter.OnPersonaDeleteListener() {
             @Override
@@ -79,7 +79,7 @@ public class UserPersonaFragment extends Fragment {
             @Override
             public void onChanged(List<Persona> personas) {
                 // 更新适配器数据
-                userPersonaListAdapter.updateData(personas);
+                userPersonaListAdapter.submitList(personas);
                 // 更新UI显示
                 setupUI(personas);
             }
@@ -97,6 +97,8 @@ public class UserPersonaFragment extends Fragment {
             startActivity(intent);
         });
 
+        // 提交初始数据
+        userPersonaListAdapter.submitList(userPersonaViewModel.getUserPersonas().getValue());
         // 设置初始UI
         setupUI(userPersonaViewModel.getUserPersonas().getValue());
     }
