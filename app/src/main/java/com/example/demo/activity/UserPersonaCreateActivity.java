@@ -72,12 +72,11 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
             }
         });
 
-        // 创建按钮点击事件
-        activityCreatePersonaBinding.btnCreate.setOnClickListener(new View.OnClickListener() {
+        // 头像点击事件，弹出底部菜单
+        activityCreatePersonaBinding.ivAvatarPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 创建Persona并返回结果
-                createPersonaAndSave();
+                showAvatarOptionsMenu(v);
             }
         });
 
@@ -89,12 +88,13 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
                 userPersonaCreateViewModel.generatePersonaDetails();
             }
         });
-        
-        // 头像点击事件，弹出底部菜单
-        activityCreatePersonaBinding.ivAvatarPreview.setOnClickListener(new View.OnClickListener() {
+
+        // 创建按钮点击事件
+        activityCreatePersonaBinding.btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAvatarOptionsMenu(v);
+                // 创建Persona并返回结果
+                createPersonaAndSave();
             }
         });
     }

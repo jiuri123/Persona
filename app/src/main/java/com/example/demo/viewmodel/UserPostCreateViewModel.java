@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.data.repository.UserPersonaPostRepository;
-import com.example.demo.data.repository.UserPersonaRepository;
 
 /**
  * 发布动态编辑页面的ViewModel
@@ -17,9 +16,6 @@ import com.example.demo.data.repository.UserPersonaRepository;
  * 包括AI扩展、AI生成和发布动态功能
  */
 public class UserPostCreateViewModel extends AndroidViewModel {
-
-    // 用户Persona仓库，用于获取当前用户的Persona
-    private final UserPersonaRepository userPersonaRepository;
 
     // 用户Persona帖子仓库，用于处理AI生成、扩展和发布帖子
     private final UserPersonaPostRepository userPersonaPostRepository;
@@ -37,7 +33,6 @@ public class UserPostCreateViewModel extends AndroidViewModel {
      */
     public UserPostCreateViewModel(Application application) {
         super(application);
-        this.userPersonaRepository = UserPersonaRepository.getInstance(application);
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
     }
 
@@ -191,6 +186,4 @@ public class UserPostCreateViewModel extends AndroidViewModel {
     public void clearError() {
         errorLiveData.setValue(null);
     }
-
-
 }

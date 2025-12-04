@@ -2,6 +2,7 @@ package com.example.demo.data.repository;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -38,9 +40,6 @@ public class UserPersonaRepository {
 
     // 单例实例
     private static UserPersonaRepository instance;
-
-    // 上下文
-    private static Context appContext;
 
     // API密钥和模型名称从BuildConfig获取
     // BuildConfig中的值从gradle.properties注入
@@ -99,7 +98,8 @@ public class UserPersonaRepository {
     public static synchronized UserPersonaRepository getInstance(Context context) {
         if (instance == null) {
             // 保存上下文
-            appContext = context.getApplicationContext();
+            // 上下文
+            Context appContext = context.getApplicationContext();
             instance = new UserPersonaRepository(appContext);
         }
         return instance;
@@ -203,7 +203,7 @@ public class UserPersonaRepository {
         // 异步调用API
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+            public void onResponse(@NonNull Call<ChatResponse> call, @NonNull Response<ChatResponse> response) {
                 // 请求完成，设置加载状态为false
                 isLoadingLiveData.postValue(false);
 
@@ -277,7 +277,7 @@ public class UserPersonaRepository {
         
         // 添加到集合和列表
         personaNameSet.add(personaName);
-        List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
+        List<Persona> currentList = new ArrayList<>(Objects.requireNonNull(userPersonasLiveData.getValue()));
         currentList.add(persona);
         userPersonasLiveData.setValue(currentList);
         
@@ -306,7 +306,7 @@ public class UserPersonaRepository {
         
         // 从集合和列表中移除
         personaNameSet.remove(personaName);
-        List<Persona> currentList = new ArrayList<>(userPersonasLiveData.getValue());
+        List<Persona> currentList = new ArrayList<>(Objects.requireNonNull(userPersonasLiveData.getValue()));
         currentList.removeIf(p -> p.getName().equals(personaName));
         userPersonasLiveData.setValue(currentList);
         
