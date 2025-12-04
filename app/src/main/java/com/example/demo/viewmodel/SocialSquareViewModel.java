@@ -46,6 +46,9 @@ public class SocialSquareViewModel extends AndroidViewModel {
     List<Post> otherPersonaPosts;
     // 已关注的Persona列表
     List<Persona> followedPersonas;
+    // 【新增】用于 O(1) 快速查找的集合缓存
+    private final java.util.Set<Long> followedPersonaIds = new java.util.HashSet<>();
+    private final java.util.Set<String> followedPersonaNames = new java.util.HashSet<>();
     // 合并后的帖子UI列表LiveData
     private final MediatorLiveData<List<PostUiItem>> mergedPostsLiveData = new MediatorLiveData<>();
     
@@ -79,7 +82,7 @@ public class SocialSquareViewModel extends AndroidViewModel {
         setupMediatorLiveData();
         
         // 初始化合并帖子列表
-        mergePosts();
+        // mergePosts();
     }
 
     /**
@@ -90,6 +93,25 @@ public class SocialSquareViewModel extends AndroidViewModel {
         followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), personas -> {
             followedPersonasLiveData.setValue(personas);
             followedPersonas = personas;
+
+            // 【新增代码块开始】------------------------
+            // 每次列表更新，立刻刷新 Set 缓存
+            followedPersonaIds.clear();
+            followedPersonaNames.clear();
+            
+            // 关键修复：先判断 null，防止崩溃！
+            if (personas != null) {
+                for (Persona p : personas) {
+                    if (p.getId() != 0) {
+                        followedPersonaIds.add(p.getId());
+                    }
+                    if (p.getName() != null) {
+                        followedPersonaNames.add(p.getName());
+                    }
+                }
+            }
+            // 【新增代码块结束】------------------------
+
             mergePosts();
         });
 
@@ -146,25 +168,25 @@ public class SocialSquareViewModel extends AndroidViewModel {
     }
 
     /**
-     * 检查指定Persona是否已被关注
-     * @param persona 要检查的Persona
-     * @return 是否已关注
+     * 检查指定Persona是否已被关注 (优化版)
+     * 时间复杂度从 O(M) 降低为 O(1)
      */
     public boolean isFollowedPersona(Persona persona) {
-        if (followedPersonas == null || persona == null) {
+        // 1. 基础防空检查
+        if (persona == null) {
             return false;
         }
-        for (Persona followedPersona : followedPersonas) {
-            // 先比较id字段，如果id不为0且相等，则返回true
-            if (followedPersona.getId() != 0 && persona.getId() != 0 && followedPersona.getId() == persona.getId()) {
-                return true;
-            }
-            // 如果id为0或不相等，则比较name字段
-            if (followedPersona.getName() != null && persona.getName() != null && 
-                followedPersona.getName().equals(persona.getName())) {
-                return true;
-            }
+
+        // 2. 优先比对 ID (最准)
+        if (persona.getId() != 0 && followedPersonaIds.contains(persona.getId())) {
+            return true;
         }
+
+        // 3. 兜底比对 Name (兼容 ID 为 0 的情况)
+        if (persona.getName() != null && followedPersonaNames.contains(persona.getName())) {
+            return true;
+        }
+
         return false;
     }
 

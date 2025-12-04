@@ -38,7 +38,7 @@ import java.util.Objects;
  */
 public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquarePostAdapter.PostViewHolder> {
     // 上下文，用于启动Activity和加载资源
-    private Context context;
+    private final Context context;
     // 用户关注其他persona操作的回调接口
     private OnFollowClickListener onFollowClickListener;
 

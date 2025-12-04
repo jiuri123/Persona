@@ -127,15 +127,6 @@ public class UserPersonaViewModel extends AndroidViewModel {
         return userPersonaRepository.removeUserPersona(persona);
     }
     
-    /**
-     * 根据名称获取用户Persona
-     * @param name Persona的名称
-     * @param callback 回调接口，用于返回查询结果
-     */
-    public void getUserPersonaByName(String name, UserPersonaRepository.GetPersonaCallback callback) {
-        userPersonaRepository.getUserPersonaByName(name, callback);
-    }
-    
     // ========== 聊天相关方法 ==========
     
     /**

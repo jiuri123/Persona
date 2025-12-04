@@ -32,7 +32,7 @@ import java.util.Objects;
 public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaListAdapter.UserPersonaViewHolder> {
 
     // 上下文，用于启动Activity和加载资源
-    private Context context;
+    private final Context context;
     // 删除Persona的回调接口
     private OnPersonaDeleteListener onPersonaDeleteListener;
 
