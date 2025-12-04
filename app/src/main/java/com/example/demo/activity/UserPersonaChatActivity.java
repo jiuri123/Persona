@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.example.demo.adapter.PersonaChatAdapter;
 import com.example.demo.databinding.ActivityChatBinding;
 import com.example.demo.model.Persona;
-import com.example.demo.viewmodel.UserPersonaViewModel;
+import com.example.demo.viewmodel.UserPersonaChatViewModel;
 
 /**
  * 用户自己创建的Persona聊天界面
@@ -29,7 +29,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
     private Persona personaToChat;
     
     // 我的Persona和聊天ViewModel
-    private UserPersonaViewModel userPersonaViewModel;
+    private UserPersonaChatViewModel userPersonaViewModel;
     
     // 用于传递Persona对象的Intent键
     public static final String EXTRA_PERSONA = "extra_persona";
@@ -56,7 +56,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         setupToolbar();
 
         // 初始化ViewModel
-        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaViewModel.class);
+        userPersonaViewModel = new ViewModelProvider(this).get(UserPersonaChatViewModel.class);
         
         // 设置当前聊天的Persona
         userPersonaViewModel.setCurrentPersona(personaToChat);
