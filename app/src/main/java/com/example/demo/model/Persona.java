@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 /**
  * Persona数据模型类
  * 表示应用中的虚拟角色/人格
@@ -145,6 +147,37 @@ public class Persona implements Parcelable {
 
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    /**
+     * 重写equals方法，比较两个Persona对象是否相等
+     * @param o 要比较的对象
+     * @return 如果相等返回true，否则返回false
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Persona persona = (Persona) o;
+        return id == persona.id &&
+                avatarDrawableId == persona.avatarDrawableId &&
+                age == persona.age &&
+                name.equals(persona.name) &&
+                gender.equals(persona.gender) &&
+                Objects.equals(avatarUri, persona.avatarUri) &&
+                Objects.equals(backgroundStory, persona.backgroundStory) &&
+                Objects.equals(personality, persona.personality) &&
+                Objects.equals(relationship, persona.relationship) &&
+                Objects.equals(signature, persona.signature);
+    }
+
+    /**
+     * 重写hashCode方法，生成对象的哈希值
+     * @return 对象的哈希值
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, avatarDrawableId, avatarUri, backgroundStory, gender, age, personality, relationship, signature);
     }
 
     /**

@@ -106,7 +106,7 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
             public void onChanged(List<Persona> personas) {
                 if (personas != null) {
                     // 更新适配器的数据
-                    userFollowedListAdapter.setFollowedPersonaList(personas);
+                    userFollowedListAdapter.submitList(personas);
                     
                     // 根据数据是否为空显示不同的UI状态
                     if (personas.isEmpty()) {

@@ -72,11 +72,13 @@ public class UserFollowedListRepository {
         // 添加到集合和列表
         followedPersonaNames.add(personaName);
         List<Persona> currentList = followedPersonasLiveData.getValue();
-        if (currentList == null) {
-            currentList = new ArrayList<>();
+        // 创建新列表，复制当前列表内容
+        List<Persona> newList = new ArrayList<>();
+        if (currentList != null) {
+            newList.addAll(currentList);
         }
-        currentList.add(persona);
-        followedPersonasLiveData.setValue(currentList);
+        newList.add(persona);
+        followedPersonasLiveData.setValue(newList);
         
         return true;
     }
@@ -101,15 +103,19 @@ public class UserFollowedListRepository {
         // 从集合和列表中移除
         followedPersonaNames.remove(personaName);
         List<Persona> currentList = followedPersonasLiveData.getValue();
+        // 创建新列表，复制当前列表内容
+        List<Persona> newList = new ArrayList<>();
         if (currentList != null) {
-            for (int i = 0; i < currentList.size(); i++) {
-                if (currentList.get(i).getName().equals(personaName)) {
-                    currentList.remove(i);
-                    followedPersonasLiveData.setValue(currentList);
+            newList.addAll(currentList);
+            // 遍历新列表，移除对应的Persona
+            for (int i = 0; i < newList.size(); i++) {
+                if (newList.get(i).getName().equals(personaName)) {
+                    newList.remove(i);
                     break;
                 }
             }
         }
+        followedPersonasLiveData.setValue(newList);
         
         return true;
     }

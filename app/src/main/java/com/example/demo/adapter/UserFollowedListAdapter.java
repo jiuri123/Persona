@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -20,31 +22,35 @@ import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 import com.example.demo.activity.OtherPersonaChatActivity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * 已关注Persona适配器
  * 用于在RecyclerView中显示用户已关注的Persona列表
  * 实现了点击Persona项或头像跳转到聊天界面的功能
  */
-public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedListAdapter.FollowedPersonaViewHolder> {
+public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedListAdapter.FollowedPersonaViewHolder> {
 
-    // 已关注的Persona数据列表
-    private List<Persona> followedPersonaList = new ArrayList<>();
     // 上下文，用于启动Activity和加载资源
     private Context context;
     // 取消关注操作的回调接口
     private OnUnfollowClickListener onUnfollowClickListener;
 
     /**
-     * 设置已关注的Persona数据列表
-     * @param personas 已关注的Persona数据列表
+     * DiffUtil.ItemCallback实现，用于比较Persona对象
      */
-    public void setFollowedPersonaList(List<Persona> personas) {
-        followedPersonaList.clear();
-        followedPersonaList.addAll(personas);
-        notifyDataSetChanged();
+    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+        @Override
+        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 使用id判断是否为同一对象
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 使用Objects.equals比较所有内容是否一致
+            return Objects.equals(oldItem, newItem);
+        }
     }
 
     /**
@@ -59,6 +65,7 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
      * @param context 上下文
      */
     public UserFollowedListAdapter(Context context) {
+        super(new PersonaDiffCallback());
         this.context = context;
     }
 
@@ -94,17 +101,9 @@ public class UserFollowedListAdapter extends RecyclerView.Adapter<UserFollowedLi
      */
     @Override
     public void onBindViewHolder(@NonNull FollowedPersonaViewHolder holder, int position) {
-        Persona persona = followedPersonaList.get(position);
+        // 使用getItem获取当前位置的数据
+        Persona persona = getItem(position);
         holder.bind(persona);
-    }
-
-    /**
-     * 获取列表项总数
-     * @return 列表项数量
-     */
-    @Override
-    public int getItemCount() {
-        return followedPersonaList != null ? followedPersonaList.size() : 0;
     }
 
     /**
