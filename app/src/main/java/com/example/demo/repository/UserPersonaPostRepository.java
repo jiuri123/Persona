@@ -146,42 +146,11 @@ public class UserPersonaPostRepository {
     }
 
     /**
-     * 获取加载状态LiveData
-     * @return 加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsLoading() {
-        return isLoadingLiveData;
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息的LiveData对象
-     */
-    public LiveData<String> getError() {
-        return errorLiveData;
-    }
-
-    /**
      * 获取我的历史帖子LiveData
      * @return 我的帖子列表的LiveData对象
      */
     public LiveData<List<Post>> getMyPostsLiveData() {
         return userPostsLiveData;
-    }
-
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        errorLiveData.setValue(null);
-    }
-
-    /**
-     * 设置错误信息
-     * @param error 错误信息
-     */
-    public void setError(String error) {
-        errorLiveData.setValue(error);
     }
 
     /**
@@ -197,9 +166,6 @@ public class UserPersonaPostRepository {
             callback.onError("正在处理请求，请稍后再试");
             return;
         }
-        
-        // 设置加载状态为true
-        isLoadingLiveData.setValue(true);
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
@@ -235,8 +201,6 @@ public class UserPersonaPostRepository {
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
-                // 请求完成，设置加载状态为false
-                isLoadingLiveData.postValue(false);
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -263,8 +227,6 @@ public class UserPersonaPostRepository {
 
             @Override
             public void onFailure(Call<ChatResponse> call, Throwable t) {
-                // 请求失败，设置加载状态为false
-                isLoadingLiveData.postValue(false);
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }
@@ -283,9 +245,6 @@ public class UserPersonaPostRepository {
             callback.onError("正在处理请求，请稍后再试");
             return;
         }
-        
-        // 设置加载状态为true
-        isLoadingLiveData.setValue(true);
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
@@ -320,8 +279,6 @@ public class UserPersonaPostRepository {
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
-                // 请求完成，设置加载状态为false
-                isLoadingLiveData.postValue(false);
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -348,8 +305,6 @@ public class UserPersonaPostRepository {
 
             @Override
             public void onFailure(Call<ChatResponse> call, Throwable t) {
-                // 请求失败，设置加载状态为false
-                isLoadingLiveData.postValue(false);
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }

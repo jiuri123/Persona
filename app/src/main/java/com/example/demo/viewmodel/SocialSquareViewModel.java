@@ -43,12 +43,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
     // 合并后的帖子列表LiveData
     private final MediatorLiveData<List<Post>> mergedPostsLiveData = new MediatorLiveData<>();
     
-    // 加载状态LiveData
-    private final MediatorLiveData<Boolean> isLoadingLiveData = new MediatorLiveData<>();
-    
-    // 错误信息LiveData
-    private final MediatorLiveData<String> errorLiveData = new MediatorLiveData<>();
-    
     // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
     private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
     
@@ -116,24 +110,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
     }
 
     /**
-     * 获取加载状态LiveData
-     * @return 加载状态LiveData
-     */
-    public LiveData<Boolean> getIsLoadingLiveData() {
-        return isLoadingLiveData;
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息LiveData
-     */
-    public LiveData<String> getErrorLiveData() {
-        return errorLiveData;
-    }
-
-
-
-    /**
      * 处理关注/取消关注操作
      * @param persona 要关注/取消关注的Persona
      */
@@ -183,19 +159,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
         mergedPostsLiveData.addSource(otherPersonaPostRepository.getSocialPosts(), posts -> {
             mergePosts();
         });
-        
-        // 观察用户Persona帖子加载状态
-        isLoadingLiveData.addSource(userPersonaPostRepository.getIsLoading(), isLoadingLiveData::setValue);
-        
-        // 观察用户Persona帖子错误信息
-        errorLiveData.addSource(userPersonaPostRepository.getError(), errorLiveData::setValue);
-    }
-    
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        userPersonaPostRepository.clearError();
     }
     
     /**

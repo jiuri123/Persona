@@ -63,17 +63,6 @@ public class SocialSquareFragment extends Fragment {
 
         // 获取与Activity关联的SocialSquareViewModel实例
         socialSquareViewModel = new ViewModelProvider(requireActivity()).get(SocialSquareViewModel.class);
-
-        // 观察错误信息，当有错误时显示Toast
-        socialSquareViewModel.getErrorLiveData().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String error) {
-                if (error != null && !error.isEmpty()) {
-                    Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-                    socialSquareViewModel.clearError(); // 清除错误信息
-                }
-            }
-        });
     }
 
     /**
@@ -158,15 +147,6 @@ public class SocialSquareFragment extends Fragment {
                         fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
                     }
                 }
-            }
-        });
-
-        // 观察加载状态变化
-        socialSquareViewModel.getIsLoadingLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLoading) {
-                // 加载时禁用添加按钮
-                fragmentSocialSquareBinding.fabAddPost.setEnabled(!isLoading);
             }
         });
         
