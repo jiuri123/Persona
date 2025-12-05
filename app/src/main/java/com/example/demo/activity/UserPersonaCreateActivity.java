@@ -1,7 +1,6 @@
 package com.example.demo.activity;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,17 +12,12 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.example.demo.viewmodel.UserPersonaCreateViewModel;
 import com.example.demo.model.Persona;
-import com.example.demo.data.repository.UserPersonaRepository;
 import com.example.demo.R;
 import com.example.demo.databinding.ActivityCreatePersonaBinding;
 
@@ -43,9 +37,15 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
 
     // ViewModel，处理AI生成Persona的业务逻辑
     private UserPersonaCreateViewModel userPersonaCreateViewModel;
-    
+
     // 选中的头像URI
     private Uri selectedAvatarUri;
+
+    // ActivityResultLauncher用于处理图片选择结果
+    private ActivityResultLauncher<Intent> galleryLauncher;
+
+    // ActivityResultLauncher用于处理权限请求结果
+    private ActivityResultLauncher<String[]> permissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,41 +63,64 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
 
+        // 初始化ActivityResultLaunchers
+        setupActivityResultLaunchers();
+
         // 返回按钮点击事件
-        activityCreatePersonaBinding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 关闭当前Activity，返回上一个界面
-                finish();
-            }
-        });
+        activityCreatePersonaBinding.btnBack.setOnClickListener(v -> finish());
 
         // 头像点击事件，弹出底部菜单
-        activityCreatePersonaBinding.ivAvatarPreview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 创建PopupMenu对象，并设置菜单项点击事件
-                showAvatarOptionsMenu(v);
-            }
-        });
+        activityCreatePersonaBinding.ivAvatarPreview.setOnClickListener(this::showAvatarOptionsMenu);
 
         // AI生成按钮点击事件
-        activityCreatePersonaBinding.btnAiGenerate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 调用ViewModel的方法生成Persona详情
-                userPersonaCreateViewModel.generatePersonaDetails();
-            }
-        });
+        activityCreatePersonaBinding.btnAiGenerate.setOnClickListener(v ->
+                userPersonaCreateViewModel.generatePersonaDetails());
 
         // 创建按钮点击事件
-        activityCreatePersonaBinding.btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 创建Persona并保存到数据库
-                createPersonaAndSave();
-            }
-        });
+        activityCreatePersonaBinding.btnCreate.setOnClickListener(v -> createPersonaAndSave());
+    }
+
+    /**
+     * 初始化ActivityResultLaunchers
+     */
+    private void setupActivityResultLaunchers() {
+        // 初始化图片选择ActivityResultLauncher
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        // 获取选中图片的URI
+                        selectedAvatarUri = result.getData().getData();
+                        if (selectedAvatarUri != null) {
+                            // 更新头像显示
+                            activityCreatePersonaBinding.ivAvatarPreview.setImageURI(selectedAvatarUri);
+                        }
+                    }
+                }
+        );
+
+        // 初始化权限请求ActivityResultLauncher
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                permissions -> {
+                    // 检查是否所有请求的权限都被授予
+                    boolean allGranted = true;
+                    for (Boolean granted : permissions.values()) {
+                        if (!granted) {
+                            allGranted = false;
+                            break;
+                        }
+                    }
+
+                    if (allGranted) {
+                        // 权限已授予，执行选择图片操作
+                        launchGalleryIntent();
+                    } else {
+                        // 权限被拒绝，显示提示
+                        Toast.makeText(this, "需要读取相册权限才能选择图片", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     /**
@@ -105,35 +128,29 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
      */
     private void setupObservers() {
         // 监听加载状态，更新UI显示
-        userPersonaCreateViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLoading) {
-                if (isLoading) {
-                    // 加载中，禁用按钮并显示加载文本
-                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(false);
-                    activityCreatePersonaBinding.btnAiGenerate.setText("生成中...");
-                } else {
-                    // 加载完成，启用按钮并恢复原始文本
-                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(true);
-                    activityCreatePersonaBinding.btnAiGenerate.setText("AI 辅助生成");
-                }
+        userPersonaCreateViewModel.getIsLoading().observe(this, isLoading -> {
+            if (isLoading) {
+                // 加载中，禁用按钮并显示加载文本
+                activityCreatePersonaBinding.btnAiGenerate.setEnabled(false);
+                activityCreatePersonaBinding.btnAiGenerate.setText("生成中...");
+            } else {
+                // 加载完成，启用按钮并恢复原始文本
+                activityCreatePersonaBinding.btnAiGenerate.setEnabled(true);
+                activityCreatePersonaBinding.btnAiGenerate.setText("AI 辅助生成");
             }
         });
 
         // 监听生成的Persona对象，更新所有编辑框
-        userPersonaCreateViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
-            @Override
-            public void onChanged(Persona generatedPersona) {
-                if (generatedPersona != null) {
-                    // 将Persona对象的各个属性填充到对应的编辑框中
-                    activityCreatePersonaBinding.etPersonaName.setText(generatedPersona.getName());
-                    activityCreatePersonaBinding.etPersonaGender.setText(generatedPersona.getGender());
-                    activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
-                    activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
-                    activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
-                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
-                    activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
-                }
+        userPersonaCreateViewModel.getGeneratedPersona().observe(this, generatedPersona -> {
+            if (generatedPersona != null) {
+                // 将Persona对象的各个属性填充到对应的编辑框中
+                activityCreatePersonaBinding.etPersonaName.setText(generatedPersona.getName());
+                activityCreatePersonaBinding.etPersonaGender.setText(generatedPersona.getGender());
+                activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
+                activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
+                activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
+                activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
+                activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
             }
         });
 
@@ -141,21 +158,15 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 从而触发 ViewModel 中的 userPersonaNames 集合的更新逻辑
         // 因为MediatorLiveData在没有观察者时不会触发更新，所以这里需要手动触发一次
         // 这里不需要做任何 UI 更新，因为我们只需要 ViewModel 里的 Set 被填满
-        userPersonaCreateViewModel.getUserPersonas().observe(this, new Observer<List<Persona>>() {
-            @Override
-            public void onChanged(List<Persona> personas) {
-                // 这里什么都不用做，或者可以打印个日志看看数据到了没
-                // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
-            }
+        userPersonaCreateViewModel.getUserPersonas().observe(this, personas -> {
+            // 这里什么都不用做，或者可以打印个日志看看数据到了没
+            // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
         });
 
         // 监听错误信息，显示Toast提示
-        userPersonaCreateViewModel.getError().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String error) {
-                if (error != null && !error.isEmpty()) {
-                    Toast.makeText(UserPersonaCreateActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
-                }
+        userPersonaCreateViewModel.getError().observe(this, error -> {
+            if (error != null && !error.isEmpty()) {
+                Toast.makeText(UserPersonaCreateActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -178,7 +189,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
             Toast.makeText(this, "名称和背景故事不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // 解析年龄，默认为0
         final int myPersonaAge;
         if (!ageStr.isEmpty()) {
@@ -227,21 +238,18 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 添加菜单选项
         popupMenu.getMenu().add(Menu.NONE, 1, Menu.NONE, "从手机相册选择");
         // 设置菜单点击监听器
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == 1) {
-                    // 从手机相册选择图片
-                    selectImageFromGallery();
-                    return true;
-                }
-                return false;
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                // 从手机相册选择图片
+                selectImageFromGallery();
+                return true;
             }
+            return false;
         });
         // 显示菜单
         popupMenu.show();
     }
-    
+
     /**
      * 从相册选择图片
      */
@@ -249,74 +257,20 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 检查Android版本，确定需要请求的权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Android 13及以上，使用READ_MEDIA_IMAGES权限
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                // 权限已授予，执行选择图片操作
-                launchGalleryIntent();
-            } else {
-                // 请求权限
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 200);
-            }
+            permissionLauncher.launch(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES});
         } else {
             // Android 6.0-12，使用READ_EXTERNAL_STORAGE权限
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                // 权限已授予，执行选择图片操作
-                launchGalleryIntent();
-            } else {
-                // 请求权限
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 200);
-            }
+            permissionLauncher.launch(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE});
         }
     }
-    
+
     /**
      * 启动相册Intent
      */
     private void launchGalleryIntent() {
         // 创建Intent，指定动作是选择图片
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        // 启动Activity，等待结果
-        startActivityForResult(intent, 100);
-    }
-    
-    /**
-     * 处理权限请求结果
-     * @param requestCode 请求码
-     * @param permissions 请求的权限数组
-     * @param grantResults 权限授予结果数组
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 200) {
-            // 检查权限是否被授予
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 权限已授予，执行选择图片操作
-                launchGalleryIntent();
-            } else {
-                // 权限被拒绝，显示提示
-                Toast.makeText(this, "需要读取相册权限才能选择图片", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-    
-    /**
-     * 处理Activity返回结果
-     * @param requestCode 请求码
-     * @param resultCode 结果码
-     * @param data 返回的数据
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        // 检查请求码和结果码
-        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
-            // 获取选中图片的URI
-            selectedAvatarUri = data.getData();
-            if (selectedAvatarUri != null) {
-                // 更新头像显示
-                activityCreatePersonaBinding.ivAvatarPreview.setImageURI(selectedAvatarUri);
-            }
-        }
+        // 使用ActivityResultLauncher启动Intent
+        galleryLauncher.launch(intent);
     }
 }

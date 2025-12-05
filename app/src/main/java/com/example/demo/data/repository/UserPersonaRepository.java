@@ -18,11 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
 
 import com.example.demo.BuildConfig;
 import com.example.demo.R;
@@ -56,6 +53,8 @@ public class UserPersonaRepository {
     // 系统提示词，在构造函数中初始化
     private final String systemPrompt;
 
+    List<ChatRequestMessage> apiHistory = new ArrayList<>();
+
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
@@ -77,6 +76,7 @@ public class UserPersonaRepository {
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
+        this.apiHistory.add(new ChatRequestMessage("system", systemPrompt));
     }
 
     /**
@@ -103,19 +103,15 @@ public class UserPersonaRepository {
         // 设置加载状态为true
         isLoadingLiveData.setValue(true);
 
-        // 生成随机数和随机主题
-        int randomNumber = random.nextInt(10000);
+        // 随机主题
         String randomTheme = THEMES[random.nextInt(THEMES.length)];
 
         // 用户提示，包含随机主题
         String userPrompt = "请为我生成一个独特且有趣的 Persona 角色。" +
                 "请让人设带有一点 [" + randomTheme + "] 风格。" +
-                " (这是一个新的请求, 编号: " + randomNumber + ")" +
-                "确保每次生成的人设名称、性别、性格、年龄、关系、口头禅、背景故事都是不同的，而且每次生成的名字的第一个字都不同。";
+                "确保生成的人设名称、性别、性格、年龄、关系、口头禅、背景故事与之前生成的都不同，每次生成的人设的名称第一个字都与之前的不同。";
 
-        // 构建API请求历史，使用预定义的systemPrompt变量
-        List<ChatRequestMessage> apiHistory = new ArrayList<>();
-        apiHistory.add(new ChatRequestMessage("system", this.systemPrompt));
+        // 添加用户提示到API历史记录
         apiHistory.add(new ChatRequestMessage("user", userPrompt));
 
         // 创建聊天请求
