@@ -8,9 +8,9 @@ import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
-import com.example.demo.data.remote.model.ChatRequestMessage;
-import com.example.demo.data.remote.model.ChatRequest;
-import com.example.demo.data.remote.model.ChatResponse;
+import com.example.demo.data.remote.model.ApiRequestMessage;
+import com.example.demo.data.remote.model.ApiRequest;
+import com.example.demo.data.remote.model.ApiResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class UserPersonaChatRepository {
     private final Map<String, List<ChatMessage>> chatHistoryMap;
     
     // 存储所有Persona的API请求历史记录，以Persona名称为key
-    private final Map<String, List<ChatRequestMessage>> apiHistoryMap;
+    private final Map<String, List<ApiRequestMessage>> apiHistoryMap;
 
     // 当前聊天的Persona
     private Persona currentPersona;
@@ -101,8 +101,8 @@ public class UserPersonaChatRepository {
 
         // 获取或创建该Persona的API历史，如果是新创建的则添加系统提示
         apiHistoryMap.computeIfAbsent(persona.getName(), k -> {
-            List<ChatRequestMessage> history = new ArrayList<>();
-            history.add(new ChatRequestMessage("system", systemPrompt));
+            List<ApiRequestMessage> history = new ArrayList<>();
+            history.add(new ApiRequestMessage("system", systemPrompt));
             return history;
         });
     }
@@ -135,28 +135,28 @@ public class UserPersonaChatRepository {
         chatHistoryLiveData.setValue(currentUiHistory);
 
         // 获取当前Persona的API历史
-        List<ChatRequestMessage> currentApiHistory = apiHistoryMap.get(currentPersona.getName());
+        List<ApiRequestMessage> currentApiHistory = apiHistoryMap.get(currentPersona.getName());
         if (currentApiHistory == null) {
             currentApiHistory = new ArrayList<>();
         }
         // 添加用户消息到API历史
-        currentApiHistory.add(new ChatRequestMessage("user", userMessageText));
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, currentApiHistory);
+        currentApiHistory.add(new ApiRequestMessage("user", userMessageText));
+        ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, currentApiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ChatResponse> call, @NonNull Response<ChatResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI回复内容
                     String aiContent = response.body().getFirstMessageContent();
 
                     if (aiContent != null) {
-                        List<ChatRequestMessage> apiHistory = apiHistoryMap.get(currentPersona.getName());
+                        List<ApiRequestMessage> apiHistory = apiHistoryMap.get(currentPersona.getName());
                         List<ChatMessage> uiHistory = chatHistoryLiveData.getValue();
                         // 添加AI消息到API历史
                         if (apiHistory != null) {
-                            apiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                            apiHistory.add(new ApiRequestMessage("assistant", aiContent));
                         }
                         // 添加AI消息到UI历史
                         if (uiHistory != null) {
@@ -173,7 +173,7 @@ public class UserPersonaChatRepository {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ChatResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 handleApiError("网络请求失败: " + t.getMessage());
             }
         });

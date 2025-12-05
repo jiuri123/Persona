@@ -7,12 +7,12 @@ import com.google.gson.annotations.SerializedName;
  * 表示聊天API响应中的一个选择项
  * 通常包含AI生成的消息内容
  */
-public class ChatResponseMessageChoice {
+public class ApiResponseMessageChoice {
     // AI生成的消息
     @SerializedName("message")
-    private ChatResponseMessage message;
+    private ApiResponseMessage message;
 
     // Getter和Setter方法
-    public ChatResponseMessage getMessage() { return message; }
-    public void setMessage(ChatResponseMessage message) { this.message = message; }
+    public ApiResponseMessage getMessage() { return message; }
+    public void setMessage(ApiResponseMessage message) { this.message = message; }
 }

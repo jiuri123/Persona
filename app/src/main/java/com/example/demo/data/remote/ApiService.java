@@ -1,7 +1,7 @@
 package com.example.demo.data.remote;
 
-import com.example.demo.data.remote.model.ChatRequest;
-import com.example.demo.data.remote.model.ChatResponse;
+import com.example.demo.data.remote.model.ApiRequest;
+import com.example.demo.data.remote.model.ApiResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -19,12 +19,12 @@ public interface ApiService {
      * 获取聊天完成接口
      * 发送聊天请求并获取AI回复
      * @param apiKey API密钥，用于身份验证
-     * @param chatRequest 聊天请求对象，包含消息列表和其他参数
+     * @param apiRequest 聊天请求对象，包含消息列表和其他参数
      * @return Call对象，用于异步执行请求
      */
     @POST("v1/chat/completions")
-    Call<ChatResponse> getChatCompletion(
+    Call<ApiResponse> getChatCompletion(
             @Header("Authorization") String apiKey,
-            @Body ChatRequest chatRequest
+            @Body ApiRequest apiRequest
     );
 }

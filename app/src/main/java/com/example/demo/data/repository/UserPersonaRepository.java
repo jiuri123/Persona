@@ -10,9 +10,9 @@ import com.example.demo.data.local.LocalDataSource;
 import com.example.demo.model.Persona;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
-import com.example.demo.data.remote.model.ChatRequestMessage;
-import com.example.demo.data.remote.model.ChatRequest;
-import com.example.demo.data.remote.model.ChatResponse;
+import com.example.demo.data.remote.model.ApiRequestMessage;
+import com.example.demo.data.remote.model.ApiRequest;
+import com.example.demo.data.remote.model.ApiResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class UserPersonaRepository {
     // 系统提示词，在构造函数中初始化
     private final String systemPrompt;
 
-    List<ChatRequestMessage> apiHistory = new ArrayList<>();
+    List<ApiRequestMessage> apiHistory = new ArrayList<>();
 
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
@@ -76,7 +76,7 @@ public class UserPersonaRepository {
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
-        this.apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+        this.apiHistory.add(new ApiRequestMessage("system", systemPrompt));
     }
 
     /**
@@ -112,15 +112,15 @@ public class UserPersonaRepository {
                 "确保生成的人设名称、性别、性格、年龄、关系、口头禅、背景故事与之前生成的都不同，每次生成的人设的名称第一个字都与之前的不同。";
 
         // 添加用户提示到API历史记录
-        apiHistory.add(new ChatRequestMessage("user", userPrompt));
+        apiHistory.add(new ApiRequestMessage("user", userPrompt));
 
         // 创建聊天请求
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
+        ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ChatResponse> call, @NonNull Response<ChatResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 // 请求完成，设置加载状态为false
                 isLoadingLiveData.postValue(false);
 
@@ -166,7 +166,7 @@ public class UserPersonaRepository {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ChatResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 // 请求失败，设置加载状态为false
                 isLoadingLiveData.postValue(false);
                 // 网络错误

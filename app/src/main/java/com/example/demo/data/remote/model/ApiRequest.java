@@ -8,7 +8,7 @@ import java.util.List;
  * 表示发送到聊天API的请求体
  * 使用Gson库进行JSON序列化和反序列化
  */
-public class ChatRequest {
+public class ApiRequest {
 
     // 使用的AI模型名称
     @SerializedName("model")
@@ -16,7 +16,7 @@ public class ChatRequest {
 
     // 聊天消息列表
     @SerializedName("messages")
-    private List<ChatRequestMessage> messages;
+    private List<ApiRequestMessage> messages;
 
     // 是否使用流式响应
     @SerializedName("stream")
@@ -27,7 +27,7 @@ public class ChatRequest {
      * @param model AI模型名称
      * @param messages 聊天消息列表
      */
-    public ChatRequest(String model, List<ChatRequestMessage> messages) {
+    public ApiRequest(String model, List<ApiRequestMessage> messages) {
         this.model = model;
         this.messages = messages;
     }
@@ -35,6 +35,6 @@ public class ChatRequest {
     // Getter和Setter方法
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
-    public List<ChatRequestMessage> getMessages() { return messages; }
-    public void setMessages(List<ChatRequestMessage> messages) { this.messages = messages; }
+    public List<ApiRequestMessage> getMessages() { return messages; }
+    public void setMessages(List<ApiRequestMessage> messages) { this.messages = messages; }
 }

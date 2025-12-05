@@ -7,9 +7,9 @@ import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
-import com.example.demo.data.remote.model.ChatRequestMessage;
-import com.example.demo.data.remote.model.ChatRequest;
-import com.example.demo.data.remote.model.ChatResponse;
+import com.example.demo.data.remote.model.ApiRequestMessage;
+import com.example.demo.data.remote.model.ApiRequest;
+import com.example.demo.data.remote.model.ApiResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,7 +78,7 @@ public class UserPersonaPostRepository {
     private final Random random = new Random();
 
     // 构建API请求历史
-    List<ChatRequestMessage> apiHistory = new ArrayList<>();
+    List<ApiRequestMessage> apiHistory = new ArrayList<>();
 
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<List<Post>> userPostsLiveData = new MutableLiveData<>(new ArrayList<>());
@@ -96,7 +96,7 @@ public class UserPersonaPostRepository {
                 "{\"content\": \"[生成的动态正文，必须包含Markdown格式，如**粗体**、*斜体*、~~删除线~~、列表等]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
 
-        apiHistory.add(new ChatRequestMessage("system", systemPrompt));
+        apiHistory.add(new ApiRequestMessage("system", systemPrompt));
     }
     
     /**
@@ -191,15 +191,15 @@ public class UserPersonaPostRepository {
                 "请确保扩展后的内容简洁明了，字数控制在50-150字之间。" +
                 "(请求编号: " + randomNumber + ")";
 
-        apiHistory.add(new ChatRequestMessage("user", userPrompt));
+        apiHistory.add(new ApiRequestMessage("user", userPrompt));
         
         // 创建聊天请求
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
+        ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -225,7 +225,7 @@ public class UserPersonaPostRepository {
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }
@@ -269,15 +269,15 @@ public class UserPersonaPostRepository {
                 "请确保动态内容简洁明了，字数控制在50-100字之间。" +
                 "(请求编号: " + randomNumber + ")";
 
-        apiHistory.add(new ChatRequestMessage("user", userPrompt));
+        apiHistory.add(new ApiRequestMessage("user", userPrompt));
         
         // 创建聊天请求
-        ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, apiHistory);
+        ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
+        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -303,7 +303,7 @@ public class UserPersonaPostRepository {
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }
