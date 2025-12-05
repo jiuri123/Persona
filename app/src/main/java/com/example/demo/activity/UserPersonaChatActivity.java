@@ -61,9 +61,6 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         // 初始化UI
         setupUI();
 
-        // 设置观察者
-        setupObservers();
-
         // 设置发送按钮点击事件
         activityChatBinding.btnSend.setOnClickListener(v -> {
             String messageText = activityChatBinding.etChatMessage.getText().toString().trim();
@@ -72,6 +69,15 @@ public class UserPersonaChatActivity extends AppCompatActivity {
                 userPersonaChatViewModel.sendMessage(messageText);
                 // 清空输入框
                 activityChatBinding.etChatMessage.setText("");
+            }
+        });
+
+        // 设置观察者，观察聊天历史变化
+        userPersonaChatViewModel.getChatHistory().observe(this, chatMessages -> {
+            if (chatMessages != null) {
+                personaChatAdapter.setData(chatMessages);
+                // 滚动到最新消息
+                activityChatBinding.rvChatMessages.scrollToPosition(chatMessages.size() - 1);
             }
         });
     }
@@ -100,20 +106,6 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true); // 从底部开始显示消息
         activityChatBinding.rvChatMessages.setLayoutManager(layoutManager);
-    }
-    
-    /**
-     * 设置观察者
-     */
-    private void setupObservers() {
-        // 观察聊天历史变化
-        userPersonaChatViewModel.getChatHistory().observe(this, chatMessages -> {
-            if (chatMessages != null) {
-                personaChatAdapter.setData(chatMessages);
-                // 滚动到最新消息
-                activityChatBinding.rvChatMessages.scrollToPosition(chatMessages.size() - 1);
-            }
-        });
     }
 
     /**

@@ -138,7 +138,6 @@ public class OtherPersonaChatRepository {
         if (currentApiHistory == null) {
             currentApiHistory = new ArrayList<>();
         }
-
         // 添加用户消息到API历史
         currentApiHistory.add(new ChatRequestMessage("user", userMessageText));
         ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, currentApiHistory);
@@ -152,19 +151,14 @@ public class OtherPersonaChatRepository {
                     String aiContent = response.body().getFirstMessageContent();
 
                     if (aiContent != null) {
-                        // 创建AI消息并添加到UI和API历史
-                        ChatMessage uiAiMessage = new ChatMessage(aiContent, false);
-                        // 获取当前Persona的API历史
-                        List<ChatRequestMessage> updatedApiHistory = apiHistoryMap.get(currentPersona.getName());
-                        if (updatedApiHistory != null) {
-                            updatedApiHistory.add(new ChatRequestMessage("assistant", aiContent));
-                        }
-                        List<ChatMessage> updatedUiHistory = chatHistoryLiveData.getValue();
-                        if (updatedUiHistory != null) {
-                            updatedUiHistory.add(uiAiMessage);
-                            // 使用postValue在后台线程更新LiveData
-                            chatHistoryLiveData.postValue(updatedUiHistory);
-                        }
+                        List<ChatRequestMessage> apiHistory = apiHistoryMap.get(currentPersona.getName());
+                        List<ChatMessage> uiHistory = chatHistoryLiveData.getValue();
+                        // 添加AI消息到API历史
+                        apiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                        // 添加AI消息到UI历史
+                        uiHistory.add(new ChatMessage(aiContent, false));
+                        // 使用postValue在后台线程更新LiveData
+                        chatHistoryLiveData.postValue(uiHistory);
                     } else {
                         handleApiError("API 返回了空内容");
                     }
