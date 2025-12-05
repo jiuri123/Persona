@@ -68,41 +68,10 @@ public class LocalDataSource {
     }
 
     /**
-     * 更新Persona
-     * @param persona 要更新的Persona对象
-     */
-    public void updatePersona(Persona persona) {
-        executorService.execute(() -> personaDao.updatePersona(persona));
-    }
-
-    /**
      * 获取所有Persona
      * @return 所有Persona的LiveData列表
      */
     public LiveData<List<Persona>> getAllPersonas() {
         return personaDao.getAllPersonas();
-    }
-
-    /**
-     * 根据名称获取Persona
-     * @param name Persona的名称
-     * @param callback 回调接口，用于返回查询结果
-     */
-    public void getPersonaByName(String name, GetPersonaCallback callback) {
-        executorService.execute(() -> {
-            Persona persona = personaDao.getPersonaByName(name);
-            callback.onPersonaLoaded(persona);
-        });
-    }
-    
-    /**
-     * 获取Persona的回调接口
-     */
-    public interface GetPersonaCallback {
-        /**
-         * 当Persona加载完成时调用
-         * @param persona 加载的Persona对象，可能为null
-         */
-        void onPersonaLoaded(Persona persona);
     }
 }

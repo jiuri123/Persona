@@ -49,39 +49,6 @@ public class UserPersonaViewModel extends AndroidViewModel {
         personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
     }
-
-    // ========== Persona相关方法 ==========
-    
-    /**
-     * 获取生成的角色LiveData
-     * @return 角色的LiveData对象
-     */
-    public LiveData<Persona> getGeneratedPersona() {
-        return generatedPersonaLiveData;
-    }
-
-    /**
-     * 获取Persona加载状态LiveData
-     * @return Persona加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getPersonaIsLoading() {
-        return personaIsLoadingLiveData;
-    }
-
-    /**
-     * 获取Persona错误信息LiveData
-     * @return Persona错误信息的LiveData对象
-     */
-    public LiveData<String> getPersonaError() {
-        return personaErrorLiveData;
-    }
-
-    /**
-     * 清除Persona错误信息
-     */
-    public void clearPersonaError() {
-        userPersonaRepository.clearError();
-    }
     
     /**
      * 获取用户创建的Persona列表LiveData
@@ -92,23 +59,6 @@ public class UserPersonaViewModel extends AndroidViewModel {
     }
     
     /**
-     * 生成角色详情
-     * 调用PersonaRepository生成角色名称和背景故事
-     */
-    public void generatePersonaDetails() {
-        userPersonaRepository.generatePersonaDetails();
-    }
-    
-    /**
-     * 添加新的Persona到用户列表
-     * @param persona 要添加的Persona
-     * @return 如果成功添加返回true，如果名称已存在则返回false
-     */
-    public boolean addUserPersona(Persona persona) {
-        return userPersonaRepository.addUserPersona(persona);
-    }
-    
-    /**
      * 删除用户Persona
      * @param persona 要删除的Persona
      * @return 如果成功删除返回true，如果不存在则返回false
@@ -116,6 +66,4 @@ public class UserPersonaViewModel extends AndroidViewModel {
     public boolean removeUserPersona(Persona persona) {
         return userPersonaRepository.removeUserPersona(persona);
     }
-    
-
 }

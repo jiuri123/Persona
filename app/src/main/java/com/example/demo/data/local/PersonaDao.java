@@ -33,32 +33,9 @@ public interface PersonaDao {
     void deletePersona(Persona persona);
 
     /**
-     * 更新Persona
-     * @param persona 要更新的Persona对象
-     */
-    @Update
-    void updatePersona(Persona persona);
-
-    /**
      * 获取所有Persona
      * @return 所有Persona的LiveData列表
      */
     @Query("SELECT * FROM personas")
     LiveData<List<Persona>> getAllPersonas();
-
-    /**
-     * 根据名称获取Persona
-     * @param name Persona的名称
-     * @return 匹配的Persona对象
-     */
-    @Query("SELECT * FROM personas WHERE name = :name")
-    Persona getPersonaByName(String name);
-    
-    /**
-     * 根据ID获取Persona
-     * @param id Persona的唯一标识符
-     * @return 匹配的Persona对象
-     */
-    @Query("SELECT * FROM personas WHERE id = :id")
-    Persona getPersonaById(long id);
 }

@@ -27,9 +27,6 @@ public abstract class BaseTypewriterEffect {
     
     // 当前显示的字符索引
     protected int currentIndex = 0;
-    
-    // 动画完成回调
-    protected Runnable onCompleteCallback;
 
     /**
      * 构造函数
@@ -45,14 +42,6 @@ public abstract class BaseTypewriterEffect {
         this.textRenderer = textRenderer;
         // 使用主线程Looper创建Handler，确保UI更新在主线程执行
         this.handler = new Handler(Looper.getMainLooper());
-    }
-
-    /**
-     * 设置动画完成回调
-     * @param callback 动画完成时执行的回调
-     */
-    public void setOnCompleteCallback(Runnable callback) {
-        this.onCompleteCallback = callback;
     }
 
     /**
@@ -77,9 +66,6 @@ public abstract class BaseTypewriterEffect {
         } else {
             // 动画完成，使用渲染器最终渲染文本
             textRenderer.renderText(textView, fullText);
-            if (onCompleteCallback != null) {
-                onCompleteCallback.run();
-            }
             // 调用子类实现的完成方法
             onComplete();
         }
@@ -93,9 +79,6 @@ public abstract class BaseTypewriterEffect {
         handler.removeCallbacksAndMessages(null);
         // 直接显示完整文本
         textRenderer.renderText(textView, fullText);
-        if (onCompleteCallback != null) {
-            onCompleteCallback.run();
-        }
         // 调用子类实现的完成方法
         onComplete();
     }

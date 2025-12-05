@@ -212,7 +212,7 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 typewriterEffect.cancel();
             }
             
-            // 创建新的打字机效果
+            // 创建新的打字机效果，这是匿名类，内部重写onComplete方法，打字机完成时调用onComplete方法
             typewriterEffect = new MarkdownTypewriterEffect(binding.tvMessage, message.getText(), 50, markwon) {
                 @Override
                 protected void onComplete() {

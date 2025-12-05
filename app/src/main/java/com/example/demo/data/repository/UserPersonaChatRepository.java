@@ -139,7 +139,6 @@ public class UserPersonaChatRepository {
         if (currentApiHistory == null) {
             currentApiHistory = new ArrayList<>();
         }
-
         // 添加用户消息到API历史
         currentApiHistory.add(new ChatRequestMessage("user", userMessageText));
         ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, currentApiHistory);
@@ -156,8 +155,13 @@ public class UserPersonaChatRepository {
                         List<ChatRequestMessage> apiHistory = apiHistoryMap.get(currentPersona.getName());
                         List<ChatMessage> uiHistory = chatHistoryLiveData.getValue();
                         // 添加AI消息到API历史
-                        apiHistory.add(new ChatRequestMessage("assistant", aiContent));
-                        uiHistory.add(new ChatMessage(aiContent, false));
+                        if (apiHistory != null) {
+                            apiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                        }
+                        // 添加AI消息到UI历史
+                        if (uiHistory != null) {
+                            uiHistory.add(new ChatMessage(aiContent, false));
+                        }
                         // 使用postValue在后台线程更新LiveData
                         chatHistoryLiveData.postValue(uiHistory);
                     } else {

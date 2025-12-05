@@ -76,7 +76,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         userPersonaChatViewModel.getChatHistory().observe(this, chatMessages -> {
             if (chatMessages != null) {
                 personaChatAdapter.setData(chatMessages);
-                // 滚动到最新消息
+                // 滚动到底部最新消息，确保最新消息可见
                 activityChatBinding.rvChatMessages.scrollToPosition(chatMessages.size() - 1);
             }
         });
