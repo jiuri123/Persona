@@ -1,5 +1,6 @@
 package com.example.demo.data.repository;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -31,11 +32,6 @@ public class UserPersonaChatRepository {
 
     // 单例实例
     private static UserPersonaChatRepository instance;
-
-    // API密钥，从BuildConfig获取
-    // BuildConfig中的值从gradle.properties注入
-    
-    // 使用的AI模型名称，从BuildConfig获取
 
     // Retrofit API服务接口
     private final ApiService apiService;
@@ -87,10 +83,18 @@ public class UserPersonaChatRepository {
         
         // 构建系统提示，设置AI的角色和行为
         String name = persona.getName() != null ? persona.getName() : "未知角色";
+        String gender = persona.getGender() != null ? persona.getGender() : "未知性别";
+        int age = Math.max(persona.getAge(), 0);
+        String personality = persona.getPersonality() != null ? persona.getPersonality() : "未知个性";
+        String relationship = persona.getRelationship() != null ? persona.getRelationship() : "未知关系";
         String backgroundStory = persona.getBackgroundStory() != null ? persona.getBackgroundStory() : "";
         String signature = persona.getSignature() != null ? persona.getSignature() : "";
-        
+
         String systemPrompt = "你现在扮演 " + name + "。" +
+                "你的性别是：" + gender + "。" +
+                "你的年龄是：" + age + "。" +
+                "你的性格是：" + personality + "。" +
+                "你与我的关系是：" + relationship + "。" +
                 "你的背景故事是：" + backgroundStory + "。" +
                 "你的个性签名是：" + signature + "。" +
                 "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
@@ -101,37 +105,6 @@ public class UserPersonaChatRepository {
             history.add(new ChatRequestMessage("system", systemPrompt));
             return history;
         });
-    }
-
-    /**
-     * 重置聊天历史
-     */
-    public void resetChatHistory() {
-        if (currentPersona != null) {
-            // 移除当前Persona的聊天历史和API历史
-            chatHistoryMap.remove(currentPersona.getName());
-            apiHistoryMap.remove(currentPersona.getName());
-            
-            // 创建新的空聊天历史
-            List<ChatMessage> newChatHistory = new ArrayList<>();
-            chatHistoryMap.put(currentPersona.getName(), newChatHistory);
-            // 更新LiveData
-            chatHistoryLiveData.setValue(newChatHistory);
-            
-            // 重新添加系统提示到API历史
-            String name = currentPersona.getName() != null ? currentPersona.getName() : "未知角色";
-            String backgroundStory = currentPersona.getBackgroundStory() != null ? currentPersona.getBackgroundStory() : "";
-            String signature = currentPersona.getSignature() != null ? currentPersona.getSignature() : "";
-            
-            String systemPrompt = "你现在扮演 " + name + "。" +
-                    "你的背景故事是：" + backgroundStory + "。" +
-                    "你的个性签名是：" + signature + "。" +
-                    "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
-            
-            List<ChatRequestMessage> newApiHistory = new ArrayList<>();
-            newApiHistory.add(new ChatRequestMessage("system", systemPrompt));
-            apiHistoryMap.put(currentPersona.getName(), newApiHistory);
-        }
     }
 
     /**
@@ -174,7 +147,7 @@ public class UserPersonaChatRepository {
         // 异步调用API
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+            public void onResponse(@NonNull Call<ChatResponse> call, @NonNull Response<ChatResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI回复内容
                     String aiContent = response.body().getFirstMessageContent();
@@ -204,7 +177,7 @@ public class UserPersonaChatRepository {
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ChatResponse> call, @NonNull Throwable t) {
                 handleApiError("网络请求失败: " + t.getMessage());
             }
         });

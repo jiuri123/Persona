@@ -28,18 +28,18 @@ public class Persona implements Parcelable {
     private int avatarDrawableId;
     // 头像URI（用于从相册选择的图片）
     private String avatarUri;
-    // 背景故事
-    private String backgroundStory;
-    // 性别
-    private String gender;
     // 年龄
     private int age;
+    // 性别
+    private String gender;
     // 性格
     private String personality;
     // 关系（和我的关系）
     private String relationship;
     // 个性签名
     private String signature;
+    // 背景故事
+    private String backgroundStory;
 
     /**
      * 构造函数

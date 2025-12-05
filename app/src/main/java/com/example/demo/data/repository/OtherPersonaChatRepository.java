@@ -1,5 +1,6 @@
 package com.example.demo.data.repository;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -69,6 +70,43 @@ public class OtherPersonaChatRepository {
     }
 
     /**
+      * 设置当前聊天的Persona
+      * @param persona 要设置的Persona对象
+      */
+    public void setCurrentPersona(Persona persona) {
+        this.currentPersona = persona;
+
+        // 获取或创建该Persona的聊天历史
+        List<ChatMessage> personaChatHistory = chatHistoryMap.computeIfAbsent(persona.getName(), k -> new ArrayList<>());
+        // 更新LiveData，UI将显示该Persona的聊天历史
+        chatHistoryLiveData.setValue(personaChatHistory);
+
+        // 构建系统提示，设置AI的角色和行为
+        String name = persona.getName() != null ? persona.getName() : "未知角色";
+        String gender = persona.getGender() != null ? persona.getGender() : "未知性别";
+        int age = Math.max(persona.getAge(), 0);
+        String personality = persona.getPersonality() != null ? persona.getPersonality() : "未知个性";
+        String relationship = persona.getRelationship() != null ? persona.getRelationship() : "未知关系";
+        String backgroundStory = persona.getBackgroundStory() != null ? persona.getBackgroundStory() : "";
+        String signature = persona.getSignature() != null ? persona.getSignature() : "";
+
+        String systemPrompt = "你现在扮演 " + name + "。" +
+                "你的性别是：" + gender + "。" +
+                "你的年龄是：" + age + "。" +
+                "你的性格是：" + personality + "。" +
+                "你与我的关系是：" + relationship + "。" +
+                "你的背景故事是：" + backgroundStory + "。" +
+                "你的个性签名是：" + signature + "。" +
+                "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
+
+        // 获取或创建该Persona的API历史，如果是新创建的则添加系统提示
+        apiHistoryMap.computeIfAbsent(persona.getName(), k -> {
+            List<ChatRequestMessage> history = new ArrayList<>();
+            history.add(new ChatRequestMessage("system", systemPrompt));
+            return history;
+        });
+    }
+    /**
      * 获取聊天历史记录的LiveData
      * @return 可观察的聊天历史LiveData
      */
@@ -81,19 +119,10 @@ public class OtherPersonaChatRepository {
      * @param userMessageText 用户输入的消息文本
      */
     public void sendMessage(String userMessageText) {
-
-        // 构建系统提示，设置AI的角色和行为
-        String systemPrompt = "你现在扮演 " + currentPersona.getName() + "。" +
-                "你的背景故事是：" + currentPersona.getBackgroundStory() + "。" +
-                "你的个性签名是：" + currentPersona.getSignature() + "。" +
-                "请你严格按照这个角色设定进行对话，不要暴露你是一个 AI 模型。";
-
-        // 获取当前Persona的API历史，如果不存在则创建并添加系统提示
-        List<ChatRequestMessage> currentApiHistory = apiHistoryMap.computeIfAbsent(currentPersona.getName(), k -> {
-            List<ChatRequestMessage> history = new ArrayList<>();
-            history.add(new ChatRequestMessage("system", systemPrompt));
-            return history;
-        });
+        if (currentPersona == null) {
+            handleApiError("当前没有设置聊天的Persona");
+            return;
+        }
 
         // 创建用户消息并添加到UI历史
         ChatMessage uiUserMessage = new ChatMessage(userMessageText, true);
@@ -102,17 +131,22 @@ public class OtherPersonaChatRepository {
             currentUiHistory = new ArrayList<>();
         }
         currentUiHistory.add(uiUserMessage);
-
         chatHistoryLiveData.setValue(currentUiHistory);
+        
+        // 获取当前Persona的API历史
+        List<ChatRequestMessage> currentApiHistory = apiHistoryMap.get(currentPersona.getName());
+        if (currentApiHistory == null) {
+            currentApiHistory = new ArrayList<>();
+        }
+
         // 添加用户消息到API历史
         currentApiHistory.add(new ChatRequestMessage("user", userMessageText));
-
         ChatRequest request = new ChatRequest(BuildConfig.MODEL_NAME, currentApiHistory);
 
         // 异步调用API
         apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ChatResponse>() {
             @Override
-            public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+            public void onResponse(@NonNull Call<ChatResponse> call, @NonNull Response<ChatResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI回复内容
                     String aiContent = response.body().getFirstMessageContent();
@@ -120,9 +154,11 @@ public class OtherPersonaChatRepository {
                     if (aiContent != null) {
                         // 创建AI消息并添加到UI和API历史
                         ChatMessage uiAiMessage = new ChatMessage(aiContent, false);
-                        // 添加AI回复到当前Persona的API历史
-                        currentApiHistory.add(new ChatRequestMessage("assistant", aiContent));
-
+                        // 获取当前Persona的API历史
+                        List<ChatRequestMessage> updatedApiHistory = apiHistoryMap.get(currentPersona.getName());
+                        if (updatedApiHistory != null) {
+                            updatedApiHistory.add(new ChatRequestMessage("assistant", aiContent));
+                        }
                         List<ChatMessage> updatedUiHistory = chatHistoryLiveData.getValue();
                         if (updatedUiHistory != null) {
                             updatedUiHistory.add(uiAiMessage);
@@ -138,7 +174,7 @@ public class OtherPersonaChatRepository {
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ChatResponse> call, @NonNull Throwable t) {
                 handleApiError("网络请求失败: " + t.getMessage());
             }
         });
@@ -157,17 +193,5 @@ public class OtherPersonaChatRepository {
             updatedUiHistory.add(errorReply);
             chatHistoryLiveData.postValue(updatedUiHistory);
         }
-    }
-
-     /**
-      * 设置当前聊天的Persona
-      * @param persona 要设置的Persona对象
-      */
-    public void setCurrentPersona(Persona persona) {
-        this.currentPersona = persona;
-        // 获取或创建该Persona的聊天历史
-        List<ChatMessage> personaChatHistory = chatHistoryMap.computeIfAbsent(persona.getName(), k -> new ArrayList<>());
-        // 更新LiveData，UI将显示该Persona的聊天历史
-        chatHistoryLiveData.setValue(personaChatHistory);
     }
 }

@@ -68,11 +68,4 @@ public class UserPersonaChatViewModel extends AndroidViewModel {
     public void setCurrentPersona(Persona currentPersona) {
         userPersonaChatRepository.setCurrentPersona(currentPersona);
     }
-    
-    /**
-     * 重置聊天历史
-     */
-    public void resetChatHistory() {
-        userPersonaChatRepository.resetChatHistory();
-    }
 }
