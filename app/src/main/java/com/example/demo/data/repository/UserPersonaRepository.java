@@ -95,52 +95,6 @@ public class UserPersonaRepository {
     }
 
     /**
-     * 获取生成的角色LiveData
-     * @return 角色的LiveData对象
-     */
-    public LiveData<Persona> getGeneratedPersona() {
-        return generatedPersonaLiveData;
-    }
-
-    /**
-     * 获取加载状态LiveData
-     * @return 加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsLoading() {
-        return isLoadingLiveData;
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息的LiveData对象
-     */
-    public LiveData<String> getError() {
-        return errorLiveData;
-    }
-    
-    /**
-     * 获取用户创建的Persona列表LiveData
-     * @return 用户Persona列表的LiveData对象
-     */
-    public LiveData<List<Persona>> getUserPersonas() {
-        return localDataSource.getAllPersonas();
-    }
-
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        errorLiveData.setValue(null);
-    }
-    
-    /**
-     * 清除生成的Persona对象
-     */
-    public void clearGeneratedPersona() {
-        generatedPersonaLiveData.setValue(null);
-    }
-
-    /**
      * 生成角色详情
      * 调用AI API生成角色名称和背景故事
      * 使用随机主题增加角色多样性
@@ -157,7 +111,7 @@ public class UserPersonaRepository {
         String userPrompt = "请为我生成一个独特且有趣的 Persona 角色。" +
                 "请让人设带有一点 [" + randomTheme + "] 风格。" +
                 " (这是一个新的请求, 编号: " + randomNumber + ")" +
-                "确保每次生成的人设名称和背景故事都是唯一的，而且每次生成的名字的第一个字都不同。";
+                "确保每次生成的人设名称、性别、性格、年龄、关系、口头禅、背景故事都是不同的，而且每次生成的名字的第一个字都不同。";
 
         // 构建API请求历史，使用预定义的systemPrompt变量
         List<ChatRequestMessage> apiHistory = new ArrayList<>();
@@ -216,7 +170,7 @@ public class UserPersonaRepository {
             }
 
             @Override
-            public void onFailure(Call<ChatResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ChatResponse> call, @NonNull Throwable t) {
                 // 请求失败，设置加载状态为false
                 isLoadingLiveData.postValue(false);
                 // 网络错误
@@ -224,7 +178,53 @@ public class UserPersonaRepository {
             }
         });
     }
+
+    /**
+     * 获取生成的角色LiveData
+     * @return 角色的LiveData对象
+     */
+    public LiveData<Persona> getGeneratedPersona() {
+        return generatedPersonaLiveData;
+    }
+
+    /**
+     * 获取加载状态LiveData
+     * @return 加载状态的LiveData对象
+     */
+    public LiveData<Boolean> getIsLoading() {
+        return isLoadingLiveData;
+    }
+
+    /**
+     * 获取错误信息LiveData
+     * @return 错误信息的LiveData对象
+     */
+    public LiveData<String> getError() {
+        return errorLiveData;
+    }
     
+    /**
+     * 获取用户创建的Persona列表LiveData
+     * @return 用户Persona列表的LiveData对象
+     */
+    public LiveData<List<Persona>> getUserPersonas() {
+        return localDataSource.getAllPersonas();
+    }
+
+    /**
+     * 清除错误信息
+     */
+    public void clearError() {
+        errorLiveData.setValue(null);
+    }
+    
+    /**
+     * 清除生成的Persona对象
+     */
+    public void clearGeneratedPersona() {
+        generatedPersonaLiveData.setValue(null);
+    }
+
     /**
      * 添加新的Persona到用户列表
      * @param persona 要添加的Persona

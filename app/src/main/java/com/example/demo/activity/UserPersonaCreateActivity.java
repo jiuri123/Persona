@@ -57,14 +57,11 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 获取ViewModel实例，ViewModel在配置变更时不会被销毁
         userPersonaCreateViewModel = new ViewModelProvider(this).get(UserPersonaCreateViewModel.class);
 
-        // 清除上一次生成的Persona对象
+        // 清除上一次生成的临时Persona对象
         userPersonaCreateViewModel.clearGeneratedPersona();
-        
+
         // 设置LiveData观察者，监听ViewModel中的数据变化
         setupObservers();
-        
-        // 清空所有编辑框和重置头像，必须在setupObservers之后调用，否则会被观察者填充的数据覆盖
-        clearAllFields();
 
         // 返回按钮点击事件
         activityCreatePersonaBinding.btnBack.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +76,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         activityCreatePersonaBinding.ivAvatarPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 创建PopupMenu对象，并设置菜单项点击事件
                 showAvatarOptionsMenu(v);
             }
         });
@@ -96,28 +94,70 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         activityCreatePersonaBinding.btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 创建Persona并返回结果
+                // 创建Persona并保存到数据库
                 createPersonaAndSave();
             }
         });
     }
-    
+
     /**
-     * 清空所有编辑框和重置头像
+     * 设置LiveData观察者，监听ViewModel中的数据变化
      */
-    private void clearAllFields() {
-        // 清空所有编辑框
-        activityCreatePersonaBinding.etPersonaName.setText("");
-        activityCreatePersonaBinding.etPersonaGender.setText("");
-        activityCreatePersonaBinding.etPersonaPersonality.setText("");
-        activityCreatePersonaBinding.etPersonaAge.setText("");
-        activityCreatePersonaBinding.etPersonaRelationship.setText("");
-        activityCreatePersonaBinding.etPersonaCatchphrase.setText("");
-        activityCreatePersonaBinding.etPersonaStory.setText("");
-        
-        // 重置头像
-        selectedAvatarUri = null;
-        activityCreatePersonaBinding.ivAvatarPreview.setImageResource(R.drawable.avatar_zero);
+    private void setupObservers() {
+        // 监听加载状态，更新UI显示
+        userPersonaCreateViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isLoading) {
+                if (isLoading) {
+                    // 加载中，禁用按钮并显示加载文本
+                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(false);
+                    activityCreatePersonaBinding.btnAiGenerate.setText("生成中...");
+                } else {
+                    // 加载完成，启用按钮并恢复原始文本
+                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(true);
+                    activityCreatePersonaBinding.btnAiGenerate.setText("AI 辅助生成");
+                }
+            }
+        });
+
+        // 监听生成的Persona对象，更新所有编辑框
+        userPersonaCreateViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
+            @Override
+            public void onChanged(Persona generatedPersona) {
+                if (generatedPersona != null) {
+                    // 将Persona对象的各个属性填充到对应的编辑框中
+                    activityCreatePersonaBinding.etPersonaName.setText(generatedPersona.getName());
+                    activityCreatePersonaBinding.etPersonaGender.setText(generatedPersona.getGender());
+                    activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
+                    activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
+                    activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
+                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
+                    activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
+                }
+            }
+        });
+
+        // 观察用户列表，目的是为了激活 ViewModel 中的 MediatorLiveData
+        // 从而触发 ViewModel 中的 userPersonaNames 集合的更新逻辑
+        // 因为MediatorLiveData在没有观察者时不会触发更新，所以这里需要手动触发一次
+        // 这里不需要做任何 UI 更新，因为我们只需要 ViewModel 里的 Set 被填满
+        userPersonaCreateViewModel.getUserPersonas().observe(this, new Observer<List<Persona>>() {
+            @Override
+            public void onChanged(List<Persona> personas) {
+                // 这里什么都不用做，或者可以打印个日志看看数据到了没
+                // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
+            }
+        });
+
+        // 监听错误信息，显示Toast提示
+        userPersonaCreateViewModel.getError().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String error) {
+                if (error != null && !error.isEmpty()) {
+                    Toast.makeText(UserPersonaCreateActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     /**
@@ -191,7 +231,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == 1) {
-                    // 从相册选择图片
+                    // 从手机相册选择图片
                     selectImageFromGallery();
                     return true;
                 }
@@ -216,7 +256,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
                 // 请求权限
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 200);
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else {
             // Android 6.0-12，使用READ_EXTERNAL_STORAGE权限
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 // 权限已授予，执行选择图片操作
@@ -225,9 +265,6 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
                 // 请求权限
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 200);
             }
-        } else {
-            // Android 5.1及以下，权限在安装时授予
-            launchGalleryIntent();
         }
     }
     
@@ -281,64 +318,5 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
                 activityCreatePersonaBinding.ivAvatarPreview.setImageURI(selectedAvatarUri);
             }
         }
-    }
-    
-    /**
-     * 设置LiveData观察者，监听ViewModel中的数据变化
-     */
-    private void setupObservers() {
-        // 监听加载状态，更新UI显示
-        userPersonaCreateViewModel.getIsLoading().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLoading) {
-                if (isLoading) {
-                    // 加载中，禁用按钮并显示加载文本
-                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(false);
-                    activityCreatePersonaBinding.btnAiGenerate.setText("生成中...");
-                } else {
-                    // 加载完成，启用按钮并恢复原始文本
-                    activityCreatePersonaBinding.btnAiGenerate.setEnabled(true);
-                    activityCreatePersonaBinding.btnAiGenerate.setText("AI 辅助生成");
-                }
-            }
-        });
-
-        // 监听生成的Persona对象，更新所有编辑框
-        userPersonaCreateViewModel.getGeneratedPersona().observe(this, new Observer<Persona>() {
-            @Override
-            public void onChanged(Persona generatedPersona) {
-                if (generatedPersona != null) {
-                    // 将Persona对象的各个属性填充到对应的编辑框中
-                    activityCreatePersonaBinding.etPersonaName.setText(generatedPersona.getName());
-                    activityCreatePersonaBinding.etPersonaGender.setText(generatedPersona.getGender());
-                    activityCreatePersonaBinding.etPersonaPersonality.setText(generatedPersona.getPersonality());
-                    activityCreatePersonaBinding.etPersonaAge.setText(String.valueOf(generatedPersona.getAge()));
-                    activityCreatePersonaBinding.etPersonaRelationship.setText(generatedPersona.getRelationship());
-                    activityCreatePersonaBinding.etPersonaCatchphrase.setText(generatedPersona.getSignature());
-                    activityCreatePersonaBinding.etPersonaStory.setText(generatedPersona.getBackgroundStory());
-                }
-            }
-        });
-
-        // 【新增】观察用户列表，目的是为了激活 ViewModel 中的 MediatorLiveData
-        // 从而触发 userPersonaNames 集合的更新逻辑
-        // 这里不需要做任何 UI 更新，因为我们只需要 ViewModel 里的 Set 被填满
-        userPersonaCreateViewModel.getUserPersonas().observe(this, new Observer<List<Persona>>() {
-            @Override
-            public void onChanged(List<Persona> personas) {
-                // 这里什么都不用做，或者可以打印个日志看看数据到了没
-                // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
-            }
-        });
-
-        // 监听错误信息，显示Toast提示
-        userPersonaCreateViewModel.getError().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String error) {
-                if (error != null && !error.isEmpty()) {
-                    Toast.makeText(UserPersonaCreateActivity.this, "错误: " + error, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
     }
 }
