@@ -33,13 +33,6 @@ public class UserFollowedListViewModel extends ViewModel {
      */
     public UserFollowedListViewModel() {
         userFollowedListRepository = UserFollowedListRepository.getInstance();
-        setupMediatorLiveData();
-    }
-
-    /**
-     * 设置MediatorLiveData观察Repository的LiveData
-     */
-    private void setupMediatorLiveData() {
         // 观察关注角色列表变化
         followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), followedPersonasLiveData::setValue);
     }
@@ -65,15 +58,6 @@ public class UserFollowedListViewModel extends ViewModel {
      */
     public void clearError() {
         errorLiveData.setValue(null);
-    }
-
-    /**
-     * 添加关注角色
-     * @param persona 要关注的角色
-     * @return 如果成功添加返回true，如果已关注则返回false
-     */
-    public boolean addFollowedPersona(Persona persona) {
-        return userFollowedListRepository.addFollowedPersona(persona);
     }
 
     /**

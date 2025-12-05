@@ -40,6 +40,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
 
     // 视图绑定，用于访问布局中的组件
     private ActivityCreatePersonaBinding activityCreatePersonaBinding;
+
     // ViewModel，处理AI生成Persona的业务逻辑
     private UserPersonaCreateViewModel userPersonaCreateViewModel;
     

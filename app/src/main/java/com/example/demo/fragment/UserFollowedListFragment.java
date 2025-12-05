@@ -28,14 +28,14 @@ import java.util.List;
  * 显示用户已关注的Persona列表
  * 使用ViewModel管理数据，通过LiveData观察数据变化
  */
-public class UserFollowedListFragment extends Fragment implements UserFollowedListAdapter.OnUnfollowClickListener {
+public class UserFollowedListFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentFollowedListBinding fragmentFollowedListBinding;
-    // 关注列表适配器，用于显示已关注的Persona
-    private UserFollowedListAdapter userFollowedListAdapter;
     // ViewModel，用于管理关注列表
     private UserFollowedListViewModel userFollowedListViewModel;
+    // 关注列表适配器，用于显示已关注的Persona
+    private UserFollowedListAdapter userFollowedListAdapter;
 
     // 默认构造函数
     public UserFollowedListFragment() {
@@ -95,7 +95,24 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
         
         // 创建并设置适配器
         userFollowedListAdapter = new UserFollowedListAdapter(getContext());
-        userFollowedListAdapter.setOnUnfollowClickListener(this);
+        userFollowedListAdapter.setOnUnfollowClickListener(new UserFollowedListAdapter.OnUnfollowClickListener() {
+            @Override
+            public void onUnfollowClick(Persona persona) {
+                // 创建并显示确认对话框
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("取消关注")
+                        .setMessage("你确定取消关注" + persona.getName() + "？")
+                        .setNegativeButton("取消", null) // 取消按钮，不执行任何操作
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 调用ViewModel的取消关注方法
+                                userFollowedListViewModel.removeFollowedPersona(persona);
+                            }
+                        })
+                        .show();
+            }
+        });
         fragmentFollowedListBinding.rvFollowedList.setAdapter(userFollowedListAdapter);
         
         // 观察已关注Persona列表的变化
@@ -119,27 +136,6 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
                 }
             }
         });
-    }
-
-    /**
-     * 取消关注点击事件的实现
-     * @param persona 要取消关注的Persona对象
-     */
-    @Override
-    public void onUnfollowClick(Persona persona) {
-        // 创建并显示确认对话框
-        new AlertDialog.Builder(requireContext())
-                .setTitle("取消关注")
-                .setMessage("你确定取消关注" + persona.getName() + "？")
-                .setNegativeButton("取消", null) // 取消按钮，不执行任何操作
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // 调用ViewModel的取消关注方法
-                        userFollowedListViewModel.removeFollowedPersona(persona);
-                    }
-                })
-                .show();
     }
 
     /**

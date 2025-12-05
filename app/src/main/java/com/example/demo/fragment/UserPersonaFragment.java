@@ -29,9 +29,9 @@ public class UserPersonaFragment extends Fragment {
 
     // 视图绑定对象，用于访问布局中的组件
     private FragmentMyPersonaBinding fragmentMyPersonaBinding;
-    // Persona列表适配器，用于显示Persona列表
+    // 用户Persona列表适配器，用于显示用户Persona列表
     private UserPersonaListAdapter userPersonaListAdapter;
-    // 我的Persona和聊天ViewModel
+    // 用户Persona ViewModel，用于处理用户Persona相关操作
     private UserPersonaViewModel userPersonaViewModel;
 
     /**
@@ -74,52 +74,38 @@ public class UserPersonaFragment extends Fragment {
         });
         fragmentMyPersonaBinding.rvPersonaList.setAdapter(userPersonaListAdapter);
 
+        // 设置创建Persona按钮（用户没有任何Persona时显示的）的点击事件
+        fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
+            startActivity(intent);
+        });
+
+        // 设置底部创建按钮（用户有Persona时显示的）的点击事件
+        fragmentMyPersonaBinding.fabCreatePersona.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
+            startActivity(intent);
+        });
+
         // 观察用户Persona列表的变化，自动更新UI
         userPersonaViewModel.getUserPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
             @Override
             public void onChanged(List<Persona> personas) {
                 // 更新适配器数据
                 userPersonaListAdapter.submitList(personas);
-                // 更新UI显示
-                setupUI(personas);
+                // 设置初始UI
+                if (personas == null || personas.isEmpty()) {
+                    // 没有Persona时显示空状态界面
+                    fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.VISIBLE);
+                    fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.GONE);
+                    fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.GONE);
+                } else {
+                    // 有Persona时显示Persona列表
+                    fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.GONE);
+                    fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.VISIBLE);
+                    fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.VISIBLE);
+                }
             }
         });
-
-        // 设置创建Persona按钮的点击事件
-        fragmentMyPersonaBinding.btnGoToCreate.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
-            startActivity(intent);
-        });
-
-        // 设置底部创建按钮的点击事件
-        fragmentMyPersonaBinding.fabCreatePersona.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), UserPersonaCreateActivity.class);
-            startActivity(intent);
-        });
-
-        // 提交初始数据
-        userPersonaListAdapter.submitList(userPersonaViewModel.getUserPersonas().getValue());
-        // 设置初始UI
-        setupUI(userPersonaViewModel.getUserPersonas().getValue());
-    }
-
-    /**
-     * 设置UI界面
-     * 根据是否有Persona显示不同的界面
-     * @param personas 用户的Persona列表
-     */
-    private void setupUI(List<Persona> personas) {
-        if (personas == null || personas.isEmpty()) {
-            // 没有Persona时显示空状态界面
-            fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.VISIBLE);
-            fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.GONE);
-            fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.GONE);
-        } else {
-            // 有Persona时显示Persona列表
-            fragmentMyPersonaBinding.groupEmptyState.setVisibility(View.GONE);
-            fragmentMyPersonaBinding.rvPersonaList.setVisibility(View.VISIBLE);
-            fragmentMyPersonaBinding.fabCreatePersona.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
