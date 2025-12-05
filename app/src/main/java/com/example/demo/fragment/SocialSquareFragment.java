@@ -99,16 +99,19 @@ public class SocialSquareFragment extends Fragment {
 
         // 创建社交广场展示帖子的适配器
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext());
+
+        //  添加数据观察者，用于监听适配器数据变化，当数据插入时滚动到顶部
         socialSquarePostAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-               // 核心判断：只有当插入位置是 0 (顶部) 时，才滚动
-               // 加载更多时，positionStart 会是 10, 20 等，就不会触发这里
+               // 核心判断：只有当插入位置是 0 (顶部) 时，才滚动到顶部
+               // 加载更多时，positionStart 会是 10, 20 等，就不会触发滚动
                if (positionStart == 0) {
                    fragmentSocialSquareBinding.rvSocialSquare.scrollToPosition(0);
                }
             }
         });
+
         // 设置社交广场的关注按钮回调接口
         socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
             @Override
@@ -116,6 +119,8 @@ public class SocialSquareFragment extends Fragment {
                 socialSquareViewModel.onFollowClick(persona);
             }
         });
+
+        // 设置适配器
         fragmentSocialSquareBinding.rvSocialSquare.setAdapter(socialSquarePostAdapter);
 
         // 设置观察者
@@ -148,23 +153,18 @@ public class SocialSquareFragment extends Fragment {
             @Override
             public void onChanged(List<PostUiItem> postUiItems) {
                 if (postUiItems != null && socialSquarePostAdapter != null) {
-                    // 获取当前列表大小
-                    int currentItemCount = socialSquarePostAdapter.getCurrentList().size();
-                    // 获取新列表大小
-                    int newItemCount = postUiItems.size();
-                    
                     // 更新适配器的数据，使用带回调的重载方法
                     socialSquarePostAdapter.submitList(postUiItems);
                 }
             }
         });
 
-        // 5. (响应式) 观察“是否已创建Persona”的状态
+        // (响应式) 观察“是否已创建Persona”的状态
         socialSquareViewModel.getHasUserPersonaState().observe(getViewLifecycleOwner(), hasPersona -> {
-            // 6. 持续更新 Fragment 中保存的本地状态
+            // 持续更新 Fragment 中保存的本地状态
             this.mHasUserPersona = hasPersona;
 
-            // 7. (可选) 也可以根据这个状态来启用/禁用按钮
+            // (可选) 也可以根据这个状态来启用/禁用按钮
             // fragmentSocialSquareBinding.fabAddPost.setEnabled(hasPersona);
         });
     }

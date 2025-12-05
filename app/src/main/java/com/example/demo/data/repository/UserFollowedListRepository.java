@@ -23,9 +23,6 @@ public class UserFollowedListRepository {
     // 关注的Persona列表LiveData，用于观察数据变化
     private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
     
-    // 关注的Persona ID集合，用于快速查找是否已关注
-    private final Set<Long> followedPersonaIds = new HashSet<>();
-    
     /**
      * 私有构造函数，实现单例模式
      */
@@ -61,16 +58,7 @@ public class UserFollowedListRepository {
         if (persona == null) {
             return false;
         }
-        
-        long personaId = persona.getId();
-        
-        // 检查是否已经关注
-        if (followedPersonaIds.contains(personaId)) {
-            return false;
-        }
-        
-        // 添加到集合和列表
-        followedPersonaIds.add(personaId);
+
         List<Persona> currentList = followedPersonasLiveData.getValue();
         // 创建新列表，复制当前列表内容
         List<Persona> newList = new ArrayList<>();
@@ -94,14 +82,6 @@ public class UserFollowedListRepository {
         }
         
         long personaId = persona.getId();
-        
-        // 检查是否已关注
-        if (!followedPersonaIds.contains(personaId)) {
-            return false;
-        }
-        
-        // 从集合和列表中移除
-        followedPersonaIds.remove(personaId);
         List<Persona> currentList = followedPersonasLiveData.getValue();
         // 创建新列表，复制当前列表内容
         List<Persona> newList = new ArrayList<>();

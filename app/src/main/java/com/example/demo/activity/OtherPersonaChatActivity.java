@@ -2,6 +2,7 @@ package com.example.demo.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import com.example.demo.model.ChatMessage;
 import com.example.demo.viewmodel.OtherPersonaChatViewModel;
 import com.example.demo.model.Persona;
 import com.example.demo.databinding.ActivityChatBinding;
+import com.example.demo.viewmodel.UserPersonaChatViewModel;
 
 import java.util.List;
 
@@ -23,13 +25,18 @@ import java.util.List;
  */
 public class OtherPersonaChatActivity extends AppCompatActivity {
 
-    // 用于传递Persona聊天对象的Intent键名常量
-    public static final String EXTRA_PERSONA = "com.example.demo.EXTRA_PERSONA";
-
     // 视图绑定，用于访问布局中的组件
     private ActivityChatBinding activityChatBinding;
-    // 聊天消息适配器，用于显示聊天记录
+
+    // 用于传递Persona聊天对象的Intent键名常量
+    public static final String EXTRA_PERSONA = "EXTRA_PERSONA";
+
+    // 聊天消息适配器，用于显示聊天消息
     private PersonaChatAdapter personaChatAdapter;
+
+    // 当前聊天的Persona
+    private Persona personaToChat;
+
     // ViewModel，处理聊天相关的业务逻辑
     private OtherPersonaChatViewModel otherPersonaChatViewModel;
 
@@ -41,17 +48,52 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
         activityChatBinding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(activityChatBinding.getRoot());
 
-        // 从Intent中获取传递的Persona对象
-        // 当前聊天的Persona对象
-        Persona personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
+        // 获取从Intent传递过来的Persona对象
+        personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
 
         // 如果没有传递Persona对象，则关闭Activity
         if (personaToChat == null) {
+            // 如果没有Persona对象，显示错误信息并返回
+            Toast.makeText(this, "没有找到Persona信息", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 设置工具栏，显示返回按钮和Persona名称
+        // 初始化ViewModel
+        otherPersonaChatViewModel = new ViewModelProvider(this).get(OtherPersonaChatViewModel.class);
+
+        // 设置当前聊天的Persona
+        otherPersonaChatViewModel.setCurrentPersona(personaToChat);
+
+        // 初始化UI
+        setupUI();
+
+        // 设置观察者，观察聊天历史变化
+        otherPersonaChatViewModel.getChatHistory().observe(this, chatMessages -> {
+            if (chatMessages != null) {
+                personaChatAdapter.setData(chatMessages);
+                // 滚动到最新消息
+                activityChatBinding.rvChatMessages.scrollToPosition(chatMessages.size() - 1);
+            }
+        });
+
+        // 设置发送按钮点击事件
+        activityChatBinding.btnSend.setOnClickListener(v -> {
+            String messageText = activityChatBinding.etChatMessage.getText().toString().trim();
+            if (!messageText.isEmpty()) {
+                // 发送消息
+                otherPersonaChatViewModel.sendMessage(messageText);
+                // 清空输入框
+                activityChatBinding.etChatMessage.setText("");
+            }
+        });
+    }
+
+    /**
+     * 初始化UI
+     */
+    private void setupUI() {
+        // 设置工具栏
         setSupportActionBar(activityChatBinding.toolbar);
         if (getSupportActionBar() != null) {
             // 显示返回按钮
@@ -60,49 +102,17 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(personaToChat.getName());
         }
 
-        // 初始化聊天界面和MVVM架构
-        initChatWithMVVM(personaToChat);
-    }
+        // 设置标题为Persona名称
+        setTitle(personaToChat.getName());
 
-    /**
-     * 初始化聊天界面，使用MVVM架构
-     * @param personaToChat 要聊天的Persona对象
-     */
-    private void initChatWithMVVM(Persona personaToChat) {
-        otherPersonaChatViewModel = new ViewModelProvider(this).get(OtherPersonaChatViewModel.class);
-        otherPersonaChatViewModel.setCurrentPersona(personaToChat);
-
-        // 初始化聊天消息适配器
+        // 初始化聊天适配器
         personaChatAdapter = new PersonaChatAdapter(this);
         activityChatBinding.rvChatMessages.setAdapter(personaChatAdapter);
-        // 设置RecyclerView的布局管理器，从底部开始显示消息
+
+        // 设置线性布局管理器，并从底部开始显示
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true);
+        layoutManager.setStackFromEnd(true); // 从底部开始显示消息
         activityChatBinding.rvChatMessages.setLayoutManager(layoutManager);
-
-        // 发送按钮点击事件
-        activityChatBinding.btnSend.setOnClickListener(v -> {
-            // 获取输入的消息文本
-            String messageText = activityChatBinding.etChatMessage.getText().toString().trim();
-            if (!messageText.isEmpty()) {
-                // 发送消息并清空输入框
-                otherPersonaChatViewModel.sendMessage(messageText);
-                activityChatBinding.etChatMessage.setText("");
-            }
-        });
-
-        // 观察聊天历史数据变化
-        otherPersonaChatViewModel.getChatHistory().observe(this, new Observer<List<ChatMessage>>() {
-            @Override
-            public void onChanged(List<ChatMessage> newMessages) {
-                // 更新适配器数据
-                personaChatAdapter.setData(newMessages);
-                // 如果有消息，滚动到最新消息
-                if (personaChatAdapter.getItemCount() > 0) {
-                    activityChatBinding.rvChatMessages.scrollToPosition(personaChatAdapter.getItemCount() - 1);
-                }
-            }
-        });
     }
 
     /**
@@ -111,7 +121,7 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
      * @return 如果事件被处理返回true，否则返回false
      */
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
         // 处理返回按钮点击
         if (item.getItemId() == android.R.id.home) {
             finish();

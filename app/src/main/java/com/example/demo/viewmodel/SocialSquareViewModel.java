@@ -25,38 +25,34 @@ import java.util.List;
  */
 public class SocialSquareViewModel extends AndroidViewModel {
 
-    // 关注列表仓库
-    private final UserFollowedListRepository userFollowedListRepository;
-    
     // 用户Persona仓库
     private final UserPersonaRepository userPersonaRepository;
-    
-    // 其他Persona帖子仓库
-    private final OtherPersonaPostRepository otherPersonaPostRepository;
-    
-    // 用户Persona帖子仓库
-    private final UserPersonaPostRepository userPersonaPostRepository;
-
     // 检查用户是否创建了Persona
     private final LiveData<Boolean> hasUserPersona;
+    // 用户Persona列表LiveData
+    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
 
+    // 用户关注列表仓库
+    private final UserFollowedListRepository userFollowedListRepository;
+    // 已关注的Persona列表
+    List<Persona> followedPersonas;
+    // 已关注的Persona ID列表，用于 O(1) 快速查找
+    private final java.util.Set<Long> followedPersonaIds = new java.util.HashSet<>();
+    // 已关注的Persona 名称列表，用于 O(1) 快速查找
+    private final java.util.Set<String> followedPersonaNames = new java.util.HashSet<>();
+    // 已关注Persona列表LiveData
+    private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
+
+    // 用户Persona帖子仓库
+    private final UserPersonaPostRepository userPersonaPostRepository;
+    // 其他Persona帖子仓库
+    private final OtherPersonaPostRepository otherPersonaPostRepository;
     // 用户Persona帖子列表
     List<Post> userPersonaPosts;
     // 其他Persona帖子列表
     List<Post> otherPersonaPosts;
-    // 已关注的Persona列表
-    List<Persona> followedPersonas;
-    // 【新增】用于 O(1) 快速查找的集合缓存
-    private final java.util.Set<Long> followedPersonaIds = new java.util.HashSet<>();
-    private final java.util.Set<String> followedPersonaNames = new java.util.HashSet<>();
     // 合并后的帖子UI列表LiveData
     private final MediatorLiveData<List<PostUiItem>> mergedPostsLiveData = new MediatorLiveData<>();
-    
-    // 已关注Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
-    private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
-    
-    // 用户Persona列表LiveData，使用MediatorLiveData包装Repository的LiveData
-    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -65,24 +61,24 @@ public class SocialSquareViewModel extends AndroidViewModel {
      */
     public SocialSquareViewModel(Application application) {
         super(application);
-        this.userFollowedListRepository = UserFollowedListRepository.getInstance();
         this.userPersonaRepository = UserPersonaRepository.getInstance(application);
-        this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
+        this.userFollowedListRepository = UserFollowedListRepository.getInstance();
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
+        this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
 
-        // 3. “加工” userPersonasLiveData
+        // “加工” userPersonasLiveData
         // Transformations.map 会自动观察 userPersonasLiveData
         // 每当 List<Persona> 变化时，它会自动执行 -> 后的代码
         hasUserPersona = Transformations.map(userPersonasLiveData, personas -> {
             // 这就是“加工”逻辑
+            // 检查是否有用户Persona存在
+            // 注意：这里假设 userPersonasLiveData 不会返回 null
+            // 如果允许 null，需要添加 null 检查
             return personas != null && !personas.isEmpty();
         });
 
         // 设置MediatorLiveData观察Repository的LiveData
         setupMediatorLiveData();
-        
-        // 初始化合并帖子列表
-        // mergePosts();
     }
 
     /**
@@ -94,12 +90,11 @@ public class SocialSquareViewModel extends AndroidViewModel {
             followedPersonasLiveData.setValue(personas);
             followedPersonas = personas;
 
-            // 【新增代码块开始】------------------------
             // 每次列表更新，立刻刷新 Set 缓存
             followedPersonaIds.clear();
             followedPersonaNames.clear();
             
-            // 关键修复：先判断 null，防止崩溃！
+            // 缓存已关注Persona的 ID 和 Name
             if (personas != null) {
                 for (Persona p : personas) {
                     if (p.getId() != 0) {
@@ -110,7 +105,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
                     }
                 }
             }
-            // 【新增代码块结束】------------------------
 
             mergePosts();
         });
@@ -167,28 +161,7 @@ public class SocialSquareViewModel extends AndroidViewModel {
         mergedPostsLiveData.setValue(mergedPostUiItems);
     }
 
-    /**
-     * 检查指定Persona是否已被关注 (优化版)
-     * 时间复杂度从 O(M) 降低为 O(1)
-     */
-    public boolean isFollowedPersona(Persona persona) {
-        // 1. 基础防空检查
-        if (persona == null) {
-            return false;
-        }
 
-        // 2. 优先比对 ID (最准)
-        if (persona.getId() != 0 && followedPersonaIds.contains(persona.getId())) {
-            return true;
-        }
-
-        // 3. 兜底比对 Name (兼容 ID 为 0 的情况)
-        if (persona.getName() != null && followedPersonaNames.contains(persona.getName())) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * 获取合并后的帖子UI列表LiveData
@@ -212,7 +185,28 @@ public class SocialSquareViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * 检查指定Persona是否已被关注 (优化版)
+     * 时间复杂度从 O(M) 降低为 O(1)
+     */
+    public boolean isFollowedPersona(Persona persona) {
+        // 1. 基础防空检查
+        if (persona == null) {
+            return false;
+        }
 
+        // 2. 优先比对 ID (最准)
+        if (persona.getId() != 0 && followedPersonaIds.contains(persona.getId())) {
+            return true;
+        }
+
+        // 3. 兜底比对 Name (兼容 ID 为 0 的情况)
+        if (persona.getName() != null && followedPersonaNames.contains(persona.getName())) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * 6. 暴露这个新的、加工后的 "状态" LiveData 给 View

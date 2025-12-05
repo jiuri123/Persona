@@ -92,8 +92,6 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
         
         // 设置RecyclerView的布局管理器
         fragmentFollowedListBinding.rvFollowedList.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        loadFollowedPersonas(); // 加载已关注的Persona数据
         
         // 创建并设置适配器
         userFollowedListAdapter = new UserFollowedListAdapter(getContext());
@@ -122,24 +120,6 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
             }
         });
     }
-    
-    /**
-     * 加载已关注的Persona数据
-     * 此方法为空实现，实际数据通过ViewModel的LiveData获取
-     */
-    private void loadFollowedPersonas() {
-        // 实际数据通过ViewModel的LiveData获取，这里不需要实现
-    }
-
-    /**
-     * Fragment视图销毁时调用
-     * 清理视图绑定，避免内存泄漏
-     */
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        fragmentFollowedListBinding = null; // 清理视图绑定
-    }
 
     /**
      * 取消关注点击事件的实现
@@ -160,5 +140,15 @@ public class UserFollowedListFragment extends Fragment implements UserFollowedLi
                     }
                 })
                 .show();
+    }
+
+    /**
+     * Fragment视图销毁时调用
+     * 清理视图绑定，避免内存泄漏
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        fragmentFollowedListBinding = null; // 清理视图绑定
     }
 }

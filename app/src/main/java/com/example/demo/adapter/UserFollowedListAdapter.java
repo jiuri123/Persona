@@ -32,9 +32,18 @@ import java.util.Objects;
 public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedListAdapter.FollowedPersonaViewHolder> {
 
     // 上下文，用于启动Activity和加载资源
-    private Context context;
+    private final Context context;
     // 取消关注操作的回调接口
     private OnUnfollowClickListener onUnfollowClickListener;
+
+    /**
+     * 构造函数
+     * @param context 上下文
+     */
+    public UserFollowedListAdapter(Context context) {
+        super(new PersonaDiffCallback());
+        this.context = context;
+    }
 
     /**
      * DiffUtil.ItemCallback实现，用于比较Persona对象
@@ -58,15 +67,6 @@ public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedLi
      */
     public interface OnUnfollowClickListener {
         void onUnfollowClick(Persona persona);
-    }
-
-    /**
-     * 构造函数
-     * @param context 上下文
-     */
-    public UserFollowedListAdapter(Context context) {
-        super(new PersonaDiffCallback());
-        this.context = context;
     }
 
     /**

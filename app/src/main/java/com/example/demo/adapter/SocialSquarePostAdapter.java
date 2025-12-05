@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.activity.OtherPersonaChatActivity;
 
+import com.example.demo.activity.UserPersonaChatActivity;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.model.PostUiItem;
@@ -41,6 +42,15 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
     private final Context context;
     // 用户关注其他persona操作的回调接口
     private OnFollowClickListener onFollowClickListener;
+
+    /**
+     * 构造函数
+     * @param context 上下文
+     */
+    public SocialSquarePostAdapter(Context context) {
+        super(new PostUiItemDiffCallback());
+        this.context = context;
+    }
 
     /**
      * DiffUtil.ItemCallback实现，用于比较PostUiItem对象
@@ -75,15 +85,6 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
         void onFollowClick(Persona persona);
     }
 
-    /**
-     * 构造函数
-     * @param context 上下文
-     */
-    public SocialSquarePostAdapter(Context context) {
-        super(new PostUiItemDiffCallback());
-        this.context = context;
-    }
-    
     /**
      * 设置关注操作回调接口
      * 
@@ -193,16 +194,26 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
                 itemPersonaPostBinding.ivPostImage.setVisibility(View.GONE);
             }
 
-            // 如果是自己的帖子，隐藏关注按钮
+            // 处理关注按钮的显示逻辑和点击事件
             if (post.isUserPersonaPost()) {
+                // 如果是自己的帖子，则隐藏关注按钮
                 itemPersonaPostBinding.btnFollow.setVisibility(View.GONE);
             } else { // 如果不是自己的帖子
                 // 则显示关注按钮
                 itemPersonaPostBinding.btnFollow.setVisibility(View.VISIBLE);
                 
-                // 直接使用PostUiItem中的isFollowed状态，不再进行任何逻辑判断
-                boolean isFollowed = postUiItem.isFollowed();
-                updateButtonState(isFollowed);
+                // 更新按钮状态，根据isFollowed状态设置按钮文本和颜色
+                if (postUiItem.isFollowed()) {
+                    itemPersonaPostBinding.btnFollow.setText("已关注");
+                    // 设置已关注状态的颜色（灰色）
+                    itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.gray));
+                    itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
+                } else {
+                    itemPersonaPostBinding.btnFollow.setText("关注");
+                    // 设置未关注状态的颜色（使用主题色或紫色）
+                    itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
+                    itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
+                }
 
                 // 设置关注按钮的点击事件
                 itemPersonaPostBinding.btnFollow.setOnClickListener(new View.OnClickListener() {
@@ -217,7 +228,22 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
             }
 
             // 处理点击头像、名字和简介的跳转逻辑
-            if (!post.isUserPersonaPost()) {
+            if (post.isUserPersonaPost()) { // 如果是自己的帖子
+                // 设置点击头像、作者名称或简介/时间区域时，启动与该作者的聊天界面
+                View.OnClickListener startChatListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, UserPersonaChatActivity.class);
+                        // 通过Intent传递Persona对象
+                        intent.putExtra(UserPersonaChatActivity.EXTRA_PERSONA, author);
+                        context.startActivity(intent);
+                    }
+                };
+                // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
+                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像监听器
+                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称监听器
+                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间监听器
+            } else { // 如果不是自己的帖子
                 // 设置点击头像、作者名称或简介/时间区域时，启动与该作者的聊天界面
                 View.OnClickListener startChatListener = new View.OnClickListener() {
                     @Override
@@ -228,33 +254,10 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
                         context.startActivity(intent);
                     }
                 };
-                // 为其他persona的帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
-                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像
-                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称
-                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间
-            } else {
-                // 清除之前设置的点击监听器，防止视图复用导致的错误跳转
-                itemPersonaPostBinding.ivAvatar.setOnClickListener(null);              // 清除头像点击监听器
-                itemPersonaPostBinding.tvAuthorName.setOnClickListener(null);          // 清除作者名称点击监听器
-                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(null);     // 清除作者简介或时间点击监听器
-            }
-        }
-
-        /**
-         * 更新关注按钮的状态
-         * @param isFollowed 是否已关注
-         */
-        private void updateButtonState(boolean isFollowed) {
-            if (isFollowed) {
-                itemPersonaPostBinding.btnFollow.setText("已关注");
-                // 设置已关注状态的颜色（灰色）
-                itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.gray));
-                itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
-            } else {
-                itemPersonaPostBinding.btnFollow.setText("关注");
-                // 设置未关注状态的颜色（使用主题色或紫色）
-                itemPersonaPostBinding.btnFollow.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
-                itemPersonaPostBinding.btnFollow.setTextColor(context.getResources().getColor(R.color.white));
+                // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
+                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像监听器
+                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称监听器
+                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间监听器
             }
         }
     }
