@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -14,17 +16,15 @@ import com.example.demo.model.Persona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Persona下拉菜单适配器
  * 用于在下拉菜单中显示可用的Persona列表
  * 实现了点击Persona项选择该Persona的功能
  */
-public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdownAdapter.PersonaDropdownViewHolder> {
+public class PersonaDropdownAdapter extends ListAdapter<Persona, PersonaDropdownAdapter.PersonaDropdownViewHolder> {
 
-    // 可用的Persona数据列表
-    private List<Persona> personaList;
     // 上下文，用于加载资源
     private Context context;
     // Persona选择点击事件的回调接口
@@ -42,6 +42,7 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
      * @param context 上下文
      */
     public PersonaDropdownAdapter(Context context) {
+        super(new PersonaDiffCallback());
         this.context = context;
     }
 
@@ -51,6 +52,24 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
      */
     public void setOnPersonaSelectListener(OnPersonaSelectListener onPersonaSelectListener) {
         this.onPersonaSelectListener = onPersonaSelectListener;
+    }
+
+    /**
+     * DiffUtil回调类，用于比较新旧数据列表的差异
+     * 实现了高效的列表更新机制
+     */
+    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+        @Override
+        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 使用id判断是否为同一个Item
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+            // 比较所有字段是否一致
+            return Objects.equals(oldItem, newItem);
+        }
     }
 
     /**
@@ -82,26 +101,8 @@ public class PersonaDropdownAdapter extends RecyclerView.Adapter<PersonaDropdown
      */
     @Override
     public void onBindViewHolder(@NonNull PersonaDropdownViewHolder holder, int position) {
-        Persona persona = personaList.get(position);
+        Persona persona = getItem(position);
         holder.bind(persona);
-    }
-
-    /**
-     * 获取列表项总数
-     * @return 列表项数量
-     */
-    @Override
-    public int getItemCount() {
-        return personaList != null ? personaList.size() : 0;
-    }
-
-    /**
-     * 更新数据列表
-     * @param newPersonaList 新的Persona列表
-     */
-    public void updateData(List<Persona> newPersonaList) {
-        this.personaList = newPersonaList;
-        notifyDataSetChanged();
     }
 
     /**

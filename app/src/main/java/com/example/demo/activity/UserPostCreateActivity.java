@@ -168,7 +168,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
         // 观察用户Persona列表变化
         userPersonaViewModel.getUserPersonas().observe(this, personas -> {
             // 更新适配器数据
-            personaDropdownAdapter.updateData(personas);
+            personaDropdownAdapter.submitList(personas);
             // 如果还没有选择Persona，默认选择第一个
             if (selectedPersona == null && personas != null && !personas.isEmpty()) {
                 selectedPersona = personas.get(0);
