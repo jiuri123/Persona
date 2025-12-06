@@ -18,10 +18,6 @@ public class ApiRequest {
     @SerializedName("messages")
     private List<ApiRequestMessage> messages;
 
-    // 是否使用流式响应
-    @SerializedName("stream")
-    private boolean stream = false;
-
     /**
      * 构造函数
      * @param model AI模型名称

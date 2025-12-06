@@ -50,9 +50,6 @@ public class UserPersonaRepository {
             "赛博朋克", "奇幻", "科幻", "蒸汽朋克", "神秘", "历史", "艺术家", "探险家", "AI", "时间旅行者"
     };
 
-    // 系统提示词，在构造函数中初始化
-    private final String systemPrompt;
-
     List<ApiRequestMessage> apiHistory = new ArrayList<>();
 
     // LiveData对象，用于观察数据变化
@@ -72,7 +69,8 @@ public class UserPersonaRepository {
         this.localDataSource = LocalDataSource.getInstance(context);
         
         // 初始化系统提示词，只在构造函数中初始化一次
-        this.systemPrompt = "你是一个富有创造力的人设生成器。" +
+        // 系统提示词，在构造函数中初始化
+        String systemPrompt = "你是一个富有创造力的人设生成器。" +
                 "请你只返回一个 JSON 对象，格式如下：" +
                 "{\"name\": \"[生成的人设名称]\", \"gender\": \"[生成的性别]\", \"personality\": \"[生成的性格]\", \"age\": [生成的年龄数字], \"relationship\": \"[生成的和我的关系，比如：情侣、父子、朋友、导师等]\", \"catchphrase\": \"[生成的口头禅]\", \"story\": \"[生成的背景故事，2-3句话]\"}" +
                 "不要在 JSON 之外添加任何解释性文字。";
@@ -118,7 +116,7 @@ public class UserPersonaRepository {
         ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
+        apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 // 请求完成，设置加载状态为false

@@ -143,7 +143,7 @@ public class OtherPersonaChatRepository {
         ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, currentApiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
+        apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

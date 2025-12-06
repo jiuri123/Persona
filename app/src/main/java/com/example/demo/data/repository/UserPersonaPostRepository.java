@@ -197,7 +197,7 @@ public class UserPersonaPostRepository {
         ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
+        apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 
@@ -275,7 +275,7 @@ public class UserPersonaPostRepository {
         ApiRequest request = new ApiRequest(BuildConfig.MODEL_NAME, apiHistory);
 
         // 异步调用API
-        apiService.getChatCompletion(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
+        apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 

@@ -228,22 +228,7 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
             }
 
             // 处理点击头像、名字和简介的跳转逻辑
-            if (post.isUserPersonaPost()) { // 如果是自己的帖子
-                // 设置点击头像、作者名称或简介/时间区域时，启动与该作者的聊天界面
-                View.OnClickListener startChatListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, UserPersonaChatActivity.class);
-                        // 通过Intent传递Persona对象
-                        intent.putExtra(UserPersonaChatActivity.EXTRA_PERSONA, author);
-                        context.startActivity(intent);
-                    }
-                };
-                // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
-                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像监听器
-                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称监听器
-                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间监听器
-            } else { // 如果不是自己的帖子
+            if (!post.isUserPersonaPost()) {
                 // 设置点击头像、作者名称或简介/时间区域时，启动与该作者的聊天界面
                 View.OnClickListener startChatListener = new View.OnClickListener() {
                     @Override
@@ -254,10 +239,15 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
                         context.startActivity(intent);
                     }
                 };
-                // 为帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
-                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像监听器
-                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称监听器
-                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间监听器
+                // 为其他persona的帖子设置点击监听器，点击后可直接跳转到与该persona的聊天界面
+                itemPersonaPostBinding.ivAvatar.setOnClickListener(startChatListener);              // 点击头像
+                itemPersonaPostBinding.tvAuthorName.setOnClickListener(startChatListener);          // 点击作者名称
+                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(startChatListener);     // 点击作者简介或时间
+            } else {
+                // 清除之前设置的点击监听器，防止视图复用导致的错误跳转
+                itemPersonaPostBinding.ivAvatar.setOnClickListener(null);              // 清除头像点击监听器
+                itemPersonaPostBinding.tvAuthorName.setOnClickListener(null);          // 清除作者名称点击监听器
+                itemPersonaPostBinding.tvAuthorBioOrTime.setOnClickListener(null);     // 清除作者简介或时间点击监听器
             }
         }
     }
