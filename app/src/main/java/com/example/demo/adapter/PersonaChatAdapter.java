@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demo.model.ChatMessage;
@@ -19,9 +21,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,16 +30,13 @@ import java.util.Map;
  * 支持发送和接收两种不同类型的消息布局
  * 接收的消息支持打字机效果显示
  */
-public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.ViewHolder> {
 
     // 视图类型常量：发送的消息
     private static final int VIEW_TYPE_SENT = 1;
     // 视图类型常量：接收的消息
     private static final int VIEW_TYPE_RECEIVED = 2;
 
-    // 消息列表
-    private List<ChatMessage> messageList = new ArrayList<>();
-    
     // 消息完成状态映射，用于记录哪些消息已经完成打字机效果
     private static final Map<String, Boolean> messageCompletionMap = new HashMap<>();
     
@@ -47,10 +44,29 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final Markwon markwon;
 
     /**
+     * 消息差异回调
+     * 用于ListAdapter计算列表项差异
+     */
+    private static class ChatMessageDiffCallback extends DiffUtil.ItemCallback<ChatMessage> {
+        @Override
+        public boolean areItemsTheSame(@NonNull ChatMessage oldItem, @NonNull ChatMessage newItem) {
+            // 使用消息的唯一标识符比较
+            return oldItem.getId().equals(newItem.getId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull ChatMessage oldItem, @NonNull ChatMessage newItem) {
+            // 比较消息内容
+            return oldItem.equals(newItem);
+        }
+    }
+
+    /**
      * 构造函数
      * @param context 上下文
      */
     public PersonaChatAdapter(Context context) {
+        super(new ChatMessageDiffCallback());
         // 初始化Markwon，配置各种插件支持Markdown特性
         this.markwon = Markwon.builder(context)
                 .usePlugin(StrikethroughPlugin.create()) // 支持删除线
@@ -61,15 +77,6 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     /**
-     * 设置消息数据
-     * @param newMessages 新的消息列表
-     */
-    public void setData(List<ChatMessage> newMessages) {
-        this.messageList = newMessages;
-        notifyDataSetChanged(); // 通知适配器数据已更改
-    }
-
-    /**
      * 获取指定位置项的视图类型
      * 根据消息是发送还是接收返回不同的视图类型
      * @param position 项在列表中的位置
@@ -77,7 +84,7 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      */
     @Override
     public int getItemViewType(int position) {
-        ChatMessage message = messageList.get(position);
+        ChatMessage message = getItem(position);
         if (message.isSentByUser()) {
             return VIEW_TYPE_SENT;
         } else {
@@ -119,22 +126,13 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      */
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ChatMessage message = messageList.get(position);
+        ChatMessage message = getItem(position);
 
         if (holder.getItemViewType() == VIEW_TYPE_SENT) {
             ((SentMessageViewHolder) holder).bind(message);
         } else if (holder.getItemViewType() == VIEW_TYPE_RECEIVED) {
             ((ReceivedMessageViewHolder) holder).bind(message);
         }
-    }
-
-    /**
-     * 获取列表项总数
-     * @return 列表项数量
-     */
-    @Override
-    public int getItemCount() {
-        return messageList.size();
     }
 
     /**
@@ -196,8 +194,8 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
          * @param message 要显示的消息
          */
         public void bind(ChatMessage message) {
-            // 生成消息的唯一键
-            String messageKey = generateMessageKey(message);
+            // 生成消息的唯一键，使用UUID
+            String messageKey = message.getId().toString();
             
             // 检查消息是否已经完成打字机效果
             Boolean isCompleted = messageCompletionMap.get(messageKey);
@@ -221,16 +219,6 @@ public class PersonaChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             };
             typewriterEffect.start(); // 开始打字机效果
-        }
-        
-        /**
-         * 生成消息的唯一键
-         * 用于标识消息是否已完成打字机效果
-         * @param message 消息对象
-         * @return 消息的唯一键
-         */
-        private String generateMessageKey(ChatMessage message) {
-            return message.getText() + "_" + message.isSentByUser();
         }
     }
 }

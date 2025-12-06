@@ -82,7 +82,7 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
         // 设置观察者，观察聊天历史变化
         otherPersonaChatViewModel.getChatHistory().observe(this, chatMessages -> {
             if (chatMessages != null) {
-                personaChatAdapter.setData(chatMessages);
+                personaChatAdapter.submitList(chatMessages);
                 // 滚动到最新消息
                 activityChatBinding.rvChatMessages.scrollToPosition(chatMessages.size() - 1);
             }
