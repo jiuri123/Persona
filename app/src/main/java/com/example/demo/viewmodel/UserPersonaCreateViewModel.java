@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.model.Persona;
 import com.example.demo.data.repository.UserPersonaRepository;
@@ -19,10 +20,10 @@ import java.util.List;
  */
 public class UserPersonaCreateViewModel extends AndroidViewModel {
 
-    // 使用MediatorLiveData作为数据中转
-    private final MediatorLiveData<Boolean> isLoadingLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<Persona> generatedPersonaLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<String> errorLiveData = new MediatorLiveData<>();
+    // 使用MutableLiveData管理状态，MediatorLiveData用于观察仓库数据
+    private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
     private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
     // 用于 O(1) 快速查找的集合缓存
     private final java.util.Set<String> userPersonaNames = new java.util.HashSet<>();
@@ -45,12 +46,6 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
      * 设置MediatorLiveData观察Repository的LiveData
      */
     private void setupMediatorLiveData() {
-        // 观察加载状态
-        isLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), isLoadingLiveData::setValue);
-
-        // 观察AI生成的临时Persona对象
-        generatedPersonaLiveData.addSource(userPersonaRepository.getGeneratedPersona(), generatedPersonaLiveData::setValue);
-        
         // 观察用户角色列表
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonas -> {
             userPersonaNames.clear();
@@ -62,11 +57,8 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
             // 将获取到的userPersonas设置到userPersonasLiveData中
             userPersonasLiveData.setValue(userPersonas);
         });
-
-        // 观察错误信息
-        errorLiveData.addSource(userPersonaRepository.getError(), errorLiveData::setValue);
     }
-
+    
     /**
      * 获取生成的角色LiveData
      * @return 角色的LiveData对象
@@ -95,6 +87,7 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
      * 清除生成的Persona对象
      */
     public void clearGeneratedPersona() {
+        generatedPersonaLiveData.setValue(null);
         userPersonaRepository.clearGeneratedPersona();
     }
 
@@ -103,7 +96,28 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
      * 调用UserPersonaRepository生成角色名称和背景故事
      */
     public void generatePersonaDetails() {
-        userPersonaRepository.generatePersonaDetails();
+        // 设置加载状态为true
+        isLoadingLiveData.setValue(true);
+        errorLiveData.setValue(null);
+
+        // 调用仓库的AI生成方法
+        userPersonaRepository.generatePersonaDetails(
+                new UserPersonaRepository.ContentCallback() {
+                    @Override
+                    public void onSuccess(Persona persona) {
+                        // 生成成功，更新内容
+                        generatedPersonaLiveData.postValue(persona);
+                        isLoadingLiveData.postValue(false);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        // 生成失败，更新错误信息
+                        errorLiveData.postValue(error);
+                        isLoadingLiveData.postValue(false);
+                    }
+                }
+        );
     }
 
     /**

@@ -35,6 +35,24 @@ import retrofit2.Response;
  */
 public class UserPersonaRepository {
 
+    /**
+     * 内容回调接口
+     * 用于处理AI生成Persona的结果
+     */
+    public interface ContentCallback {
+        /**
+         * 成功回调
+         * @param persona AI生成的Persona对象
+         */
+        void onSuccess(Persona persona);
+
+        /**
+         * 失败回调
+         * @param error 错误信息
+         */
+        void onError(String error);
+    }
+
     // 单例实例
     private static UserPersonaRepository instance;
 
@@ -52,10 +70,8 @@ public class UserPersonaRepository {
 
     List<ApiRequestMessage> apiHistory = new ArrayList<>();
 
-    // LiveData对象，用于观察数据变化
+    // LiveData对象，用于观察生成的Persona变化
     private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
     /**
      * 私有构造函数，防止外部实例化
@@ -96,11 +112,9 @@ public class UserPersonaRepository {
      * 生成角色详情
      * 调用AI API生成角色名称和背景故事
      * 使用随机主题增加角色多样性
+     * @param callback 回调接口，用于返回生成结果
      */
-    public void generatePersonaDetails() {
-        // 设置加载状态为true
-        isLoadingLiveData.setValue(true);
-
+    public void generatePersonaDetails(ContentCallback callback) {
         // 随机主题
         String randomTheme = THEMES[random.nextInt(THEMES.length)];
 
@@ -119,9 +133,6 @@ public class UserPersonaRepository {
         apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
-                // 请求完成，设置加载状态为false
-                isLoadingLiveData.postValue(false);
-
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
                     String aiContent = response.body().getFirstMessageContent();
@@ -146,29 +157,27 @@ public class UserPersonaRepository {
                                     gender, age, personality, relationship
                             );
 
-                            // 更新LiveData，通知UI更新
-                            generatedPersonaLiveData.postValue(generatedPersona);
+                            // 通过回调返回成功结果
+                            callback.onSuccess(generatedPersona);
 
                         } catch (JSONException e) {
                             // JSON解析错误
-                            errorLiveData.postValue("AI 返回的数据格式错误: " + e.getMessage());
+                            callback.onError("AI 返回的数据格式错误: " + e.getMessage());
                         }
                     } else {
                         // API返回空内容
-                        errorLiveData.postValue("API 返回了空内容");
+                        callback.onError("API 返回了空内容");
                     }
                 } else {
                     // API错误
-                    errorLiveData.postValue("API 错误: " + response.code() + " " + response.message());
+                    callback.onError("API 错误: " + response.code() + " " + response.message());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
-                // 请求失败，设置加载状态为false
-                isLoadingLiveData.postValue(false);
                 // 网络错误
-                errorLiveData.postValue("网络请求失败: " + t.getMessage());
+                callback.onError("网络请求失败: " + t.getMessage());
             }
         });
     }
@@ -180,22 +189,6 @@ public class UserPersonaRepository {
     public LiveData<Persona> getGeneratedPersona() {
         return generatedPersonaLiveData;
     }
-
-    /**
-     * 获取加载状态LiveData
-     * @return 加载状态的LiveData对象
-     */
-    public LiveData<Boolean> getIsLoading() {
-        return isLoadingLiveData;
-    }
-
-    /**
-     * 获取错误信息LiveData
-     * @return 错误信息的LiveData对象
-     */
-    public LiveData<String> getError() {
-        return errorLiveData;
-    }
     
     /**
      * 获取用户创建的Persona列表LiveData
@@ -203,13 +196,6 @@ public class UserPersonaRepository {
      */
     public LiveData<List<Persona>> getUserPersonas() {
         return localDataSource.getAllPersonas();
-    }
-
-    /**
-     * 清除错误信息
-     */
-    public void clearError() {
-        errorLiveData.setValue(null);
     }
     
     /**

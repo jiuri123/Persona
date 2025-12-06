@@ -21,11 +21,6 @@ public class UserPersonaViewModel extends AndroidViewModel {
 
     // Persona数据仓库
     private final UserPersonaRepository userPersonaRepository;
-    
-    // 使用MediatorLiveData包装所有Repository的LiveData
-    private final MediatorLiveData<Persona> generatedPersonaLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<Boolean> personaIsLoadingLiveData = new MediatorLiveData<>();
-    private final MediatorLiveData<String> personaErrorLiveData = new MediatorLiveData<>();
     private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
 
     /**
@@ -43,10 +38,7 @@ public class UserPersonaViewModel extends AndroidViewModel {
      * 设置MediatorLiveData观察Repository的LiveData
      */
     private void setupMediatorLiveData() {
-        // Persona相关LiveData
-        generatedPersonaLiveData.addSource(userPersonaRepository.getGeneratedPersona(), generatedPersonaLiveData::setValue);
-        personaIsLoadingLiveData.addSource(userPersonaRepository.getIsLoading(), personaIsLoadingLiveData::setValue);
-        personaErrorLiveData.addSource(userPersonaRepository.getError(), personaErrorLiveData::setValue);
+        // 只观察用户Persona列表
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
     }
     

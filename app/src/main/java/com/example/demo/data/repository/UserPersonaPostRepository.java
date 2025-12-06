@@ -82,7 +82,6 @@ public class UserPersonaPostRepository {
 
     // LiveData对象，用于观察数据变化
     private final MutableLiveData<List<Post>> userPostsLiveData = new MutableLiveData<>(new ArrayList<>());
-    private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
 
     /**
      * 私有构造函数
@@ -160,11 +159,6 @@ public class UserPersonaPostRepository {
      * @param callback 回调接口，用于处理结果
      */
     public void aiExpandContent(Persona currentUser, String currentContent, ContentCallback callback) {
-        // 如果正在加载，则不执行新的请求
-        if (Boolean.TRUE.equals(isLoadingLiveData.getValue())) {
-            callback.onError("正在处理请求，请稍后再试");
-            return;
-        }
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
@@ -239,11 +233,6 @@ public class UserPersonaPostRepository {
      * @param callback 回调接口，用于处理结果
      */
     public void aiGenerateContent(Persona currentUser, ContentCallback callback) {
-        // 如果正在加载，则不执行新的请求
-        if (Boolean.TRUE.equals(isLoadingLiveData.getValue())) {
-            callback.onError("正在处理请求，请稍后再试");
-            return;
-        }
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
