@@ -24,6 +24,9 @@ import io.noties.markwon.linkify.LinkifyPlugin;
 import java.util.HashMap;
 import java.util.Map;
 
+// 导入资源类
+import com.example.demo.R;
+
 /**
  * Persona聊天适配器
  * 用于在RecyclerView中显示聊天消息
@@ -163,6 +166,18 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
         public void bind(ChatMessage message) {
             // 使用Markwon渲染Markdown内容
             markwon.setMarkdown(binding.tvMessage, message.getText());
+            
+            // 设置头像
+            if (message.getAvatarDrawableId() != 0) {
+                // 从资源ID加载头像
+                binding.ivAvatar.setImageResource(message.getAvatarDrawableId());
+            } else if (message.getAvatarUri() != null) {
+                // 从URI加载头像
+                binding.ivAvatar.setImageURI(android.net.Uri.parse(message.getAvatarUri()));
+            } else {
+                // 设置默认头像
+                binding.ivAvatar.setImageResource(R.drawable.icon_persona);
+            }
         }
     }
 
@@ -194,6 +209,18 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
          * @param message 要显示的消息
          */
         public void bind(ChatMessage message) {
+            // 设置头像
+            if (message.getAvatarDrawableId() != 0) {
+                // 从资源ID加载头像
+                binding.ivAvatar.setImageResource(message.getAvatarDrawableId());
+            } else if (message.getAvatarUri() != null) {
+                // 从URI加载头像
+                binding.ivAvatar.setImageURI(android.net.Uri.parse(message.getAvatarUri()));
+            } else {
+                // 设置默认头像
+                binding.ivAvatar.setImageResource(R.drawable.avatar_zero);
+            }
+            
             // 生成消息的唯一键，使用UUID
             String messageKey = message.getId().toString();
             

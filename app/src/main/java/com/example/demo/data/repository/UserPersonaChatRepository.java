@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.demo.R;
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.Persona;
 import com.example.demo.data.remote.ApiClient;
@@ -125,8 +126,8 @@ public class UserPersonaChatRepository {
             return;
         }
 
-        // 创建用户消息并添加到UI历史
-        ChatMessage uiUserMessage = new ChatMessage(userMessageText, true);
+        // 创建用户消息并添加到UI历史（使用默认用户头像）
+        ChatMessage uiUserMessage = new ChatMessage(userMessageText, true, R.drawable.icon_persona, null);
         List<ChatMessage> currentUiHistory = chatHistoryLiveData.getValue();
         if (currentUiHistory == null) {
             currentUiHistory = new ArrayList<>();
@@ -160,7 +161,7 @@ public class UserPersonaChatRepository {
                         }
                         // 添加AI消息到UI历史
                         if (uiHistory != null) {
-                            uiHistory.add(new ChatMessage(aiContent, false));
+                            uiHistory.add(new ChatMessage(aiContent, false, currentPersona.getAvatarDrawableId(), currentPersona.getAvatarUri()));
                         }
                         // 使用postValue在后台线程更新LiveData
                         chatHistoryLiveData.postValue(uiHistory);

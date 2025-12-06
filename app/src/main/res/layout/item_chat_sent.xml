@@ -15,9 +15,20 @@
         android:padding="12dp"
         android:textColor="@android:color/white"
         android:textSize="16sp"
-        android:maxWidth="300dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:maxWidth="260dp"
+        app:layout_constraintEnd_toStartOf="@+id/ivAvatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="数据流确实很通畅，我在这里感觉很舒适。" />
+
+    <ImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/icon_persona"
+        android:scaleType="centerCrop"
+        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/icon_persona" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
