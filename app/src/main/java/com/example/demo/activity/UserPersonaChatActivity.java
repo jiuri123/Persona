@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.example.demo.adapter.PersonaChatAdapter;
 import com.example.demo.databinding.ActivityChatBinding;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.viewmodel.UserPersonaChatViewModel;
 
 /**
@@ -28,8 +28,8 @@ public class UserPersonaChatActivity extends AppCompatActivity {
     // 聊天消息适配器，用于显示聊天消息
     private PersonaChatAdapter personaChatAdapter;
     
-    // 当前聊天的Persona
-    private Persona personaToChat;
+    // 当前聊天的UserPersona
+    private UserPersona personaToChat;
     
     // 聊天ViewModel，处理聊天相关的业务逻辑
     private UserPersonaChatViewModel userPersonaChatViewModel;
@@ -42,7 +42,7 @@ public class UserPersonaChatActivity extends AppCompatActivity {
         activityChatBinding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(activityChatBinding.getRoot());
         
-        // 获取从Intent传递过来的Persona对象
+        // 获取从Intent传递过来的UserPersona对象
         personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
         
         if (personaToChat == null) {

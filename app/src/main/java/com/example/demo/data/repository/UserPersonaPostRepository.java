@@ -1,9 +1,10 @@
 package com.example.demo.data.repository;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.model.Post;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
@@ -153,12 +154,12 @@ public class UserPersonaPostRepository {
 
     /**
      * AI扩展当前内容
-     * 根据当前用户的Persona设定扩展已有内容
-     * @param currentUser 当前用户的Persona对象
+     * 根据当前用户的UserPersona设定扩展已有内容
+     * @param currentUser 当前用户的UserPersona对象
      * @param currentContent 当前编辑框中的内容
      * @param callback 回调接口，用于处理结果
      */
-    public void aiExpandContent(Persona currentUser, String currentContent, ContentCallback callback) {
+    public void aiExpandContent(UserPersona currentUser, String currentContent, ContentCallback callback) {
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
@@ -193,7 +194,7 @@ public class UserPersonaPostRepository {
         // 异步调用API
         apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -219,7 +220,7 @@ public class UserPersonaPostRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }
@@ -228,11 +229,11 @@ public class UserPersonaPostRepository {
 
     /**
      * AI生成新内容
-     * 根据当前用户的Persona设定生成新内容
-     * @param currentUser 当前用户的Persona对象
+     * 根据当前用户的UserPersona设定生成新内容
+     * @param currentUser 当前用户的UserPersona对象
      * @param callback 回调接口，用于处理结果
      */
-    public void aiGenerateContent(Persona currentUser, ContentCallback callback) {
+    public void aiGenerateContent(UserPersona currentUser, ContentCallback callback) {
 
         // 生成随机数和语言选择
         int randomNumber = random.nextInt(10000);
@@ -266,7 +267,7 @@ public class UserPersonaPostRepository {
         // 异步调用API
         apiService.getApiResponse(BuildConfig.API_KEY, request).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 
                 if (response.isSuccessful() && response.body() != null) {
                     // 获取AI返回的内容
@@ -292,7 +293,7 @@ public class UserPersonaPostRepository {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 // 网络错误
                 callback.onError("网络请求失败: " + t.getMessage());
             }
@@ -302,11 +303,11 @@ public class UserPersonaPostRepository {
     /**
      * 发布帖子
      * 将编辑好的内容发布为新帖子
-     * @param currentUser 当前用户的Persona对象
+     * @param currentUser 当前用户的UserPersona对象
      * @param content 要发布的内容
      * @param callback 回调接口，用于处理结果
      */
-    public void publishPost(Persona currentUser, String content, PublishCallback callback) {
+    public void publishPost(UserPersona currentUser, String content, PublishCallback callback) {
         // 创建新的Post对象
         Post newPost = new Post(
                 currentUser,

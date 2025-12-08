@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.data.local.LocalDataSource;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
 import com.example.demo.data.remote.model.ApiRequestMessage;
@@ -42,9 +42,9 @@ public class UserPersonaRepository {
     public interface ContentCallback {
         /**
          * 成功回调
-         * @param persona AI生成的Persona对象
+         * @param userPersona AI生成的UserPersona对象
          */
-        void onSuccess(Persona persona);
+        void onSuccess(UserPersona userPersona);
 
         /**
          * 失败回调
@@ -70,8 +70,8 @@ public class UserPersonaRepository {
 
     List<ApiRequestMessage> apiHistory = new ArrayList<>();
 
-    // LiveData对象，用于观察生成的Persona变化
-    private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
+    // LiveData对象，用于观察生成的UserPersona变化
+    private final MutableLiveData<UserPersona> generatedPersonaLiveData = new MutableLiveData<>();
 
     /**
      * 私有构造函数，防止外部实例化
@@ -150,9 +150,9 @@ public class UserPersonaRepository {
                             String catchphrase = jsonResponse.getString("catchphrase");
                             String story = jsonResponse.getString("story");
 
-                            // 创建Persona对象（使用默认头像，将catchphrase作为signature，id设为0由系统自动生成）
+                            // 创建UserPersona对象（使用默认头像，将catchphrase作为signature，id设为0由系统自动生成）
                             int avatarId = R.drawable.avatar_zero;
-                            Persona generatedPersona = new Persona(
+                            UserPersona generatedPersona = new UserPersona(
                                     0, name, avatarId, null, catchphrase, story,
                                     gender, age, personality, relationship
                             );
@@ -186,16 +186,16 @@ public class UserPersonaRepository {
      * 获取生成的角色LiveData
      * @return 角色的LiveData对象
      */
-    public LiveData<Persona> getGeneratedPersona() {
+    public LiveData<UserPersona> getGeneratedPersona() {
         return generatedPersonaLiveData;
     }
     
     /**
-     * 获取用户创建的Persona列表LiveData
-     * @return 用户Persona列表的LiveData对象
+     * 获取用户创建的UserPersona列表LiveData
+     * @return 用户UserPersona列表的LiveData对象
      */
-    public LiveData<List<Persona>> getUserPersonas() {
-        return localDataSource.getAllPersonas();
+    public LiveData<List<UserPersona>> getUserPersonas() {
+        return localDataSource.getAllUserPersonas();
     }
     
     /**
@@ -206,26 +206,26 @@ public class UserPersonaRepository {
     }
 
     /**
-     * 添加新的Persona到用户列表
-     * @param persona 要添加的Persona
+     * 添加新的UserPersona到用户列表
+     * @param userPersona 要添加的UserPersona
      * @return 如果成功添加返回true，如果名称已存在则返回false
      */
-    public boolean addUserPersona(Persona persona) {
+    public boolean addUserPersona(UserPersona userPersona) {
         // 添加到本地数据库
-        localDataSource.insertPersona(persona);
+        localDataSource.insertUserPersona(userPersona);
         return true;
     }
     
     /**
-     * 删除用户Persona
-     * @param persona 要删除的Persona
+     * 删除用户UserPersona
+     * @param userPersona 要删除的UserPersona
      * @return 如果成功删除返回true，如果不存在则返回false
      */
-    public boolean removeUserPersona(Persona persona) {
-        if (persona == null || persona.getName() == null) {
+    public boolean removeUserPersona(UserPersona userPersona) {
+        if (userPersona == null) {
             return false;
         }
-        localDataSource.deletePersona(persona);
+        localDataSource.deleteUserPersona(userPersona);
 
         return true;
     }

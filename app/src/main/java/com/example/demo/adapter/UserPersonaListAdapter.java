@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 import com.example.demo.activity.UserPersonaChatActivity;
@@ -29,35 +29,35 @@ import java.util.Objects;
  * 用于在RecyclerView中显示用户创建的Persona列表
  * 实现了点击Persona项跳转到聊天界面的功能
  */
-public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaListAdapter.UserPersonaViewHolder> {
+public class UserPersonaListAdapter extends ListAdapter<UserPersona, UserPersonaListAdapter.UserPersonaViewHolder> {
 
     // 上下文，用于启动Activity和加载资源
     private final Context context;
     // 删除Persona的回调接口
-    private OnPersonaDeleteListener onPersonaDeleteListener;
+    private OnUserPersonaDeleteListener onUserPersonaDeleteListener;
 
     /**
-     * DiffUtil.ItemCallback实现，用于比较Persona对象
+     * DiffUtil.ItemCallback实现，用于比较UserPersona对象
      */
-    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<UserPersona> {
         @Override
-        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areItemsTheSame(@NonNull UserPersona oldItem, @NonNull UserPersona newItem) {
             // 使用id判断是否为同一对象
             return oldItem.getId() == newItem.getId();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areContentsTheSame(@NonNull UserPersona oldItem, @NonNull UserPersona newItem) {
             // 使用Objects.equals比较所有内容是否一致
             return Objects.equals(oldItem, newItem);
         }
     }
 
     /**
-     * 删除Persona的回调接口
+     * 删除UserPersona的回调接口
      */
-    public interface OnPersonaDeleteListener {
-        void onPersonaDelete(Persona persona);
+    public interface OnUserPersonaDeleteListener {
+        void onUserPersonaDelete(UserPersona userPersona);
     }
 
     /**
@@ -71,10 +71,10 @@ public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaList
 
     /**
      * 设置删除Persona的回调接口
-     * @param onPersonaDeleteListener 回调接口实例
+     * @param onUserPersonaDeleteListener 回调接口实例
      */
-    public void setOnPersonaDeleteListener(OnPersonaDeleteListener onPersonaDeleteListener) {
-        this.onPersonaDeleteListener = onPersonaDeleteListener;
+    public void setOnUserPersonaDeleteListener(OnUserPersonaDeleteListener onUserPersonaDeleteListener) {
+        this.onUserPersonaDeleteListener = onUserPersonaDeleteListener;
     }
 
     /**
@@ -102,8 +102,8 @@ public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaList
     @Override
     public void onBindViewHolder(@NonNull UserPersonaViewHolder holder, int position) {
         // 使用getItem获取当前位置的数据
-        Persona persona = getItem(position);
-        holder.bind(persona);
+        UserPersona userPersona = getItem(position);
+        holder.bind(userPersona);
     }
 
     /**
@@ -125,24 +125,24 @@ public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaList
         }
 
         /**
-         * 绑定Persona数据到视图
-         * @param persona 要显示的Persona对象
+         * 绑定UserPersona数据到视图
+         * @param userPersona 要显示的UserPersona对象
          */
-        public void bind(Persona persona) {
-            // 设置Persona名称和简介
-            binding.tvPersonaName.setText(persona.getName());
-            binding.tvPersonaBio.setText(persona.getSignature());
+        public void bind(UserPersona userPersona) {
+            // 设置UserPersona名称和简介
+            binding.tvPersonaName.setText(userPersona.getName());
+            binding.tvPersonaBio.setText(userPersona.getSignature());
 
             // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
-            if (persona.getAvatarUri() != null) {
+            if (userPersona.getAvatarUri() != null) {
                 Glide.with(context)
-                        .load(Uri.parse(persona.getAvatarUri()))
+                        .load(Uri.parse(userPersona.getAvatarUri()))
                         .placeholder(R.drawable.ic_launcher_background) // 占位图
                         .circleCrop() // 圆形裁剪
                         .into(binding.ivPersonaAvatar);
             } else {
                 Glide.with(context)
-                        .load(persona.getAvatarDrawableId())
+                        .load(userPersona.getAvatarDrawableId())
                         .placeholder(R.drawable.ic_launcher_background) // 占位图
                         .circleCrop() // 圆形裁剪
                         .into(binding.ivPersonaAvatar);
@@ -153,8 +153,8 @@ public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaList
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, UserPersonaChatActivity.class);
-                    // 通过Intent传递Persona对象
-                    intent.putExtra(UserPersonaChatActivity.EXTRA_PERSONA, persona);
+                    // 通过Intent传递UserPersona对象
+                    intent.putExtra(UserPersonaChatActivity.EXTRA_PERSONA, userPersona);
                     context.startActivity(intent);
                 }
             });
@@ -173,15 +173,15 @@ public class UserPersonaListAdapter extends ListAdapter<Persona, UserPersonaList
                         public boolean onMenuItemClick(MenuItem item) {
                             if (item.getItemId() == 1) {
                                 // 显示删除确认对话框
-                                new AlertDialog.Builder(context)
-                                        .setTitle("确认删除")
-                                        .setMessage("确定要删除角色\"" + persona.getName() + "\"吗？")
-                                        .setPositiveButton("删除", (dialog, which) -> {
-                                            // 调用删除回调
-                                            if (onPersonaDeleteListener != null) {
-                                                onPersonaDeleteListener.onPersonaDelete(persona);
-                                            }
-                                        })
+                            new AlertDialog.Builder(context)
+                                    .setTitle("确认删除")
+                                    .setMessage("确定要删除角色\"" + userPersona.getName() + "\"吗？")
+                                    .setPositiveButton("删除", (dialog, which) -> {
+                                        // 调用删除回调
+                                        if (onUserPersonaDeleteListener != null) {
+                                            onUserPersonaDeleteListener.onUserPersonaDelete(userPersona);
+                                        }
+                                    })
                                         .setNegativeButton("取消", null)
                                         .show();
                                 return true;

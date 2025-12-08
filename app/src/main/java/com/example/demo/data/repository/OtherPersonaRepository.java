@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,8 @@ public class OtherPersonaRepository {
     // 单例实例
     private static OtherPersonaRepository instance;
 
-    // Persona的LiveData，用于观察数据变化
-    private final MutableLiveData<List<Persona>> personasLiveData = new MutableLiveData<>();
+    // OtherPersona的LiveData，用于观察数据变化
+    private final MutableLiveData<List<OtherPersona>> personasLiveData = new MutableLiveData<>();
 
     /**
      * 私有构造函数，实现单例模式
@@ -42,14 +42,14 @@ public class OtherPersonaRepository {
     }
 
     /**
-     * 加载模拟Persona数据
-     * 创建预设的Persona数据并更新LiveData
+     * 加载模拟OtherPersona数据
+     * 创建预设的OtherPersona数据并更新LiveData
      */
     private void loadMockPersonas() {
-        List<Persona> personas = new ArrayList<>();
+        List<OtherPersona> personas = new ArrayList<>();
 
-        // 创建第一个Persona：AI画家
-        Persona persona1 = new Persona(
+        // 创建第一个OtherPersona：AI画家
+        OtherPersona persona1 = new OtherPersona(
                 0,
                 "AI 画家·零",
                 R.drawable.avatar_zero,
@@ -62,8 +62,8 @@ public class OtherPersonaRepository {
                 "艺术伙伴"
         );
 
-        // 创建第二个Persona：赛博诗人
-        Persona persona2 = new Persona(
+        // 创建第二个OtherPersona：赛博诗人
+        OtherPersona persona2 = new OtherPersona(
                 1,
                 "赛博诗人·K",
                 R.drawable.avatar_k,
@@ -76,8 +76,8 @@ public class OtherPersonaRepository {
                 "诗意伴侣"
         );
 
-        // 创建第三个Persona：历史学家
-        Persona persona3 = new Persona(
+        // 创建第三个OtherPersona：历史学家
+        OtherPersona persona3 = new OtherPersona(
                 2,
                 "历史学家·T800",
                 R.drawable.avatar_t800,
@@ -90,8 +90,8 @@ public class OtherPersonaRepository {
                 "历史导师"
         );
 
-        // 创建第四个Persona：哲学家
-        Persona persona4 = new Persona(
+        // 创建第四个OtherPersona：哲学家
+        OtherPersona persona4 = new OtherPersona(
                 3,
                 "哲学家·苏格拉底2.0",
                 R.drawable.avatar_philosopher,
@@ -104,8 +104,8 @@ public class OtherPersonaRepository {
                 "思想导师"
         );
 
-        // 创建第五个Persona：游戏设计师
-        Persona persona5 = new Persona(
+        // 创建第五个OtherPersona：游戏设计师
+        OtherPersona persona5 = new OtherPersona(
                 4,
                 "游戏设计师·像素大师",
                 R.drawable.avatar_gamedesigner,
@@ -118,8 +118,8 @@ public class OtherPersonaRepository {
                 "游戏伙伴"
         );
 
-        // 创建第六个Persona：美食家
-        Persona persona6 = new Persona(
+        // 创建第六个OtherPersona：美食家
+        OtherPersona persona6 = new OtherPersona(
                 5,
                 "美食家·味蕾AI",
                 R.drawable.avatar_foodie,
@@ -132,8 +132,8 @@ public class OtherPersonaRepository {
                 "美食向导"
         );
 
-        // 创建第七个Persona：天文学家
-        Persona persona7 = new Persona(
+        // 创建第七个OtherPersona：天文学家
+        OtherPersona persona7 = new OtherPersona(
                 6,
                 "天文学家·星尘",
                 R.drawable.avatar_astronomer,
@@ -158,22 +158,22 @@ public class OtherPersonaRepository {
     }
 
     /**
-     * 获取Persona列表的LiveData
-     * @return 可观察的Persona列表LiveData
+     * 获取OtherPersona列表的LiveData
+     * @return 可观察的OtherPersona列表LiveData
      */
-    public LiveData<List<Persona>> getPersonas() {
+    public LiveData<List<OtherPersona>> getPersonas() {
         return personasLiveData;
     }
 
     /**
-     * 根据名称获取特定的Persona
-     * @param name Persona的名称
-     * @return 匹配的Persona对象，如果未找到则返回null
+     * 根据名称获取特定的OtherPersona
+     * @param name OtherPersona的名称
+     * @return 匹配的OtherPersona对象，如果未找到则返回null
      */
-    public Persona getPersonaByName(String name) {
-        List<Persona> personas = personasLiveData.getValue();
+    public OtherPersona getPersonaByName(String name) {
+        List<OtherPersona> personas = personasLiveData.getValue();
         if (personas != null) {
-            for (Persona persona : personas) {
+            for (OtherPersona persona : personas) {
                 if (persona.getName().equals(name)) {
                     return persona;
                 }

@@ -16,11 +16,10 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.adapter.UserFollowedListAdapter;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.databinding.FragmentFollowedListBinding;
 import com.example.demo.viewmodel.UserFollowedListViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,8 +49,9 @@ public class UserFollowedListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 获取与Activity关联的ViewModel实例
-        userFollowedListViewModel = new ViewModelProvider(requireActivity()).get(UserFollowedListViewModel.class);
+        // 获取与Activity关联的ViewModel实例，使用自定义Factory
+        UserFollowedListViewModel.Factory factory = new UserFollowedListViewModel.Factory(requireActivity().getApplication());
+        userFollowedListViewModel = new ViewModelProvider(requireActivity(), factory).get(UserFollowedListViewModel.class);
         
         // 观察错误消息，当有错误时显示Toast
         userFollowedListViewModel.getError().observe(this, new Observer<String>() {
@@ -97,7 +97,7 @@ public class UserFollowedListFragment extends Fragment {
         userFollowedListAdapter = new UserFollowedListAdapter(getContext());
         userFollowedListAdapter.setOnUnfollowClickListener(new UserFollowedListAdapter.OnUnfollowClickListener() {
             @Override
-            public void onUnfollowClick(Persona persona) {
+            public void onUnfollowClick(OtherPersona persona) {
                 // 创建并显示确认对话框
                 new AlertDialog.Builder(requireContext())
                         .setTitle("取消关注")
@@ -116,9 +116,9 @@ public class UserFollowedListFragment extends Fragment {
         fragmentFollowedListBinding.rvFollowedList.setAdapter(userFollowedListAdapter);
         
         // 观察已关注Persona列表的变化
-        userFollowedListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<Persona>>() {
+        userFollowedListViewModel.getFollowedPersonas().observe(getViewLifecycleOwner(), new Observer<List<OtherPersona>>() {
             @Override
-            public void onChanged(List<Persona> personas) {
+            public void onChanged(List<OtherPersona> personas) {
                 if (personas != null) {
                     // 更新适配器的数据
                     userFollowedListAdapter.submitList(personas);

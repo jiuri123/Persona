@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.model.Post;
 import com.example.demo.data.repository.UserPersonaPostRepository;
 
@@ -42,7 +42,7 @@ public class UserPostCreateViewModel extends AndroidViewModel {
      * @param persona 指定的Persona
      * @param currentContent 当前编辑框中的内容
      */
-    public void aiExpandContent(Persona persona, String currentContent) {
+    public void aiExpandContent(UserPersona persona, String currentContent) {
         // 检查Persona是否为空
         if (persona == null) {
             errorLiveData.setValue("请先选择一个Persona~");
@@ -79,7 +79,7 @@ public class UserPostCreateViewModel extends AndroidViewModel {
      * 根据指定的Persona设定生成新内容
      * @param persona 指定的Persona
      */
-    public void aiGenerateContent(Persona persona) {
+    public void aiGenerateContent(UserPersona persona) {
         // 检查Persona是否为空
         if (persona == null) {
             errorLiveData.setValue("请先选择一个Persona~");
@@ -116,7 +116,7 @@ public class UserPostCreateViewModel extends AndroidViewModel {
      * @param content 要发布的动态内容
      * @param persona 发布动态的Persona
      */
-    public void publishPost(Persona persona, String content) {
+    public void publishPost(UserPersona persona, String content) {
         // 检查Persona是否为空
         if (persona == null) {
             errorLiveData.setValue("请先选择一个Persona~");

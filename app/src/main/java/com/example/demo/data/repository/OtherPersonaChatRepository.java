@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
 import com.example.demo.model.ChatMessage;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.data.remote.ApiClient;
 import com.example.demo.data.remote.ApiService;
 import com.example.demo.data.remote.model.ApiRequestMessage;
@@ -46,8 +46,8 @@ public class OtherPersonaChatRepository {
     // 存储所有Persona的API请求历史记录，以Persona名称为key
     private final Map<String, List<ApiRequestMessage>> apiHistoryMap;
 
-    // 当前聊天的Persona
-    private Persona currentPersona;
+    // 当前聊天的OtherPersona
+    private OtherPersona currentPersona;
 
     /**
      * 构造函数
@@ -71,10 +71,10 @@ public class OtherPersonaChatRepository {
     }
 
     /**
-      * 设置当前聊天的Persona
-      * @param persona 要设置的Persona对象
-      */
-    public void setCurrentPersona(Persona persona) {
+     * 设置当前聊天的OtherPersona
+     * @param persona 要设置的OtherPersona对象
+     */
+    public void setCurrentPersona(OtherPersona persona) {
         this.currentPersona = persona;
 
         // 获取或创建该Persona的聊天历史
@@ -83,7 +83,7 @@ public class OtherPersonaChatRepository {
         chatHistoryLiveData.setValue(personaChatHistory);
 
         // 构建系统提示，设置AI的角色和行为
-        String name = persona.getName() != null ? persona.getName() : "未知角色";
+        String name = persona.getName();
         String gender = persona.getGender() != null ? persona.getGender() : "未知性别";
         int age = Math.max(persona.getAge(), 0);
         String personality = persona.getPersonality() != null ? persona.getPersonality() : "未知个性";

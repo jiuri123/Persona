@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.demo.adapter.PersonaDropdownAdapter;
 import com.example.demo.databinding.ActivityPostEditorBinding;
 import com.example.demo.databinding.PersonaDropdownMenuBinding;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.viewmodel.UserPostCreateViewModel;
 import com.example.demo.viewmodel.UserPersonaViewModel;
 
@@ -26,7 +26,7 @@ import com.example.demo.viewmodel.UserPersonaViewModel;
 public class UserPostCreateActivity extends AppCompatActivity {
 
     // 视图绑定，用于访问布局中的组件
-    private ActivityPostEditorBinding binding;
+    private ActivityPostEditorBinding activityPostEditorBinding;
 
     // Persona下拉菜单绑定
     private PersonaDropdownMenuBinding personaDropdownMenuBinding;
@@ -37,8 +37,8 @@ public class UserPostCreateActivity extends AppCompatActivity {
 
     // Persona ViewModel，用于获取用户创建的Persona列表
     private UserPersonaViewModel userPersonaViewModel;
-    // 当前选择的Persona
-    private Persona selectedPersona;
+    // 当前选择的UserPersona
+    private UserPersona selectedPersona;
 
     // ViewModel，用于管理编辑页面的业务逻辑
     private UserPostCreateViewModel userPostCreateViewModel;
@@ -49,8 +49,8 @@ public class UserPostCreateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 使用视图绑定初始化布局
-        binding = ActivityPostEditorBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        activityPostEditorBinding = ActivityPostEditorBinding.inflate(getLayoutInflater());
+        setContentView(activityPostEditorBinding.getRoot());
 
         // 获取ViewModel实例
         userPostCreateViewModel = new ViewModelProvider(this).get(UserPostCreateViewModel.class);
@@ -87,21 +87,21 @@ public class UserPostCreateActivity extends AppCompatActivity {
      */
     private void setupButtonListeners() {
         // 右上角取消按钮点击事件
-        binding.btnCancel.setOnClickListener(v -> {
+        activityPostEditorBinding.btnCancel.setOnClickListener(v -> {
             finish();
         });
 
         // 设置Persona下拉框的点击事件
-        binding.personaSelector.setOnClickListener(v -> {
+        activityPostEditorBinding.personaSelector.setOnClickListener(v -> {
             if (personaPopupWindow.isShowing()) {
                 personaPopupWindow.dismiss();
             } else {
                 // 显示PopupWindow，位于persona_selector下方
-                personaPopupWindow.showAsDropDown(binding.personaSelector);
+                personaPopupWindow.showAsDropDown(activityPostEditorBinding.personaSelector);
             }
         });
 
-        // 设置下拉框中每个Persona的点击事件
+        // 设置下拉框中每个UserPersona的点击事件
         personaDropdownAdapter.setOnPersonaSelectListener(persona -> {
             selectedPersona = persona;
             updateSelectedPersonaUI();
@@ -109,8 +109,8 @@ public class UserPostCreateActivity extends AppCompatActivity {
         });
 
         // AI扩展按钮点击事件
-        binding.btnAiExpand.setOnClickListener(v -> {
-            String currentContent = binding.etPostContent.getText().toString().trim();
+        activityPostEditorBinding.btnAiExpand.setOnClickListener(v -> {
+            String currentContent = activityPostEditorBinding.etPostContent.getText().toString().trim();
             if (currentContent.isEmpty()) {
                 Toast.makeText(this, "请先输入一些内容", Toast.LENGTH_SHORT).show();
                 return;
@@ -119,13 +119,13 @@ public class UserPostCreateActivity extends AppCompatActivity {
         });
 
         // AI生成按钮点击事件
-        binding.btnAiGenerate.setOnClickListener(v -> {
+        activityPostEditorBinding.btnAiGenerate.setOnClickListener(v -> {
             userPostCreateViewModel.aiGenerateContent(selectedPersona);
         });
 
         // 发布动态按钮点击事件
-        binding.btnPublish.setOnClickListener(v -> {
-            String content = binding.etPostContent.getText().toString().trim();
+        activityPostEditorBinding.btnPublish.setOnClickListener(v -> {
+            String content = activityPostEditorBinding.etPostContent.getText().toString().trim();
             if (content.isEmpty()) {
                 Toast.makeText(this, "动态内容不能为空", Toast.LENGTH_SHORT).show();
                 return;
@@ -144,18 +144,18 @@ public class UserPostCreateActivity extends AppCompatActivity {
     private void updateSelectedPersonaUI() {
         if (selectedPersona != null) {
             // 设置选中Persona的名称
-            binding.tvSelectedPersonaName.setText(selectedPersona.getName());
+            activityPostEditorBinding.tvSelectedPersonaName.setText(selectedPersona.getName());
             // 使用Glide加载选中Persona的头像
             if (selectedPersona.getAvatarUri() != null) {
                 Glide.with(this)
                         .load(selectedPersona.getAvatarUri())
                         .circleCrop()
-                        .into(binding.ivSelectedPersonaAvatar);
+                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
             } else {
                 Glide.with(this)
                         .load(selectedPersona.getAvatarDrawableId())
                         .circleCrop()
-                        .into(binding.ivSelectedPersonaAvatar);
+                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
             }
         }
     }
@@ -165,11 +165,11 @@ public class UserPostCreateActivity extends AppCompatActivity {
      * 观察加载状态、错误信息和AI生成/扩展的结果
      */
     private void setupObservers() {
-        // 观察用户Persona列表变化
+        // 观察用户UserPersona列表变化
         userPersonaViewModel.getUserPersonas().observe(this, personas -> {
             // 更新适配器数据
             personaDropdownAdapter.submitList(personas);
-            // 如果还没有选择Persona，默认选择第一个
+            // 如果还没有选择UserPersona，默认选择第一个
             if (selectedPersona == null && personas != null && !personas.isEmpty()) {
                 selectedPersona = personas.get(0);
                 updateSelectedPersonaUI();
@@ -179,18 +179,18 @@ public class UserPostCreateActivity extends AppCompatActivity {
         // 观察AI生成/扩展的结果
         userPostCreateViewModel.getGeneratedContent().observe(this, content -> {
             if (content != null && !content.isEmpty()) {
-                binding.etPostContent.setText(content);
+                activityPostEditorBinding.etPostContent.setText(content);
             }
         });
 
         // 观察加载状态
         userPostCreateViewModel.getIsLoading().observe(this, isLoading -> {
-            binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            activityPostEditorBinding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             // 加载时禁用所有按钮
-            binding.btnAiExpand.setEnabled(!isLoading);
-            binding.btnAiGenerate.setEnabled(!isLoading);
-            binding.btnPublish.setEnabled(!isLoading);
-            binding.btnCancel.setEnabled(!isLoading);
+            activityPostEditorBinding.btnAiExpand.setEnabled(!isLoading);
+            activityPostEditorBinding.btnAiGenerate.setEnabled(!isLoading);
+            activityPostEditorBinding.btnPublish.setEnabled(!isLoading);
+            activityPostEditorBinding.btnCancel.setEnabled(!isLoading);
         });
 
         // 观察发布状态
@@ -213,7 +213,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        binding = null; // 避免内存泄漏
+        activityPostEditorBinding = null; // 避免内存泄漏
         personaDropdownMenuBinding = null;
     }
 }

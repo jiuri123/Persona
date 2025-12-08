@@ -4,7 +4,8 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
+import com.example.demo.model.UserPersona;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,9 +23,12 @@ public class LocalDataSource {
     
     // 线程池，用于执行后台数据库操作
     private final ExecutorService executorService;
-    
-    // Persona数据访问对象
-    private final PersonaDao personaDao;
+
+    // UserPersona数据访问对象
+    private final UserPersonaDao userPersonaDao;
+
+    // OtherPersona数据访问对象
+    private final OtherPersonaDao otherPersonaDao;
 
     /**
      * 私有构造函数，防止外部实例化
@@ -34,7 +38,9 @@ public class LocalDataSource {
         // 获取数据库实例
         AppDatabase database = AppDatabase.getInstance(context);
         // 获取PersonaDao实例
-        this.personaDao = database.personaDao();
+        this.userPersonaDao = database.userPersonaDao();
+        // 获取OtherPersonaDao实例
+        this.otherPersonaDao = database.otherPersonaDao();
         // 创建单线程线程池，确保数据库操作顺序执行
         this.executorService = Executors.newSingleThreadExecutor();
     }
@@ -52,26 +58,50 @@ public class LocalDataSource {
     }
 
     /**
-     * 插入Persona
-     * @param persona 要插入的Persona对象
+     * 插入UserPersona
+     * @param userPersona 要插入的UserPersona对象
      */
-    public void insertPersona(Persona persona) {
-        executorService.execute(() -> personaDao.insertPersona(persona));
+    public void insertUserPersona(UserPersona userPersona) {
+        executorService.execute(() -> userPersonaDao.insertUserPersona(userPersona));
     }
 
     /**
-     * 删除Persona
-     * @param persona 要删除的Persona对象
+     * 删除UserPersona
+     * @param userPersona 要删除的UserPersona对象
      */
-    public void deletePersona(Persona persona) {
-        executorService.execute(() -> personaDao.deletePersona(persona));
+    public void deleteUserPersona(UserPersona userPersona) {
+        executorService.execute(() -> userPersonaDao.deleteUserPersona(userPersona));
     }
 
     /**
-     * 获取所有Persona
-     * @return 所有Persona的LiveData列表
+     * 获取所有UserPersona
+     * @return 所有UserPersona的LiveData列表
      */
-    public LiveData<List<Persona>> getAllPersonas() {
-        return personaDao.getAllPersonas();
+    public LiveData<List<UserPersona>> getAllUserPersonas() {
+        return userPersonaDao.getAllUserPersonas();
+    }
+    
+    /**
+     * 插入OtherPersona
+     * @param otherPersona 要插入的OtherPersona对象
+     */
+    public void insertOtherPersona(OtherPersona otherPersona) {
+        executorService.execute(() -> otherPersonaDao.insertOtherPersona(otherPersona));
+    }
+    
+    /**
+     * 删除OtherPersona
+     * @param otherPersona 要删除的OtherPersona对象
+     */
+    public void deleteOtherPersona(OtherPersona otherPersona) {
+        executorService.execute(() -> otherPersonaDao.deleteOtherPersona(otherPersona));
+    }
+    
+    /**
+     * 获取所有OtherPersona
+     * @return 所有OtherPersona的LiveData列表
+     */
+    public LiveData<List<OtherPersona>> getAllOtherPersonas() {
+        return otherPersonaDao.getAllOtherPersonas();
     }
 }

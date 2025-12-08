@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -17,14 +16,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.example.demo.viewmodel.UserPersonaCreateViewModel;
-import com.example.demo.model.Persona;
 import com.example.demo.R;
 import com.example.demo.databinding.ActivityCreatePersonaBinding;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
-import java.util.List;
 
 /**
  * 创建Persona的活动界面
@@ -158,7 +153,7 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
         // 从而触发 ViewModel 中的 userPersonaNames 集合的更新逻辑
         // 因为MediatorLiveData在没有观察者时不会触发更新，所以这里需要手动触发一次
         // 这里不需要做任何 UI 更新，因为我们只需要 ViewModel 里的 Set 被填满
-        userPersonaCreateViewModel.getUserPersonas().observe(this, personas -> {
+        userPersonaCreateViewModel.getUserPersonas().observe(this, userPersonas -> {
             // 这里什么都不用做，或者可以打印个日志看看数据到了没
             // Log.d("CreateActivity", "Loaded " + (personas != null ? personas.size() : 0) + " personas");
         });
@@ -176,52 +171,52 @@ public class UserPersonaCreateActivity extends AppCompatActivity {
      */
     private void createPersonaAndSave() {
         // 获取用户输入的所有属性
-        final String myPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
-        final String myPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
-        final String myPersonaPersonality = activityCreatePersonaBinding.etPersonaPersonality.getText().toString().trim();
+        final String userPersonaName = activityCreatePersonaBinding.etPersonaName.getText().toString().trim();
+        final String userPersonaGender = activityCreatePersonaBinding.etPersonaGender.getText().toString().trim();
+        final String userPersonaPersonality = activityCreatePersonaBinding.etPersonaPersonality.getText().toString().trim();
         String ageStr = activityCreatePersonaBinding.etPersonaAge.getText().toString().trim();
-        final String myPersonaRelationship = activityCreatePersonaBinding.etPersonaRelationship.getText().toString().trim();
-        final String myPersonaCatchphrase = activityCreatePersonaBinding.etPersonaCatchphrase.getText().toString().trim();
-        final String myPersonaStory = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
+        final String userPersonaRelationship = activityCreatePersonaBinding.etPersonaRelationship.getText().toString().trim();
+        final String userPersonaCatchphrase = activityCreatePersonaBinding.etPersonaCatchphrase.getText().toString().trim();
+        final String userPersonaStory = activityCreatePersonaBinding.etPersonaStory.getText().toString().trim();
 
         // 验证输入是否为空
-        if (myPersonaName.isEmpty() || myPersonaStory.isEmpty()) {
+        if (userPersonaName.isEmpty() || userPersonaStory.isEmpty()) {
             Toast.makeText(this, "名称和背景故事不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // 解析年龄，默认为0
-        final int myPersonaAge;
+        final int userPersonaAge;
         if (!ageStr.isEmpty()) {
             try {
-                myPersonaAge = Integer.parseInt(ageStr);
+                userPersonaAge = Integer.parseInt(ageStr);
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "请输入有效的年龄数字", Toast.LENGTH_SHORT).show();
                 return;
             }
         } else {
-            myPersonaAge = 0;
+            userPersonaAge = 0;
         }
 
         final int avatarId = R.drawable.avatar_zero;
         // 将Uri转换为字符串，保存到Persona对象中
         final String avatarUriString = selectedAvatarUri != null ? selectedAvatarUri.toString() : null;
 
-        if(userPersonaCreateViewModel.isPersonaNameExists(myPersonaName)) {
+        if(userPersonaCreateViewModel.isPersonaNameExists(userPersonaName)) {
             Toast.makeText(this, "已存在相同名字的persona，请重新输入名字", Toast.LENGTH_SHORT).show();
             return;
         }
         // 调用ViewModel的方法创建并保存Persona对象
         boolean isCreated = userPersonaCreateViewModel.createPersonaAndSave(
-                myPersonaName,
+                userPersonaName,
                 avatarId,
                 avatarUriString,
-                myPersonaCatchphrase,
-                myPersonaStory,
-                myPersonaGender,
-                myPersonaAge,
-                myPersonaPersonality,
-                myPersonaRelationship
+                userPersonaCatchphrase,
+                userPersonaStory,
+                userPersonaGender,
+                userPersonaAge,
+                userPersonaPersonality,
+                userPersonaRelationship
         );
         if (isCreated) {
             finish();

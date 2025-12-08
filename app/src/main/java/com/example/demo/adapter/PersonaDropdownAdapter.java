@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 
@@ -23,18 +23,18 @@ import java.util.Objects;
  * 用于在下拉菜单中显示可用的Persona列表
  * 实现了点击Persona项选择该Persona的功能
  */
-public class PersonaDropdownAdapter extends ListAdapter<Persona, PersonaDropdownAdapter.PersonaDropdownViewHolder> {
+public class PersonaDropdownAdapter extends ListAdapter<UserPersona, PersonaDropdownAdapter.PersonaDropdownViewHolder> {
 
     // 上下文，用于加载资源
-    private Context context;
+    private final Context context;
     // Persona选择点击事件的回调接口
     private OnPersonaSelectListener onPersonaSelectListener;
 
     /**
-     * Persona选择点击事件的回调接口
+     * UserPersona选择点击事件的回调接口
      */
     public interface OnPersonaSelectListener {
-        void onPersonaSelect(Persona persona);
+        void onPersonaSelect(UserPersona userPersona);
     }
 
     /**
@@ -58,15 +58,15 @@ public class PersonaDropdownAdapter extends ListAdapter<Persona, PersonaDropdown
      * DiffUtil回调类，用于比较新旧数据列表的差异
      * 实现了高效的列表更新机制
      */
-    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<UserPersona> {
         @Override
-        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areItemsTheSame(@NonNull UserPersona oldItem, @NonNull UserPersona newItem) {
             // 使用id判断是否为同一个Item
             return oldItem.getId() == newItem.getId();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areContentsTheSame(@NonNull UserPersona oldItem, @NonNull UserPersona newItem) {
             // 比较所有字段是否一致
             return Objects.equals(oldItem, newItem);
         }
@@ -101,8 +101,8 @@ public class PersonaDropdownAdapter extends ListAdapter<Persona, PersonaDropdown
      */
     @Override
     public void onBindViewHolder(@NonNull PersonaDropdownViewHolder holder, int position) {
-        Persona persona = getItem(position);
-        holder.bind(persona);
+        UserPersona userPersona = getItem(position);
+        holder.bind(userPersona);
     }
 
     /**
@@ -124,37 +124,37 @@ public class PersonaDropdownAdapter extends ListAdapter<Persona, PersonaDropdown
         }
 
         /**
-         * 绑定Persona数据到视图
-         * @param persona 要显示的Persona对象
+         * 绑定UserPersona数据到视图
+         * @param userPersona 要显示的UserPersona对象
          */
-        public void bind(Persona persona) {
-            // 设置Persona名称和简介
-            binding.tvPersonaName.setText(persona.getName());
-            binding.tvPersonaBio.setText(persona.getSignature());
+        public void bind(UserPersona userPersona) {
+            // 设置UserPersona名称和简介
+            binding.tvPersonaName.setText(userPersona.getName());
+            binding.tvPersonaBio.setText(userPersona.getSignature());
 
             // 使用Glide加载头像，优先使用avatarUri，如果没有则使用avatarDrawableId
-            if (persona.getAvatarUri() != null) {
+            if (userPersona.getAvatarUri() != null) {
                 Glide.with(context)
-                        .load(Uri.parse(persona.getAvatarUri()))
+                        .load(Uri.parse(userPersona.getAvatarUri()))
                         .placeholder(R.drawable.ic_launcher_background) // 占位图
                         .circleCrop() // 圆形裁剪
                         .into(binding.ivPersonaAvatar);
             } else {
                 Glide.with(context)
-                        .load(persona.getAvatarDrawableId())
+                        .load(userPersona.getAvatarDrawableId())
                         .placeholder(R.drawable.ic_launcher_background) // 占位图
                         .circleCrop() // 圆形裁剪
                         .into(binding.ivPersonaAvatar);
             }
 
-            // 设置整个项的点击事件，点击后选择该Persona
+            // 设置整个项的点击事件，点击后选择该UserPersona
             // 每个 ViewHolder 都有自己的点击监听器
             // 当你点击某个列表项时，只有该项对应的 ViewHolder 的点击监听器会被触发
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (onPersonaSelectListener != null) {
-                        onPersonaSelectListener.onPersonaSelect(persona);
+                        onPersonaSelectListener.onPersonaSelect(userPersona);
                     }
                 }
             });

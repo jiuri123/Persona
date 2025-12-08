@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.demo.R;
 import com.example.demo.activity.OtherPersonaChatActivity;
 
-import com.example.demo.activity.UserPersonaChatActivity;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.model.Persona;
 import com.example.demo.model.Post;
 import com.example.demo.model.PostUiItem;
@@ -29,7 +29,6 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import io.noties.markwon.ext.tasklist.TaskListPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -80,9 +79,9 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
     public interface OnFollowClickListener {
         /**
          * 处理关注按钮点击事件
-         * @param persona 被点击的Persona对象
+         * @param otherPersona 被点击的OtherPersona对象
          */
-        void onFollowClick(Persona persona);
+        void onFollowClick(OtherPersona otherPersona);
     }
 
     /**
@@ -221,7 +220,7 @@ public class SocialSquarePostAdapter extends ListAdapter<PostUiItem, SocialSquar
                     public void onClick(View v) {
                         if (onFollowClickListener != null) {
                             // 通过回调接口处理关注/取消关注操作
-                            onFollowClickListener.onFollowClick(author);
+                            onFollowClickListener.onFollowClick((OtherPersona) author);
                         }
                     }
                 });

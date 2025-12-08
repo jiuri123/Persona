@@ -1,23 +1,16 @@
 package com.example.demo.activity;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.demo.adapter.PersonaChatAdapter;
-import com.example.demo.model.ChatMessage;
 import com.example.demo.viewmodel.OtherPersonaChatViewModel;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.databinding.ActivityChatBinding;
-import com.example.demo.viewmodel.UserPersonaChatViewModel;
-
-import java.util.List;
 
 /**
  * 与其他Persona聊天的活动界面
@@ -34,8 +27,8 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
     // 聊天消息适配器，用于显示聊天消息
     private PersonaChatAdapter personaChatAdapter;
 
-    // 当前聊天的Persona
-    private Persona personaToChat;
+    // 当前聊天的OtherPersona
+    private OtherPersona personaToChat;
 
     // ViewModel，处理聊天相关的业务逻辑
     private OtherPersonaChatViewModel otherPersonaChatViewModel;
@@ -48,7 +41,7 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
         activityChatBinding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(activityChatBinding.getRoot());
 
-        // 获取从Intent传递过来的Persona对象
+        // 获取从Intent传递过来的OtherPersona对象
         personaToChat = getIntent().getParcelableExtra(EXTRA_PERSONA);
 
         // 如果没有传递Persona对象，则关闭Activity

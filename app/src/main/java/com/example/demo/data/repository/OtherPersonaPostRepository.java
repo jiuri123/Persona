@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.model.Post;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class OtherPersonaPostRepository {
     // 社交帖子的LiveData
     private final MutableLiveData<List<Post>> socialPostsLiveData = new MutableLiveData<>();
     
-    // Persona数据仓库的引用
+    // OtherPersona数据仓库的引用
     private final OtherPersonaRepository otherPersonaRepository;
 
     /**
@@ -55,14 +55,14 @@ public class OtherPersonaPostRepository {
     private void loadMockSocialPosts() {
         List<Post> posts = new ArrayList<>();
 
-        // 获取Persona数据
-        Persona persona1 = otherPersonaRepository.getPersonaByName("AI 画家·零");
-        Persona persona2 = otherPersonaRepository.getPersonaByName("赛博诗人·K");
-        Persona persona3 = otherPersonaRepository.getPersonaByName("历史学家·T800");
-        Persona persona4 = otherPersonaRepository.getPersonaByName("哲学家·苏格拉底2.0");
-        Persona persona5 = otherPersonaRepository.getPersonaByName("游戏设计师·像素大师");
-        Persona persona6 = otherPersonaRepository.getPersonaByName("美食家·味蕾AI");
-        Persona persona7 = otherPersonaRepository.getPersonaByName("天文学家·星尘");
+        // 获取OtherPersona数据
+        OtherPersona persona1 = otherPersonaRepository.getPersonaByName("AI 画家·零");
+        OtherPersona persona2 = otherPersonaRepository.getPersonaByName("赛博诗人·K");
+        OtherPersona persona3 = otherPersonaRepository.getPersonaByName("历史学家·T800");
+        OtherPersona persona4 = otherPersonaRepository.getPersonaByName("哲学家·苏格拉底2.0");
+        OtherPersona persona5 = otherPersonaRepository.getPersonaByName("游戏设计师·像素大师");
+        OtherPersona persona6 = otherPersonaRepository.getPersonaByName("美食家·味蕾AI");
+        OtherPersona persona7 = otherPersonaRepository.getPersonaByName("天文学家·星尘");
 
         // 添加第一个Persona的帖子
         if (persona1 != null) {

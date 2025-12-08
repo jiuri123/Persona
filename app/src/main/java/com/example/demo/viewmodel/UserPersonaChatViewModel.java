@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.data.repository.UserPersonaChatRepository;
 
 import java.util.List;
@@ -62,10 +62,10 @@ public class UserPersonaChatViewModel extends AndroidViewModel {
     }
 
     /**
-     * 设置当前聊天的Persona
-     * @param currentPersona 要设置的Persona对象
+     * 设置当前聊天的UserPersona
+     * @param currentPersona 要设置的UserPersona对象
      */
-    public void setCurrentPersona(Persona currentPersona) {
+    public void setCurrentPersona(UserPersona currentPersona) {
         userPersonaChatRepository.setCurrentPersona(currentPersona);
     }
 }

@@ -7,7 +7,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.model.Post;
 import com.example.demo.model.PostUiItem;
 import com.example.demo.data.repository.OtherPersonaPostRepository;
@@ -30,18 +31,18 @@ public class SocialSquareViewModel extends AndroidViewModel {
     // 检查用户是否创建了Persona
     private final LiveData<Boolean> hasUserPersona;
     // 用户Persona列表LiveData
-    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<UserPersona>> userPersonasLiveData = new MediatorLiveData<>();
 
     // 用户关注列表仓库
     private final UserFollowedListRepository userFollowedListRepository;
     // 已关注的Persona列表
-    List<Persona> followedPersonas;
+    List<OtherPersona> followedPersonas;
     // 已关注的Persona ID列表，用于 O(1) 快速查找
     private final java.util.Set<Long> followedPersonaIds = new java.util.HashSet<>();
     // 已关注的Persona 名称列表，用于 O(1) 快速查找
     private final java.util.Set<String> followedPersonaNames = new java.util.HashSet<>();
     // 已关注Persona列表LiveData
-    private final MediatorLiveData<List<Persona>> followedPersonasLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<OtherPersona>> followedPersonasLiveData = new MediatorLiveData<>();
 
     // 用户Persona帖子仓库
     private final UserPersonaPostRepository userPersonaPostRepository;
@@ -62,19 +63,19 @@ public class SocialSquareViewModel extends AndroidViewModel {
     public SocialSquareViewModel(Application application) {
         super(application);
         this.userPersonaRepository = UserPersonaRepository.getInstance(application);
-        this.userFollowedListRepository = UserFollowedListRepository.getInstance();
+        this.userFollowedListRepository = UserFollowedListRepository.getInstance(application);
         this.userPersonaPostRepository = UserPersonaPostRepository.getInstance();
         this.otherPersonaPostRepository = OtherPersonaPostRepository.getInstance();
 
         // “加工” userPersonasLiveData
         // Transformations.map 会自动观察 userPersonasLiveData
-        // 每当 List<Persona> 变化时，它会自动执行 -> 后的代码
-        hasUserPersona = Transformations.map(userPersonasLiveData, personas -> {
+        // 每当 List<UserPersona> 变化时，它会自动执行 -> 后的代码
+        hasUserPersona = Transformations.map(userPersonasLiveData, userPersonas -> {
             // 这就是“加工”逻辑
             // 检查是否有用户Persona存在
             // 注意：这里假设 userPersonasLiveData 不会返回 null
             // 如果允许 null，需要添加 null 检查
-            return personas != null && !personas.isEmpty();
+            return userPersonas != null && !userPersonas.isEmpty();
         });
 
         // 设置MediatorLiveData观察Repository的LiveData
@@ -86,31 +87,34 @@ public class SocialSquareViewModel extends AndroidViewModel {
      */
     private void setupMediatorLiveData() {
         // 观察已关注Persona列表变化
-        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), personas -> {
-            followedPersonasLiveData.setValue(personas);
-            followedPersonas = personas;
+        followedPersonasLiveData.addSource(userFollowedListRepository.getFollowedPersonas(), otherPersonas -> {
+            followedPersonasLiveData.setValue(otherPersonas);
+            followedPersonas = otherPersonas;
 
             // 每次列表更新，立刻刷新 Set 缓存
             followedPersonaIds.clear();
             followedPersonaNames.clear();
             
             // 缓存已关注Persona的 ID 和 Name
-            if (personas != null) {
-                for (Persona p : personas) {
-                    if (p.getId() != 0) {
-                        followedPersonaIds.add(p.getId());
-                    }
-                    if (p.getName() != null) {
-                        followedPersonaNames.add(p.getName());
-                    }
+            for (OtherPersona p : otherPersonas) {
+                if (p.getId() != 0) {
+                    followedPersonaIds.add(p.getId());
                 }
+                followedPersonaNames.add(p.getName());
             }
 
             mergePosts();
         });
 
-        // 观察用户Persona列表变化
-        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
+        // 观察用户Persona列表变化，添加类型转换
+        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonas -> {
+            // 将List<UserPersona>转换为List<Persona>
+            if (userPersonas != null) {
+                userPersonasLiveData.setValue(userPersonas);
+            } else {
+                userPersonasLiveData.setValue(null);
+            }
+        });
 
         // 观察用户Persona帖子变化，用于合并帖子
         mergedPostsLiveData.addSource(userPersonaPostRepository.getUserPostsLiveData(), posts -> {
@@ -151,7 +155,7 @@ public class SocialSquareViewModel extends AndroidViewModel {
         if (otherPersonaPosts != null) {
             for (Post post : otherPersonaPosts) {
                 // 检查作者是否已被关注
-                boolean isFollowed = isFollowedPersona(post.getAuthor());
+                boolean isFollowed = isFollowedPersona((OtherPersona) post.getAuthor());
                 PostUiItem postUiItem = new PostUiItem(post, isFollowed);
                 mergedPostUiItems.add(postUiItem);
             }
@@ -160,8 +164,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
         // 更新合并后的帖子UI列表
         mergedPostsLiveData.setValue(mergedPostUiItems);
     }
-
-
 
     /**
      * 获取合并后的帖子UI列表LiveData
@@ -173,15 +175,15 @@ public class SocialSquareViewModel extends AndroidViewModel {
 
     /**
      * 处理关注/取消关注操作
-     * @param persona 要关注/取消关注的Persona
+     * @param otherPersona 要关注/取消关注的OtherPersona
      */
-    public void onFollowClick(Persona persona) {
-        if (isFollowedPersona(persona)) {
+    public void onFollowClick(OtherPersona otherPersona) {
+        if (isFollowedPersona(otherPersona)) {
             // 如果已关注，则取消关注
-            userFollowedListRepository.removeFollowedPersona(persona);
+            userFollowedListRepository.removeFollowedPersona(otherPersona);
         } else {
             // 如果未关注，则添加关注
-            userFollowedListRepository.addFollowedPersona(persona);
+            userFollowedListRepository.addFollowedPersona(otherPersona);
         }
     }
 
@@ -189,23 +191,19 @@ public class SocialSquareViewModel extends AndroidViewModel {
      * 检查指定Persona是否已被关注 (优化版)
      * 时间复杂度从 O(M) 降低为 O(1)
      */
-    public boolean isFollowedPersona(Persona persona) {
+    public boolean isFollowedPersona(OtherPersona otherPersona) {
         // 1. 基础防空检查
-        if (persona == null) {
+        if (otherPersona == null) {
             return false;
         }
 
         // 2. 优先比对 ID (最准)
-        if (persona.getId() != 0 && followedPersonaIds.contains(persona.getId())) {
+        if (otherPersona.getId() != 0 && followedPersonaIds.contains(otherPersona.getId())) {
             return true;
         }
 
         // 3. 兜底比对 Name (兼容 ID 为 0 的情况)
-        if (persona.getName() != null && followedPersonaNames.contains(persona.getName())) {
-            return true;
-        }
-
-        return false;
+        return followedPersonaNames.contains(otherPersona.getName());
     }
 
     /**

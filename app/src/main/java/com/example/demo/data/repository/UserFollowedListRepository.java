@@ -1,14 +1,13 @@
 package com.example.demo.data.repository;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.data.local.LocalDataSource;
+import com.example.demo.model.OtherPersona;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 关注角色数据仓库类
@@ -20,23 +19,25 @@ public class UserFollowedListRepository {
     // 单例实例
     private static UserFollowedListRepository instance;
 
-    // 关注的Persona列表LiveData，用于观察数据变化
-    private final MutableLiveData<List<Persona>> followedPersonasLiveData = new MutableLiveData<>(new ArrayList<>());
+    // 本地数据源实例
+    private final LocalDataSource localDataSource;
     
     /**
      * 私有构造函数，实现单例模式
      */
-    private UserFollowedListRepository() {
-        // 初始化时可以为空，或者从持久化存储加载数据
+    private UserFollowedListRepository(Context context) {
+        // 初始化本地数据源
+        this.localDataSource = LocalDataSource.getInstance(context);
     }
     
     /**
      * 获取Repository的单例实例
+     * @param context 上下文
      * @return FollowedPersonaRepository实例
      */
-    public static synchronized UserFollowedListRepository getInstance() {
+    public static synchronized UserFollowedListRepository getInstance(Context context) {
         if (instance == null) {
-            instance = new UserFollowedListRepository();
+            instance = new UserFollowedListRepository(context.getApplicationContext());
         }
         return instance;
     }
@@ -45,57 +46,38 @@ public class UserFollowedListRepository {
      * 获取关注角色列表的LiveData
      * @return 可观察的关注角色列表LiveData
      */
-    public LiveData<List<Persona>> getFollowedPersonas() {
-        return followedPersonasLiveData;
+    public LiveData<List<OtherPersona>> getFollowedPersonas() {
+        return localDataSource.getAllOtherPersonas();
     }
     
     /**
      * 添加关注角色
-     * @param persona 要关注的角色
+     * @param otherPersona 要关注的角色
      * @return 如果成功添加返回true，如果已关注则返回false
      */
-    public boolean addFollowedPersona(Persona persona) {
-        if (persona == null) {
+    public boolean addFollowedPersona(OtherPersona otherPersona) {
+        if (otherPersona == null) {
             return false;
         }
 
-        List<Persona> currentList = followedPersonasLiveData.getValue();
-        // 创建新列表，复制当前列表内容
-        List<Persona> newList = new ArrayList<>();
-        if (currentList != null) {
-            newList.addAll(currentList);
-        }
-        newList.add(persona);
-        followedPersonasLiveData.setValue(newList);
+        // 通过本地数据源插入数据
+        localDataSource.insertOtherPersona(otherPersona);
         
         return true;
     }
     
     /**
      * 移除关注角色
-     * @param persona 要移除的角色
+     * @param otherPersona 要移除的角色
      * @return 如果成功移除返回true，如果未关注则返回false
      */
-    public boolean removeFollowedPersona(Persona persona) {
-        if (persona == null) {
+    public boolean removeFollowedPersona(OtherPersona otherPersona) {
+        if (otherPersona == null) {
             return false;
         }
         
-        long personaId = persona.getId();
-        List<Persona> currentList = followedPersonasLiveData.getValue();
-        // 创建新列表，复制当前列表内容
-        List<Persona> newList = new ArrayList<>();
-        if (currentList != null) {
-            newList.addAll(currentList);
-            // 遍历新列表，移除对应的Persona
-            for (int i = 0; i < newList.size(); i++) {
-                if (newList.get(i).getId() == personaId) {
-                    newList.remove(i);
-                    break;
-                }
-            }
-        }
-        followedPersonasLiveData.setValue(newList);
+        // 通过本地数据源删除数据
+        localDataSource.deleteOtherPersona(otherPersona);
         
         return true;
     }

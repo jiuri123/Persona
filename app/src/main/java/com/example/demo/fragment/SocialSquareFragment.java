@@ -18,14 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.example.demo.activity.UserPostCreateActivity;
-import com.example.demo.model.Persona;
-import com.example.demo.model.Post;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.model.PostUiItem;
 import com.example.demo.adapter.SocialSquarePostAdapter;
 import com.example.demo.databinding.FragmentSocialSquareBinding;
 import com.example.demo.viewmodel.SocialSquareViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,11 +112,11 @@ public class SocialSquareFragment extends Fragment {
 
         // 设置社交广场的关注按钮回调接口
         socialSquarePostAdapter.setOnFollowActionListener(new SocialSquarePostAdapter.OnFollowClickListener() {
-            @Override
-            public void onFollowClick(Persona persona) {
-                socialSquareViewModel.onFollowClick(persona);
-            }
-        });
+                @Override
+                public void onFollowClick(OtherPersona otherPersona) {
+                    socialSquareViewModel.onFollowClick(otherPersona);
+                }
+            });
 
         // 设置适配器
         fragmentSocialSquareBinding.rvSocialSquare.setAdapter(socialSquarePostAdapter);

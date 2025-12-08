@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.data.repository.UserPersonaRepository;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class UserPersonaViewModel extends AndroidViewModel {
 
     // Persona数据仓库
     private final UserPersonaRepository userPersonaRepository;
-    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<UserPersona>> userPersonasLiveData = new MediatorLiveData<>();
 
     /**
      * 构造函数
@@ -38,24 +38,24 @@ public class UserPersonaViewModel extends AndroidViewModel {
      * 设置MediatorLiveData观察Repository的LiveData
      */
     private void setupMediatorLiveData() {
-        // 只观察用户Persona列表
+        // 只观察用户UserPersona列表
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
     }
     
     /**
-     * 获取用户创建的Persona列表LiveData
-     * @return 用户Persona列表的LiveData对象
+     * 获取用户创建的UserPersona列表LiveData
+     * @return 用户UserPersona列表的LiveData对象
      */
-    public LiveData<List<Persona>> getUserPersonas() {
+    public LiveData<List<UserPersona>> getUserPersonas() {
         return userPersonasLiveData;
     }
     
     /**
-     * 删除用户Persona
-     * @param persona 要删除的Persona
+     * 删除用户UserPersona
+     * @param userPersona 要删除的UserPersona
      * @return 如果成功删除返回true，如果不存在则返回false
      */
-    public boolean removeUserPersona(Persona persona) {
-        return userPersonaRepository.removeUserPersona(persona);
+    public boolean removeUserPersona(UserPersona userPersona) {
+        return userPersonaRepository.removeUserPersona(userPersona);
     }
 }

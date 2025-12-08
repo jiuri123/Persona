@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.UserPersona;
 import com.example.demo.data.repository.UserPersonaRepository;
 
 import java.util.List;
@@ -22,9 +22,9 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
 
     // 使用MutableLiveData管理状态，MediatorLiveData用于观察仓库数据
     private final MutableLiveData<Boolean> isLoadingLiveData = new MutableLiveData<>(false);
-    private final MutableLiveData<Persona> generatedPersonaLiveData = new MutableLiveData<>();
+    private final MutableLiveData<UserPersona> generatedPersonaLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
-    private final MediatorLiveData<List<Persona>> userPersonasLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<UserPersona>> userPersonasLiveData = new MediatorLiveData<>();
     // 用于 O(1) 快速查找的集合缓存
     private final java.util.Set<String> userPersonaNames = new java.util.HashSet<>();
     
@@ -50,8 +50,8 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
         userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonas -> {
             userPersonaNames.clear();
             if (userPersonas != null) {
-                for (Persona persona : userPersonas) {
-                    userPersonaNames.add(persona.getName());
+                for (UserPersona userPersona : userPersonas) {
+                    userPersonaNames.add(userPersona.getName());
                 }
             }
             // 将获取到的userPersonas设置到userPersonasLiveData中
@@ -63,7 +63,7 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
      * 获取生成的角色LiveData
      * @return 角色的LiveData对象
      */
-    public LiveData<Persona> getGeneratedPersona() {
+    public LiveData<UserPersona> getGeneratedPersona() {
         return generatedPersonaLiveData;
     }
 
@@ -104,9 +104,9 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
         userPersonaRepository.generatePersonaDetails(
                 new UserPersonaRepository.ContentCallback() {
                     @Override
-                    public void onSuccess(Persona persona) {
+                    public void onSuccess(UserPersona userPersona) {
                         // 生成成功，更新内容
-                        generatedPersonaLiveData.postValue(persona);
+                        generatedPersonaLiveData.postValue(userPersona);
                         isLoadingLiveData.postValue(false);
                     }
 
@@ -121,7 +121,7 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
     }
 
     /**
-     * 创建并保存Persona
+     * 创建并保存UserPersona
      * @param name 角色名称
      * @param avatarDrawableId 头像资源ID
      * @param avatarUri 头像URI（用于从相册选择的图片）
@@ -135,11 +135,11 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
      */
     public boolean createPersonaAndSave(String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
                                  String gender, int age, String personality, String relationship) {
-        Persona newPersona = new Persona(0, name, avatarDrawableId, avatarUri, signature, backgroundStory, 
+        UserPersona newUserPersona = new UserPersona(0, name, avatarDrawableId, avatarUri, signature, backgroundStory, 
                                          gender, age, personality, relationship);
         
-        // 直接通过UserPersonaRepository将创建的Persona添加到仓库
-        return userPersonaRepository.addUserPersona(newPersona);
+        // 直接通过UserPersonaRepository将创建的UserPersona添加到仓库
+        return userPersonaRepository.addUserPersona(newUserPersona);
     }
 
     // 检查角色名称是否存在
@@ -148,7 +148,7 @@ public class UserPersonaCreateViewModel extends AndroidViewModel {
     }
 
     // 获取用户角色列表LiveData
-    public LiveData<List<Persona>> getUserPersonas() {
+    public LiveData<List<UserPersona>> getUserPersonas() {
         return userPersonasLiveData;
     }
 }

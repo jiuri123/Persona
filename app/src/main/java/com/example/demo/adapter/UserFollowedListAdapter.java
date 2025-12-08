@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
 import com.example.demo.R;
 import com.example.demo.databinding.ItemFollowedPersonaBinding;
 import com.example.demo.activity.OtherPersonaChatActivity;
@@ -29,7 +29,7 @@ import java.util.Objects;
  * 用于在RecyclerView中显示用户已关注的Persona列表
  * 实现了点击Persona项或头像跳转到聊天界面的功能
  */
-public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedListAdapter.FollowedPersonaViewHolder> {
+public class UserFollowedListAdapter extends ListAdapter<OtherPersona, UserFollowedListAdapter.FollowedPersonaViewHolder> {
 
     // 上下文，用于启动Activity和加载资源
     private final Context context;
@@ -41,22 +41,22 @@ public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedLi
      * @param context 上下文
      */
     public UserFollowedListAdapter(Context context) {
-        super(new PersonaDiffCallback());
+        super(new OtherPersonaDiffCallback());
         this.context = context;
     }
 
     /**
-     * DiffUtil.ItemCallback实现，用于比较Persona对象
+     * DiffUtil.ItemCallback实现，用于比较OtherPersona对象
      */
-    private static class PersonaDiffCallback extends DiffUtil.ItemCallback<Persona> {
+    private static class OtherPersonaDiffCallback extends DiffUtil.ItemCallback<OtherPersona> {
         @Override
-        public boolean areItemsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areItemsTheSame(@NonNull OtherPersona oldItem, @NonNull OtherPersona newItem) {
             // 使用id判断是否为同一对象
             return oldItem.getId() == newItem.getId();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Persona oldItem, @NonNull Persona newItem) {
+        public boolean areContentsTheSame(@NonNull OtherPersona oldItem, @NonNull OtherPersona newItem) {
             // 使用Objects.equals比较所有内容是否一致
             return Objects.equals(oldItem, newItem);
         }
@@ -66,7 +66,7 @@ public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedLi
      * 取消关注点击事件的回调接口
      */
     public interface OnUnfollowClickListener {
-        void onUnfollowClick(Persona persona);
+        void onUnfollowClick(OtherPersona persona);
     }
 
     /**
@@ -102,7 +102,7 @@ public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedLi
     @Override
     public void onBindViewHolder(@NonNull FollowedPersonaViewHolder holder, int position) {
         // 使用getItem获取当前位置的数据
-        Persona persona = getItem(position);
+        OtherPersona persona = getItem(position);
         holder.bind(persona);
     }
 
@@ -128,7 +128,7 @@ public class UserFollowedListAdapter extends ListAdapter<Persona, UserFollowedLi
          * 绑定Persona数据到视图
          * @param persona 要显示的Persona对象
          */
-        public void bind(Persona persona) {
+        public void bind(OtherPersona persona) {
             // 设置Persona名称和简介
             binding.tvPersonaName.setText(persona.getName());
             binding.tvPersonaBio.setText(persona.getSignature());

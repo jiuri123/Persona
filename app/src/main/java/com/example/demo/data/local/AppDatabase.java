@@ -5,32 +5,22 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.example.demo.model.Persona;
+import com.example.demo.model.OtherPersona;
+import com.example.demo.model.UserPersona;
 
 /**
  * 应用数据库类
  * 继承自RoomDatabase，使用单例模式创建数据库实例
  */
-@Database(entities = {Persona.class}, version = 2, exportSchema = false)
+@Database(entities = {UserPersona.class, OtherPersona.class}, version = 4, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     // 数据库名称
-    private static final String DATABASE_NAME = "demo_database";
+    private static final String DATABASE_NAME = "app_database";
 
     // 单例实例
     private static volatile AppDatabase instance;
-    
-    // 迁移策略：从版本1到版本2
-    public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            // 添加id列，设置为自增主键
-            database.execSQL("ALTER TABLE personas ADD COLUMN id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL DEFAULT 0");
-        }
-    };
 
     /**
      * 获取单例实例
@@ -44,15 +34,21 @@ public abstract class AppDatabase extends RoomDatabase {
                     AppDatabase.class,
                     DATABASE_NAME
             )
-                    .addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigration() // 仅用于开发和测试阶段
                     .build();
         }
         return instance;
     }
 
     /**
-     * 获取PersonaDao实例
-     * @return PersonaDao实例
+     * 获取UserPersonaDao实例
+     * @return UserPersonaDao实例
      */
-    public abstract PersonaDao personaDao();
+    public abstract UserPersonaDao userPersonaDao();
+    
+    /**
+     * 获取OtherPersonaDao实例
+     * @return OtherPersonaDao实例
+     */
+    public abstract OtherPersonaDao otherPersonaDao();
 }

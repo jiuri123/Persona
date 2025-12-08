@@ -4,8 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
 import java.util.Objects;
 
@@ -14,11 +12,9 @@ import java.util.Objects;
  * 表示应用中的虚拟角色/人格
  * 实现了Parcelable接口，以便在Intent和Bundle中传递对象
  */
-@Entity(tableName = "personas")
-public class Persona implements Parcelable {
+public abstract class Persona implements Parcelable {
 
     // Persona的唯一标识符
-    @PrimaryKey(autoGenerate = true)
     private long id;
     
     // Persona的名称
@@ -54,7 +50,7 @@ public class Persona implements Parcelable {
      * @param personality 性格
      * @param relationship 关系（和我的关系）
      */
-    public Persona(long id, String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory, 
+    public Persona(long id, @NonNull String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
                    String gender, int age, String personality, String relationship) {
         this.id = id;
         this.name = name;
@@ -77,11 +73,12 @@ public class Persona implements Parcelable {
         this.id = id;
     }
 
+    @NonNull
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
 
@@ -208,7 +205,7 @@ public class Persona implements Parcelable {
      */
     protected Persona(Parcel in) {
         this.id = in.readLong();
-        this.name = in.readString();
+        this.name = Objects.requireNonNull(in.readString());
         this.avatarDrawableId = in.readInt();
         this.avatarUri = in.readString();
         this.backgroundStory = in.readString();
@@ -218,20 +215,4 @@ public class Persona implements Parcelable {
         this.relationship = in.readString();
         this.signature = in.readString();
     }
-
-    /**
-     * Parcelable接口要求的CREATOR
-     * 用于从Parcel中创建Persona对象
-     */
-    public static final Creator<Persona> CREATOR = new Creator<Persona>() {
-        @Override
-        public Persona createFromParcel(Parcel source) {
-            return new Persona(source);
-        }
-
-        @Override
-        public Persona[] newArray(int size) {
-            return new Persona[size];
-        }
-    };
 }
