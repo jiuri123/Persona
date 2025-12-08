@@ -13,7 +13,7 @@ import com.example.demo.model.UserPersona;
  * 应用数据库类
  * 继承自RoomDatabase，使用单例模式创建数据库实例
  */
-@Database(entities = {UserPersona.class, OtherPersona.class}, version = 4, exportSchema = false)
+@Database(entities = {UserPersona.class, OtherPersona.class}, version = 5, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     // 数据库名称

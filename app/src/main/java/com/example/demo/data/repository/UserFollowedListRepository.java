@@ -47,7 +47,7 @@ public class UserFollowedListRepository {
      * @return 可观察的关注角色列表LiveData
      */
     public LiveData<List<OtherPersona>> getFollowedPersonas() {
-        return localDataSource.getAllOtherPersonas();
+        return localDataSource.getAllOtherPersonasOrderByCreatedAtDesc();
     }
     
     /**

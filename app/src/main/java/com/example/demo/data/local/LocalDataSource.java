@@ -62,6 +62,8 @@ public class LocalDataSource {
      * @param userPersona 要插入的UserPersona对象
      */
     public void insertUserPersona(UserPersona userPersona) {
+        // 设置当前时间戳
+        userPersona.setCreatedAt(System.currentTimeMillis());
         executorService.execute(() -> userPersonaDao.insertUserPersona(userPersona));
     }
 
@@ -82,10 +84,20 @@ public class LocalDataSource {
     }
     
     /**
+     * 获取所有UserPersona，按创建时间降序排序
+     * @return 所有UserPersona的LiveData列表，按创建时间降序排序
+     */
+    public LiveData<List<UserPersona>> getAllUserPersonasOrderByCreatedAtDesc() {
+        return userPersonaDao.getAllUserPersonasOrderByCreatedAtDesc();
+    }
+    
+    /**
      * 插入OtherPersona
      * @param otherPersona 要插入的OtherPersona对象
      */
     public void insertOtherPersona(OtherPersona otherPersona) {
+        // 设置当前时间戳
+        otherPersona.setCreatedAt(System.currentTimeMillis());
         executorService.execute(() -> otherPersonaDao.insertOtherPersona(otherPersona));
     }
     
@@ -103,5 +115,13 @@ public class LocalDataSource {
      */
     public LiveData<List<OtherPersona>> getAllOtherPersonas() {
         return otherPersonaDao.getAllOtherPersonas();
+    }
+    
+    /**
+     * 获取所有OtherPersona，按创建时间降序排序
+     * @return 所有OtherPersona的LiveData列表，按创建时间降序排序
+     */
+    public LiveData<List<OtherPersona>> getAllOtherPersonasOrderByCreatedAtDesc() {
+        return otherPersonaDao.getAllOtherPersonasOrderByCreatedAtDesc();
     }
 }

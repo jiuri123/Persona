@@ -29,6 +29,10 @@ public class OtherPersona extends Persona {
     private int age;
     private String personality;
     private String relationship;
+    
+    // 创建时间戳
+    @NonNull
+    private long createdAt;
 
     /**
      * 构造函数
@@ -42,11 +46,12 @@ public class OtherPersona extends Persona {
      * @param age 年龄
      * @param personality 性格
      * @param relationship 关系（和我的关系）
+     * @param createdAt 创建时间戳
      */
     public OtherPersona(long id, @NonNull String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
-                       String gender, int age, String personality, String relationship) {
+                       String gender, int age, String personality, String relationship, @NonNull long createdAt) {
         super(id, name, avatarDrawableId, avatarUri, signature, backgroundStory,
-                gender, age, personality, relationship);
+                gender, age, personality, relationship, createdAt);
         this.id = id;
         this.name = name;
         this.avatarDrawableId = avatarDrawableId;
@@ -57,6 +62,7 @@ public class OtherPersona extends Persona {
         this.age = age;
         this.personality = personality;
         this.relationship = relationship;
+        this.createdAt = createdAt;
     }
 
     @Override
@@ -169,6 +175,18 @@ public class OtherPersona extends Persona {
         super.setRelationship(relationship);
         this.relationship = relationship;
     }
+    
+    @Override
+    @NonNull
+    public long getCreatedAt() {
+        return createdAt;
+    }
+    
+    @Override
+    public void setCreatedAt(@NonNull long createdAt) {
+        super.setCreatedAt(createdAt);
+        this.createdAt = createdAt;
+    }
 
     /**
      * 从Parcel中读取数据，创建OtherPersona对象
@@ -186,6 +204,7 @@ public class OtherPersona extends Persona {
         this.age = in.readInt();
         this.personality = in.readString();
         this.relationship = in.readString();
+        this.createdAt = in.readLong();
     }
 
     /**
@@ -217,5 +236,6 @@ public class OtherPersona extends Persona {
         dest.writeInt(this.age);
         dest.writeString(this.personality);
         dest.writeString(this.relationship);
+        dest.writeLong(this.createdAt);
     }
 }

@@ -37,4 +37,11 @@ public interface OtherPersonaDao {
      */
     @Query("SELECT * FROM other_personas")
     LiveData<List<OtherPersona>> getAllOtherPersonas();
+    
+    /**
+     * 获取所有OtherPersona，按创建时间降序排序
+     * @return 所有OtherPersona的LiveData列表，按创建时间降序排序
+     */
+    @Query("SELECT * FROM other_personas ORDER BY createdAt DESC")
+    LiveData<List<OtherPersona>> getAllOtherPersonasOrderByCreatedAtDesc();
 }

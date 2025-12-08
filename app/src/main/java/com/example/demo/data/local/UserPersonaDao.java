@@ -37,4 +37,11 @@ public interface UserPersonaDao {
      */
     @Query("SELECT * FROM user_personas")
     LiveData<List<UserPersona>> getAllUserPersonas();
+    
+    /**
+     * 获取所有UserPersona，按创建时间降序排序
+     * @return 所有UserPersona的LiveData列表，按创建时间降序排序
+     */
+    @Query("SELECT * FROM user_personas ORDER BY createdAt DESC")
+    LiveData<List<UserPersona>> getAllUserPersonasOrderByCreatedAtDesc();
 }

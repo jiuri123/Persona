@@ -36,6 +36,10 @@ public abstract class Persona implements Parcelable {
     private String signature;
     // 背景故事
     private String backgroundStory;
+    
+    // 创建时间戳
+    @NonNull
+    private long createdAt;
 
     /**
      * 构造函数
@@ -49,9 +53,10 @@ public abstract class Persona implements Parcelable {
      * @param age 年龄
      * @param personality 性格
      * @param relationship 关系（和我的关系）
+     * @param createdAt 创建时间戳
      */
     public Persona(long id, @NonNull String name, int avatarDrawableId, String avatarUri, String signature, String backgroundStory,
-                   String gender, int age, String personality, String relationship) {
+                   String gender, int age, String personality, String relationship, @NonNull long createdAt) {
         this.id = id;
         this.name = name;
         this.avatarDrawableId = avatarDrawableId;
@@ -62,6 +67,7 @@ public abstract class Persona implements Parcelable {
         this.personality = personality;
         this.relationship = relationship;
         this.signature = signature;
+        this.createdAt = createdAt;
     }
 
     // Getter和Setter方法
@@ -145,6 +151,15 @@ public abstract class Persona implements Parcelable {
     public void setSignature(String signature) {
         this.signature = signature;
     }
+    
+    @NonNull
+    public long getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(@NonNull long createdAt) {
+        this.createdAt = createdAt;
+    }
 
     /**
      * 重写equals方法，比较两个Persona对象是否相等
@@ -197,6 +212,7 @@ public abstract class Persona implements Parcelable {
         dest.writeString(this.personality);
         dest.writeString(this.relationship);
         dest.writeString(this.signature);
+        dest.writeLong(this.createdAt);
     }
 
     /**
@@ -214,5 +230,6 @@ public abstract class Persona implements Parcelable {
         this.personality = in.readString();
         this.relationship = in.readString();
         this.signature = in.readString();
+        this.createdAt = in.readLong();
     }
 }

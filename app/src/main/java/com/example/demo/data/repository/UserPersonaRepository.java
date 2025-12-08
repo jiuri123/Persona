@@ -154,7 +154,7 @@ public class UserPersonaRepository {
                             int avatarId = R.drawable.avatar_zero;
                             UserPersona generatedPersona = new UserPersona(
                                     0, name, avatarId, null, catchphrase, story,
-                                    gender, age, personality, relationship
+                                    gender, age, personality, relationship, System.currentTimeMillis()
                             );
 
                             // 通过回调返回成功结果
@@ -195,7 +195,7 @@ public class UserPersonaRepository {
      * @return 用户UserPersona列表的LiveData对象
      */
     public LiveData<List<UserPersona>> getUserPersonas() {
-        return localDataSource.getAllUserPersonas();
+        return localDataSource.getAllUserPersonasOrderByCreatedAtDesc();
     }
     
     /**

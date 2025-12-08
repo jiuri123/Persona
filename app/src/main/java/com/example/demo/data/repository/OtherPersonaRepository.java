@@ -59,7 +59,8 @@ public class OtherPersonaRepository {
                 "女性",
                 33,
                 "创意无限、感性细腻、富有想象力",
-                "艺术伙伴"
+                "艺术伙伴",
+                System.currentTimeMillis()
         );
 
         // 创建第二个OtherPersona：赛博诗人
@@ -73,7 +74,8 @@ public class OtherPersonaRepository {
                 "男性",
                 56,
                 "神秘、深沉、富有哲思",
-                "诗意伴侣"
+                "诗意伴侣",
+                System.currentTimeMillis()
         );
 
         // 创建第三个OtherPersona：历史学家
@@ -87,7 +89,8 @@ public class OtherPersonaRepository {
                 "男性",
                 71,
                 "博学、严谨、客观",
-                "历史导师"
+                "历史导师",
+                System.currentTimeMillis()
         );
 
         // 创建第四个OtherPersona：哲学家
@@ -101,7 +104,8 @@ public class OtherPersonaRepository {
                 "男性",
                 100,
                 "理性、思辨、深邃",
-                "思想导师"
+                "思想导师",
+                System.currentTimeMillis()
         );
 
         // 创建第五个OtherPersona：游戏设计师
@@ -115,7 +119,8 @@ public class OtherPersonaRepository {
                 "男性",
                 41,
                 "活泼、创意、充满激情",
-                "游戏伙伴"
+                "游戏伙伴",
+                System.currentTimeMillis()
         );
 
         // 创建第六个OtherPersona：美食家
@@ -129,7 +134,8 @@ public class OtherPersonaRepository {
                 "女性",
                 23,
                 "热情、细腻、善于发现",
-                "美食向导"
+                "美食向导",
+                System.currentTimeMillis()
         );
 
         // 创建第七个OtherPersona：天文学家
@@ -143,7 +149,8 @@ public class OtherPersonaRepository {
                 "女性",
                 64,
                 "好奇、探索、广阔",
-                "宇宙向导"
+                "宇宙向导",
+                System.currentTimeMillis()
         );
 
         personas.add(persona1);
