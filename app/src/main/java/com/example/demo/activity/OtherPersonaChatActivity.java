@@ -100,6 +100,14 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
 
         // 初始化聊天适配器
         personaChatAdapter = new PersonaChatAdapter(this);
+        // 设置打字机效果完成监听器，使用匿名内部类实现
+        personaChatAdapter.setOnTypewriterCompleteListener(new PersonaChatAdapter.OnTypewriterCompleteListener() {
+            @Override
+            public void onTypewriterComplete(String messageId, boolean isComplete) {
+                // 通过ViewModel更新消息的打字机完成状态
+                otherPersonaChatViewModel.updateMessageTypewriterStatus(messageId, isComplete);
+            }
+        });
         activityChatBinding.rvChatMessages.setAdapter(personaChatAdapter);
 
         // 设置线性布局管理器，并从底部开始显示
@@ -122,4 +130,6 @@ public class OtherPersonaChatActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    
+
 }

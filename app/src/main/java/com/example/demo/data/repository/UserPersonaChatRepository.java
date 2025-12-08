@@ -1,10 +1,15 @@
 package com.example.demo.data.repository;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
+import com.example.demo.data.local.AppDatabase;
+import com.example.demo.data.local.ChatHistoryDao;
+import com.example.demo.data.model.ChatHistory;
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.UserPersona;
 import com.example.demo.data.remote.ApiClient;
@@ -48,6 +53,15 @@ public class UserPersonaChatRepository {
 
     // 当前聊天的UserPersona
     private UserPersona currentPersona;
+    
+    // 应用上下文
+    private Context context;
+    
+    // 数据库实例
+    private AppDatabase database;
+    
+    // 聊天历史记录Dao
+    private ChatHistoryDao chatHistoryDao;
 
     /**
      * 私有构造函数，防止外部实例化
@@ -61,11 +75,16 @@ public class UserPersonaChatRepository {
 
     /**
      * 获取单例实例
+     * @param context 应用上下文
      * @return UserPersonaChatRepository的单例实例
      */
-    public static synchronized UserPersonaChatRepository getInstance() {
+    public static synchronized UserPersonaChatRepository getInstance(Context context) {
         if (instance == null) {
             instance = new UserPersonaChatRepository();
+            // 初始化上下文和数据库
+            instance.context = context.getApplicationContext();
+            instance.database = AppDatabase.getInstance(instance.context);
+            instance.chatHistoryDao = instance.database.chatHistoryDao();
         }
         return instance;
     }
@@ -76,11 +95,6 @@ public class UserPersonaChatRepository {
      */
     public void setCurrentPersona(UserPersona persona) {
         this.currentPersona = persona;
-        
-        // 获取或创建该Persona的聊天历史
-        List<ChatMessage> personaChatHistory = chatHistoryMap.computeIfAbsent(persona.getName(), k -> new ArrayList<>());
-        // 更新LiveData，UI将显示该Persona的聊天历史
-        chatHistoryLiveData.setValue(personaChatHistory);
         
         // 构建系统提示，设置AI的角色和行为
         String name = persona.getName();
@@ -106,6 +120,33 @@ public class UserPersonaChatRepository {
             history.add(new ApiRequestMessage("system", systemPrompt));
             return history;
         });
+        
+        // 从数据库加载聊天历史记录
+        loadChatHistoryFromDatabase(persona);
+    }
+    
+    /**
+     * 从数据库加载聊天历史记录
+     * @param persona 当前聊天的UserPersona对象
+     */
+    private void loadChatHistoryFromDatabase(UserPersona persona) {
+        new Thread(() -> {
+            // 从数据库查询聊天历史记录（使用同步方法）
+            List<ChatHistory> chatHistories = database.chatHistoryDao().getChatHistoryByPersonaSync("user", persona.getId());
+            List<ChatMessage> personaChatHistory = new ArrayList<>();
+            
+            if (chatHistories != null && !chatHistories.isEmpty()) {
+                // 将ChatHistory转换为ChatMessage
+                for (ChatHistory chatHistory : chatHistories) {
+                    personaChatHistory.add(ChatMessage.fromChatHistory(chatHistory));
+                }
+            }
+            
+            // 更新内存中的聊天历史记录
+            chatHistoryMap.put(persona.getName(), personaChatHistory);
+            // 更新LiveData，UI将显示该Persona的聊天历史
+            chatHistoryLiveData.postValue(personaChatHistory);
+        }).start();
     }
 
     /**
@@ -134,6 +175,9 @@ public class UserPersonaChatRepository {
         }
         currentUiHistory.add(uiUserMessage);
         chatHistoryLiveData.setValue(currentUiHistory);
+        
+        // 保存用户消息到数据库
+        saveMessageToDatabase(uiUserMessage);
 
         // 获取当前Persona的API历史
         List<ApiRequestMessage> currentApiHistory = apiHistoryMap.get(currentPersona.getName());
@@ -160,11 +204,15 @@ public class UserPersonaChatRepository {
                             apiHistory.add(new ApiRequestMessage("assistant", aiContent));
                         }
                         // 添加AI消息到UI历史
+                        ChatMessage aiMessage = new ChatMessage(aiContent, false, currentPersona.getAvatarDrawableId(), currentPersona.getAvatarUri());
                         if (uiHistory != null) {
-                            uiHistory.add(new ChatMessage(aiContent, false, currentPersona.getAvatarDrawableId(), currentPersona.getAvatarUri()));
+                            uiHistory.add(aiMessage);
                         }
                         // 使用postValue在后台线程更新LiveData
                         chatHistoryLiveData.postValue(uiHistory);
+                        
+                        // 保存AI消息到数据库
+                        saveMessageToDatabase(aiMessage);
                     } else {
                         handleApiError("API 返回了空内容");
                     }
@@ -179,6 +227,23 @@ public class UserPersonaChatRepository {
             }
         });
     }
+    
+    /**
+     * 将消息保存到数据库
+     * @param message 聊天消息对象
+     */
+    private void saveMessageToDatabase(ChatMessage message) {
+        if (currentPersona == null) {
+            return;
+        }
+        
+        new Thread(() -> {
+            // 将ChatMessage转换为ChatHistory
+            ChatHistory chatHistory = message.toChatHistory("user", currentPersona.getId());
+            // 保存到数据库
+            database.chatHistoryDao().insert(chatHistory);
+        }).start();
+    }
 
     /**
      * 处理API错误
@@ -192,6 +257,25 @@ public class UserPersonaChatRepository {
         if (uiHistory != null) {
             uiHistory.add(errorReply);
             chatHistoryLiveData.postValue(uiHistory);
+            
+            // 保存错误消息到数据库
+            saveMessageToDatabase(errorReply);
         }
+    }
+    
+    /**
+     * 更新消息的打字机完成状态
+     * @param messageId 消息ID
+     * @param isComplete 打字机效果是否已完成
+     */
+    public void updateMessageTypewriterStatus(String messageId, boolean isComplete) {
+        if (currentPersona == null) {
+            return;
+        }
+        
+        new Thread(() -> {
+            // 更新数据库中的打字机完成状态
+            database.chatHistoryDao().updateTypewriterStatus(messageId, isComplete);
+        }).start();
     }
 }

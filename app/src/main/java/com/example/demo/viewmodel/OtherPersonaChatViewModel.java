@@ -1,8 +1,10 @@
 package com.example.demo.viewmodel;
 
+import android.app.Application;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.OtherPersona;
@@ -15,7 +17,7 @@ import java.util.List;
  * 管理与其他Persona相关的聊天数据和操作
  * 遵循MVVM架构模式，负责UI与数据之间的交互
  */
-public class OtherPersonaChatViewModel extends ViewModel {
+public class OtherPersonaChatViewModel extends AndroidViewModel {
 
     private final OtherPersonaChatRepository otherPersonaChatRepository;
 
@@ -24,9 +26,11 @@ public class OtherPersonaChatViewModel extends ViewModel {
     /**
      * 构造函数
      * 初始化PersonaRepository实例
+     * @param application Application实例
      */
-    public OtherPersonaChatViewModel() {
-        this.otherPersonaChatRepository = OtherPersonaChatRepository.getInstance();
+    public OtherPersonaChatViewModel(Application application) {
+        super(application);
+        this.otherPersonaChatRepository = OtherPersonaChatRepository.getInstance(application);
         this.chatHistoryLiveData.addSource(otherPersonaChatRepository.getChatHistory(), chatHistoryLiveData::setValue);
     }
 
@@ -55,6 +59,17 @@ public class OtherPersonaChatViewModel extends ViewModel {
     public void setCurrentPersona(OtherPersona persona) {
         if (otherPersonaChatRepository != null) {
             otherPersonaChatRepository.setCurrentPersona(persona);
+        }
+    }
+    
+    /**
+     * 更新消息的打字机完成状态
+     * @param messageId 消息ID
+     * @param isComplete 打字机效果是否已完成
+     */
+    public void updateMessageTypewriterStatus(String messageId, boolean isComplete) {
+        if (otherPersonaChatRepository != null) {
+            otherPersonaChatRepository.updateMessageTypewriterStatus(messageId, isComplete);
         }
     }
 }

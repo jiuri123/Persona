@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.example.demo.data.model.ChatHistory;
+
 import java.util.UUID;
 
 /**
@@ -18,6 +20,8 @@ public class ChatMessage {
     private int avatarDrawableId;
     // 头像URI
     private String avatarUri;
+    // 打字机效果是否已完成
+    private boolean isTypewriterComplete;
 
     /**
      * 构造函数
@@ -30,6 +34,7 @@ public class ChatMessage {
         this.isSentByUser = isSentByUser;
         this.avatarDrawableId = 0;
         this.avatarUri = null;
+        this.isTypewriterComplete = false;
     }
 
     /**
@@ -45,6 +50,7 @@ public class ChatMessage {
         this.isSentByUser = isSentByUser;
         this.avatarDrawableId = avatarDrawableId;
         this.avatarUri = avatarUri;
+        this.isTypewriterComplete = false;
     }
 
     // Getter和Setter方法
@@ -88,6 +94,14 @@ public class ChatMessage {
         this.avatarUri = avatarUri;
     }
 
+    public boolean isTypewriterComplete() {
+        return isTypewriterComplete;
+    }
+
+    public void setTypewriterComplete(boolean typewriterComplete) {
+        isTypewriterComplete = typewriterComplete;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,5 +114,44 @@ public class ChatMessage {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+    
+    /**
+     * 将ChatMessage转换为ChatHistory
+     * @param personaType Persona类型（"user"或"other"）
+     * @param personaId 关联的Persona ID
+     * @return ChatHistory对象
+     */
+    public ChatHistory toChatHistory(String personaType, long personaId) {
+        return new ChatHistory(
+                personaId,
+                personaType,
+                this.id.toString(),
+                this.text,
+                this.isSentByUser,
+                this.avatarDrawableId,
+                this.avatarUri,
+                System.currentTimeMillis(), // 使用当前时间戳
+                this.isTypewriterComplete
+        );
+    }
+    
+    /**
+     * 将ChatHistory转换为ChatMessage
+     * @param chatHistory ChatHistory对象
+     * @return ChatMessage对象
+     */
+    public static ChatMessage fromChatHistory(ChatHistory chatHistory) {
+        ChatMessage chatMessage = new ChatMessage(
+                chatHistory.getText(),
+                chatHistory.isSentByUser(),
+                chatHistory.getAvatarDrawableId(),
+                chatHistory.getAvatarUri()
+        );
+        // 设置消息ID，保持与数据库中的一致
+        chatMessage.setId(UUID.fromString(chatHistory.getMessageId()));
+        // 设置打字机完成状态，保持与数据库中的一致
+        chatMessage.setTypewriterComplete(chatHistory.isTypewriterComplete());
+        return chatMessage;
     }
 }

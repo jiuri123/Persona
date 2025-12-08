@@ -33,7 +33,7 @@ public class UserPersonaChatViewModel extends AndroidViewModel {
      */
     public UserPersonaChatViewModel(Application application) {
         super(application);
-        this.userPersonaChatRepository = UserPersonaChatRepository.getInstance();
+        this.userPersonaChatRepository = UserPersonaChatRepository.getInstance(application);
         setupMediatorLiveData();
     }
 
@@ -67,5 +67,14 @@ public class UserPersonaChatViewModel extends AndroidViewModel {
      */
     public void setCurrentPersona(UserPersona currentPersona) {
         userPersonaChatRepository.setCurrentPersona(currentPersona);
+    }
+    
+    /**
+     * 更新消息的打字机完成状态
+     * @param messageId 消息ID
+     * @param isComplete 打字机效果是否已完成
+     */
+    public void updateMessageTypewriterStatus(String messageId, boolean isComplete) {
+        userPersonaChatRepository.updateMessageTypewriterStatus(messageId, isComplete);
     }
 }

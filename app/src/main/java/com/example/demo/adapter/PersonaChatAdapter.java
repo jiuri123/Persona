@@ -40,8 +40,15 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
     // 视图类型常量：接收的消息
     private static final int VIEW_TYPE_RECEIVED = 2;
 
-    // 消息完成状态映射，用于记录哪些消息已经完成打字机效果
-    private static final Map<String, Boolean> messageCompletionMap = new HashMap<>();
+    // 不需要静态映射，改为使用ChatMessage的isTypewriterComplete字段
+    
+    // 打字机效果完成回调接口
+    public interface OnTypewriterCompleteListener {
+        void onTypewriterComplete(String messageId, boolean isComplete);
+    }
+    
+    // 打字机效果完成监听器
+    private volatile OnTypewriterCompleteListener onTypewriterCompleteListener;
     
     // Markwon实例，用于渲染Markdown文本
     private final Markwon markwon;
@@ -77,6 +84,14 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
                 .usePlugin(TaskListPlugin.create(context)) // 支持任务列表
                 .usePlugin(LinkifyPlugin.create()) // 支持自动链接识别
                 .build();
+    }
+    
+    /**
+     * 设置打字机效果完成监听器
+     * @param listener 打字机效果完成监听器
+     */
+    public void setOnTypewriterCompleteListener(OnTypewriterCompleteListener listener) {
+        this.onTypewriterCompleteListener = listener;
     }
 
     /**
@@ -117,7 +132,7 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
             default:
                 // 创建接收消息的ViewHolder
                 ItemChatReceivedBinding receivedBinding = ItemChatReceivedBinding.inflate(inflater, parent, false);
-                return new ReceivedMessageViewHolder(receivedBinding, markwon);
+                return new ReceivedMessageViewHolder(receivedBinding, markwon, this);
         }
     }
 
@@ -192,16 +207,20 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
         private MarkdownTypewriterEffect typewriterEffect;
         // Markwon实例
         private final Markwon markwon;
+        // 适配器实例，用于访问监听器
+        private final PersonaChatAdapter adapter;
 
         /**
          * 构造函数
          * @param binding 视图绑定对象
          * @param markwon Markwon实例
+         * @param adapter PersonaChatAdapter实例
          */
-        public ReceivedMessageViewHolder(ItemChatReceivedBinding binding, Markwon markwon) {
+        public ReceivedMessageViewHolder(ItemChatReceivedBinding binding, Markwon markwon, PersonaChatAdapter adapter) {
             super(binding.getRoot());
             this.binding = binding;
             this.markwon = markwon;
+            this.adapter = adapter;
         }
 
         /**
@@ -221,12 +240,8 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
                 binding.ivAvatar.setImageResource(R.drawable.avatar_zero);
             }
             
-            // 生成消息的唯一键，使用UUID
-            String messageKey = message.getId().toString();
-            
             // 检查消息是否已经完成打字机效果
-            Boolean isCompleted = messageCompletionMap.get(messageKey);
-            if (isCompleted != null && isCompleted) {
+            if (message.isTypewriterComplete()) {
                 // 如果已完成，直接显示完整消息
                 markwon.setMarkdown(binding.tvMessage, message.getText());
                 return;
@@ -241,8 +256,14 @@ public class PersonaChatAdapter extends ListAdapter<ChatMessage, RecyclerView.Vi
             typewriterEffect = new MarkdownTypewriterEffect(binding.tvMessage, message.getText(), 50, markwon) {
                 @Override
                 protected void onComplete() {
-                    // 打字机效果完成后，记录消息状态
-                    messageCompletionMap.put(messageKey, true);
+                    // 打字机效果完成后，更新消息对象的状态
+                    message.setTypewriterComplete(true);
+                    
+                    // 调用回调方法，通知外部打字机效果已完成
+                    OnTypewriterCompleteListener listener = adapter.onTypewriterCompleteListener;
+                    if (listener != null) {
+                        listener.onTypewriterComplete(message.getId().toString(), true);
+                    }
                 }
             };
             typewriterEffect.start(); // 开始打字机效果
