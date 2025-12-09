@@ -47,11 +47,6 @@
      org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
      android.useAndroidX=true
      android.nonTransitiveRClass=true
-<<<<<<< HEAD
-     API_KEY=your_api_key_here
-     MODEL_NAME=your_model_name_here
-=======
->>>>>>> f53bba707c42dcbbcd456ffb35ce99fa24945ec1
      API_KEY=your_api_key_here
      MODEL_NAME=your_model_name_here
      ```
