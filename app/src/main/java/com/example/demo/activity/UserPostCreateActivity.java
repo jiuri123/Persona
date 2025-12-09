@@ -3,6 +3,7 @@ package com.example.demo.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,8 @@ import com.example.demo.databinding.PersonaDropdownMenuBinding;
 import com.example.demo.model.UserPersona;
 import com.example.demo.viewmodel.UserPostCreateViewModel;
 import com.example.demo.viewmodel.UserPersonaViewModel;
+
+import java.util.Objects;
 
 /**
  * 发布动态编辑页面
@@ -44,6 +47,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
     private UserPostCreateViewModel userPostCreateViewModel;
 
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +114,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
 
         // AI扩展按钮点击事件
         activityPostEditorBinding.btnAiExpand.setOnClickListener(v -> {
-            String currentContent = activityPostEditorBinding.etPostContent.getText().toString().trim();
+            String currentContent = Objects.requireNonNull(activityPostEditorBinding.etPostContent.getText()).toString().trim();
             if (currentContent.isEmpty()) {
                 Toast.makeText(this, "请先输入一些内容", Toast.LENGTH_SHORT).show();
                 return;
@@ -125,7 +129,7 @@ public class UserPostCreateActivity extends AppCompatActivity {
 
         // 发布动态按钮点击事件
         activityPostEditorBinding.btnPublish.setOnClickListener(v -> {
-            String content = activityPostEditorBinding.etPostContent.getText().toString().trim();
+            String content = Objects.requireNonNull(activityPostEditorBinding.etPostContent.getText()).toString().trim();
             if (content.isEmpty()) {
                 Toast.makeText(this, "动态内容不能为空", Toast.LENGTH_SHORT).show();
                 return;
@@ -136,28 +140,6 @@ public class UserPostCreateActivity extends AppCompatActivity {
             }
             userPostCreateViewModel.publishPost(selectedPersona, content);
         });
-    }
-
-    /**
-     * 更新选中Persona的UI显示
-     */
-    private void updateSelectedPersonaUI() {
-        if (selectedPersona != null) {
-            // 设置选中Persona的名称
-            activityPostEditorBinding.tvSelectedPersonaName.setText(selectedPersona.getName());
-            // 使用Glide加载选中Persona的头像
-            if (selectedPersona.getAvatarUri() != null) {
-                Glide.with(this)
-                        .load(selectedPersona.getAvatarUri())
-                        .circleCrop()
-                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
-            } else {
-                Glide.with(this)
-                        .load(selectedPersona.getAvatarDrawableId())
-                        .circleCrop()
-                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
-            }
-        }
     }
 
     /**
@@ -208,6 +190,28 @@ public class UserPostCreateActivity extends AppCompatActivity {
                 userPostCreateViewModel.clearError();
             }
         });
+    }
+
+    /**
+     * 更新选中Persona的UI显示
+     */
+    private void updateSelectedPersonaUI() {
+        if (selectedPersona != null) {
+            // 设置选中Persona的名称
+            activityPostEditorBinding.tvSelectedPersonaName.setText(selectedPersona.getName());
+            // 使用Glide加载选中Persona的头像
+            if (selectedPersona.getAvatarUri() != null) {
+                Glide.with(this)
+                        .load(selectedPersona.getAvatarUri())
+                        .circleCrop()
+                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
+            } else {
+                Glide.with(this)
+                        .load(selectedPersona.getAvatarDrawableId())
+                        .circleCrop()
+                        .into(activityPostEditorBinding.ivSelectedPersonaAvatar);
+            }
+        }
     }
 
     @Override

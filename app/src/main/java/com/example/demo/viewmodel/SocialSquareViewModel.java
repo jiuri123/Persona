@@ -73,8 +73,6 @@ public class SocialSquareViewModel extends AndroidViewModel {
         hasUserPersona = Transformations.map(userPersonasLiveData, userPersonas -> {
             // 这就是“加工”逻辑
             // 检查是否有用户Persona存在
-            // 注意：这里假设 userPersonasLiveData 不会返回 null
-            // 如果允许 null，需要添加 null 检查
             return userPersonas != null && !userPersonas.isEmpty();
         });
 
@@ -106,15 +104,8 @@ public class SocialSquareViewModel extends AndroidViewModel {
             mergePosts();
         });
 
-        // 观察用户Persona列表变化，添加类型转换
-        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonas -> {
-            // 将List<UserPersona>转换为List<Persona>
-            if (userPersonas != null) {
-                userPersonasLiveData.setValue(userPersonas);
-            } else {
-                userPersonasLiveData.setValue(null);
-            }
-        });
+        // 观察用户Persona列表变化
+        userPersonasLiveData.addSource(userPersonaRepository.getUserPersonas(), userPersonasLiveData::setValue);
 
         // 观察用户Persona帖子变化，用于合并帖子
         mergedPostsLiveData.addSource(userPersonaPostRepository.getUserPostsLiveData(), posts -> {

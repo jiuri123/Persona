@@ -177,7 +177,7 @@ public class UserPersonaPostRepository {
                 "原始内容: " + currentContent + "\n" +
                 languageInstruction +
                 "扩展后的内容必须包含以下Markdown格式中的至少3种：" +
-                "1. **粗体文本** (用**文本**表示)" +
+        "1. **粗体文本** (用**文本**表示)" +
                 "2. *斜体文本* (用*文本*表示)" +
                 "3. ~~删除线~~ (用~~文本~~表示)" +
                 "4. 列表 (用- 项目或1. 项目表示)" +

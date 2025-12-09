@@ -98,7 +98,7 @@ public class SocialSquareFragment extends Fragment {
         // 创建社交广场展示帖子的适配器
         socialSquarePostAdapter = new SocialSquarePostAdapter(getContext());
 
-        //  添加数据观察者，用于监听适配器数据变化，当数据插入时滚动到顶部
+        //  添加数据观察者，用于监听适配器数据变化，当有数据插入时滚动到顶部
         socialSquarePostAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
