@@ -47,6 +47,9 @@ public class UserPersonaChatRepository {
     // 存储所有Persona的API请求历史记录，以Persona名称为key
     private final Map<String, List<ApiRequestMessage>> apiHistoryMap;
 
+    // 存储所有UserPersona的聊天历史记录，以Persona ID为key
+    private final Map<Long, List<ChatMessage>> chatHistoryCache;
+
     // 当前聊天的UserPersona
     private UserPersona currentPersona;
     
@@ -60,8 +63,24 @@ public class UserPersonaChatRepository {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
         this.apiHistoryMap = new HashMap<>();
+        this.chatHistoryCache = new HashMap<>();
 
         localDataSource = LocalDataSource.getInstance(context);
+        
+        // 后台线程加载所有聊天记录到缓存
+        loadAllChatHistoryToCache();
+    }
+    
+    /**
+     * 从数据库加载所有聊天记录到缓存
+     * 运行在后台线程，避免阻塞主线程
+     */
+    private void loadAllChatHistoryToCache() {
+        new Thread(() -> {
+            // 这里需要获取所有UserPersona的列表，然后为每个Persona加载聊天历史
+            // 目前LocalDataSource没有提供获取所有UserPersona的同步方法，所以暂时只加载当前需要的
+            // 后续可以考虑在LocalDataSource中添加getAllUserPersonasSync方法
+        }).start();
     }
 
     /**
@@ -109,8 +128,15 @@ public class UserPersonaChatRepository {
             return history;
         });
         
-        // 从数据库加载聊天历史记录
-        loadChatHistoryFromDatabase(persona);
+        // 从缓存获取聊天历史记录，如果缓存中没有则从数据库加载
+        List<ChatMessage> cachedHistory = chatHistoryCache.get(persona.getId());
+        if (cachedHistory != null) {
+            // 缓存中有数据，直接更新LiveData
+            chatHistoryLiveData.postValue(cachedHistory);
+        } else {
+            // 缓存中没有数据，从数据库加载
+            loadChatHistoryFromDatabase(persona);
+        }
     }
     
     /**
@@ -130,6 +156,9 @@ public class UserPersonaChatRepository {
                 }
             }
 
+            // 更新缓存
+            chatHistoryCache.put(persona.getId(), personaChatHistory);
+            
             // 更新LiveData，UI将显示该Persona的聊天历史
             chatHistoryLiveData.postValue(personaChatHistory);
         }).start();
