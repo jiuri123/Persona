@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.demo.data.model.ChatHistory;
 import com.example.demo.model.OtherPersona;
 import com.example.demo.model.UserPersona;
 
@@ -30,6 +31,9 @@ public class LocalDataSource {
     // OtherPersona数据访问对象
     private final OtherPersonaDao otherPersonaDao;
 
+    // ChatHistory数据访问对象
+    private final ChatHistoryDao chatHistoryDao;
+
     /**
      * 私有构造函数，防止外部实例化
      * @param context 上下文
@@ -41,6 +45,8 @@ public class LocalDataSource {
         this.userPersonaDao = database.userPersonaDao();
         // 获取OtherPersonaDao实例
         this.otherPersonaDao = database.otherPersonaDao();
+        // 获取ChatHistoryDao实例
+        this.chatHistoryDao = database.chatHistoryDao();
         // 创建单线程线程池，确保数据库操作顺序执行
         this.executorService = Executors.newSingleThreadExecutor();
     }
@@ -123,5 +129,32 @@ public class LocalDataSource {
      */
     public LiveData<List<OtherPersona>> getAllOtherPersonasOrderByCreatedAtDesc() {
         return otherPersonaDao.getAllOtherPersonasOrderByCreatedAtDesc();
+    }
+    
+    /**
+     * 插入聊天记录
+     * @param chatHistory 聊天记录对象
+     */
+    public void insertChatHistory(ChatHistory chatHistory) {
+        executorService.execute(() -> chatHistoryDao.insert(chatHistory));
+    }
+    
+    /**
+     * 同步获取聊天历史记录
+     * @param personaType Persona类型（"user"或"other"）
+     * @param personaId 关联的Persona ID
+     * @return 聊天历史记录列表
+     */
+    public List<ChatHistory> getChatHistoryByPersonaSync(String personaType, long personaId) {
+        return chatHistoryDao.getChatHistoryByPersonaSync(personaType, personaId);
+    }
+    
+    /**
+     * 更新消息的打字机完成状态
+     * @param messageId 消息ID
+     * @param isComplete 打字机效果是否已完成
+     */
+    public void updateTypewriterStatus(String messageId, boolean isComplete) {
+        executorService.execute(() -> chatHistoryDao.updateTypewriterStatus(messageId, isComplete));
     }
 }

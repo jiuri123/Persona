@@ -7,8 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.demo.R;
-import com.example.demo.data.local.AppDatabase;
-import com.example.demo.data.local.ChatHistoryDao;
+import com.example.demo.data.local.LocalDataSource;
 import com.example.demo.data.model.ChatHistory;
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.UserPersona;
@@ -45,32 +44,24 @@ public class UserPersonaChatRepository {
     // 聊天历史记录的LiveData，用于UI观察当前Persona的聊天记录
     private final MutableLiveData<List<ChatMessage>> chatHistoryLiveData;
     
-    // 存储所有Persona的聊天历史记录，以Persona名称为key
-    private final Map<String, List<ChatMessage>> chatHistoryMap;
-    
     // 存储所有Persona的API请求历史记录，以Persona名称为key
     private final Map<String, List<ApiRequestMessage>> apiHistoryMap;
 
     // 当前聊天的UserPersona
     private UserPersona currentPersona;
     
-    // 应用上下文
-    private Context context;
-    
-    // 数据库实例
-    private AppDatabase database;
-    
-    // 聊天历史记录Dao
-    private ChatHistoryDao chatHistoryDao;
+    // 本地数据源
+    private final LocalDataSource localDataSource;
 
     /**
      * 私有构造函数，防止外部实例化
      */
-    private UserPersonaChatRepository() {
+    private UserPersonaChatRepository(@NonNull Context context) {
         this.apiService = ApiClient.getApiService();
         this.chatHistoryLiveData = new MutableLiveData<>();
-        this.chatHistoryMap = new HashMap<>();
         this.apiHistoryMap = new HashMap<>();
+
+        localDataSource = LocalDataSource.getInstance(context);
     }
 
     /**
@@ -80,11 +71,8 @@ public class UserPersonaChatRepository {
      */
     public static synchronized UserPersonaChatRepository getInstance(Context context) {
         if (instance == null) {
-            instance = new UserPersonaChatRepository();
-            // 初始化上下文和数据库
-            instance.context = context.getApplicationContext();
-            instance.database = AppDatabase.getInstance(instance.context);
-            instance.chatHistoryDao = instance.database.chatHistoryDao();
+            Context appContext = context.getApplicationContext();
+            instance = new UserPersonaChatRepository(appContext);
         }
         return instance;
     }
@@ -131,8 +119,8 @@ public class UserPersonaChatRepository {
      */
     private void loadChatHistoryFromDatabase(UserPersona persona) {
         new Thread(() -> {
-            // 从数据库查询聊天历史记录（使用同步方法）
-            List<ChatHistory> chatHistories = database.chatHistoryDao().getChatHistoryByPersonaSync("user", persona.getId());
+            // 从本地数据源查询聊天历史记录（使用同步方法）
+            List<ChatHistory> chatHistories = localDataSource.getChatHistoryByPersonaSync("user", persona.getId());
             List<ChatMessage> personaChatHistory = new ArrayList<>();
             
             if (chatHistories != null && !chatHistories.isEmpty()) {
@@ -141,9 +129,7 @@ public class UserPersonaChatRepository {
                     personaChatHistory.add(ChatMessage.fromChatHistory(chatHistory));
                 }
             }
-            
-            // 更新内存中的聊天历史记录
-            chatHistoryMap.put(persona.getName(), personaChatHistory);
+
             // 更新LiveData，UI将显示该Persona的聊天历史
             chatHistoryLiveData.postValue(personaChatHistory);
         }).start();
@@ -237,12 +223,10 @@ public class UserPersonaChatRepository {
             return;
         }
         
-        new Thread(() -> {
-            // 将ChatMessage转换为ChatHistory
-            ChatHistory chatHistory = message.toChatHistory("user", currentPersona.getId());
-            // 保存到数据库
-            database.chatHistoryDao().insert(chatHistory);
-        }).start();
+        // 将ChatMessage转换为ChatHistory
+        ChatHistory chatHistory = message.toChatHistory("user", currentPersona.getId());
+        // 保存到数据库
+        localDataSource.insertChatHistory(chatHistory);
     }
 
     /**
@@ -273,9 +257,7 @@ public class UserPersonaChatRepository {
             return;
         }
         
-        new Thread(() -> {
-            // 更新数据库中的打字机完成状态
-            database.chatHistoryDao().updateTypewriterStatus(messageId, isComplete);
-        }).start();
+        // 更新数据库中的打字机完成状态
+        localDataSource.updateTypewriterStatus(messageId, isComplete);
     }
 }
