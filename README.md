@@ -44,6 +44,9 @@
    - 在项目根目录创建或编辑 `gradle.properties` 文件
    - 添加以下配置（请替换为实际的API密钥）
      ```properties
+     org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+     android.useAndroidX=true
+     android.nonTransitiveRClass=true
      API_KEY=your_api_key_here
      MODEL_NAME=your_model_name_here
      ```
